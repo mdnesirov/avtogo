@@ -1,64 +1,53 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
   --green: #16a34a;
   --green-hover: #15803d;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --green-light: #f0fdf4;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 html {
-  -webkit-font-smoothing: antialiased;
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: var(--font-sans);
-  color: #111;
-  background: #fff;
-  min-height: 100dvh;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #ffffff;
+  color: #111827;
+  line-height: 1.6;
 }
 
-img, video { display: block; max-width: 100%; height: auto; }
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+/* Focus ring */
 :focus-visible {
-  outline: 2px solid var(--green);
-  outline-offset: 3px;
+  outline: 2px solid #16a34a;
+  outline-offset: 2px;
   border-radius: 4px;
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-green-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm
-           hover:bg-green-700 transition-colors duration-150 inline-flex items-center gap-2;
-  }
-  .btn-secondary {
-    @apply border border-gray-200 text-gray-800 px-5 py-2.5 rounded-lg font-medium text-sm
-           hover:bg-gray-50 transition-colors duration-150 inline-flex items-center gap-2;
-  }
-  .btn-ghost {
-    @apply text-gray-600 px-4 py-2 rounded-lg text-sm
-           hover:bg-gray-100 transition-colors duration-150 inline-flex items-center gap-2;
-  }
-  .input-field {
-    @apply w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm
-           focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent
-           placeholder:text-gray-400 transition-shadow;
-  }
-  .card {
-    @apply bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-shadow;
-  }
-  .badge {
-    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium;
-  }
-  .badge-green  { @apply badge bg-green-50 text-green-700; }
-  .badge-gray   { @apply badge bg-gray-100 text-gray-600; }
-  .badge-yellow { @apply badge bg-yellow-50 text-yellow-700; }
-  .badge-red    { @apply badge bg-red-50 text-red-600; }
-  .section-title { @apply text-2xl font-semibold text-gray-900 tracking-tight; }
-  .page-container { @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8; }
+/* Smooth transitions for interactive elements */
+a, button, [role="button"] {
+  transition: all 150ms ease;
 }
+
+/* Line clamp utilities */
+.line-clamp-1 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+.line-clamp-2 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.line-clamp-3 { overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }

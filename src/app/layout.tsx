@@ -4,11 +4,12 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
-  title: 'AvtoGo — Car Rental in Azerbaijan',
-  description: 'Rent cars from trusted owners and companies across Azerbaijan. Best prices in Baku and beyond.',
+  title: 'AvtoGo — Rent or List Cars in Azerbaijan',
+  description: 'The easiest way to rent a car in Azerbaijan. Browse cars from private owners and rental companies across Baku and beyond.',
+  keywords: 'car rental, Azerbaijan, Baku, rent a car, peer-to-peer',
   openGraph: {
-    title: 'AvtoGo',
-    description: 'Car rental marketplace in Azerbaijan',
+    title: 'AvtoGo — Rent Cars in Azerbaijan',
+    description: 'Browse hundreds of cars from local owners and rental companies.',
     type: 'website',
   },
 };
@@ -20,13 +21,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
       <body>
         <Navbar />
-        <main>{children}</main>
+        <main className="min-h-screen">{children}</main>
         <Footer />
       </body>
     </html>
