@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Fuel, Settings } from 'lucide-react';
+import { MapPin, Fuel, Settings, Calendar } from 'lucide-react';
 import { Car } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import RatingStars from '@/components/shared/RatingStars';
@@ -10,92 +10,86 @@ interface CarCardProps {
   car: Car;
   showOwnerActions?: boolean;
   onEdit?: (car: Car) => void;
-  onDelete?: (id: string) => void;
+  onDelete?: (carId: string) => void;
 }
 
 export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: CarCardProps) {
-  const image = car.images?.[0] || 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=600&q=80';
+  const imageUrl = car.images?.[0] || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=80';
 
   return (
-    <div className="card overflow-hidden group">
+    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow group">
       {/* Image */}
-      <Link href={`/cars/${car.id}`}>
-        <div className="relative h-48 bg-gray-100 overflow-hidden">
-          <Image
-            src={image}
-            alt={`${car.brand} ${car.model}`}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-          {car.airport_delivery && (
-            <div className="absolute top-2 left-2">
-              <Badge variant="green">✈️ Airport</Badge>
-            </div>
-          )}
-          {!car.is_available && (
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <Badge variant="gray">Unavailable</Badge>
-            </div>
-          )}
-        </div>
+      <Link href={`/cars/${car.id}`} className="block relative aspect-[4/3] overflow-hidden bg-gray-100">
+        <Image
+          src={imageUrl}
+          alt={`${car.brand} ${car.model}`}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+        {car.airport_delivery && (
+          <div className="absolute top-3 left-3">
+            <Badge label="✈ Airport delivery" variant="green" />
+          </div>
+        )}
+        {!car.is_available && (
+          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <Badge label="Not available" variant="gray" />
+          </div>
+        )}
       </Link>
 
       {/* Content */}
       <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div>
-            <h3 className="font-semibold text-gray-900 text-base leading-tight">
-              {car.year} {car.brand} {car.model}
+        <div className="flex items-start justify-between mb-1">
+          <Link href={`/cars/${car.id}`}>
+            <h3 className="font-semibold text-gray-900 hover:text-green-600 transition-colors">
+              {car.brand} {car.model}
             </h3>
-            <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
-              <MapPin size={11} />
-              {car.location}
-            </div>
-          </div>
-          <div className="text-right shrink-0">
-            <div className="text-lg font-bold text-green-600">{formatPrice(car.price_per_day)}</div>
-            <div className="text-xs text-gray-400">per day</div>
-          </div>
+          </Link>
+          <span className="text-lg font-bold text-green-600">
+            {formatPrice(car.price_per_day)}
+            <span className="text-xs font-normal text-gray-400">/day</span>
+          </span>
         </div>
 
-        <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+        <div className="flex items-center gap-1 text-sm text-gray-400 mb-2">
+          <MapPin size={13} />
+          <span>{car.location}</span>
+          <span className="mx-1">·</span>
+          <Calendar size={13} />
+          <span>{car.year}</span>
+        </div>
+
+        <RatingStars rating={car.rating} totalReviews={car.total_reviews} />
+
+        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50 text-xs text-gray-500">
           <span className="flex items-center gap-1">
-            <Settings size={11} />
-            {car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1)}
+            <Settings size={12} />
+            {car.transmission === 'automatic' ? 'Auto' : 'Manual'}
           </span>
           <span className="flex items-center gap-1">
-            <Fuel size={11} />
+            <Fuel size={12} />
             {car.fuel_type.charAt(0).toUpperCase() + car.fuel_type.slice(1)}
           </span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <RatingStars rating={car.rating} totalReviews={car.total_reviews} />
-          {showOwnerActions ? (
-            <div className="flex gap-2">
-              <button
-                onClick={() => onEdit?.(car)}
-                className="text-xs text-blue-600 hover:underline"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => onDelete?.(car.id)}
-                className="text-xs text-red-500 hover:underline"
-              >
-                Delete
-              </button>
-            </div>
-          ) : (
-            <Link
-              href={`/cars/${car.id}`}
-              className="text-xs font-medium text-green-600 hover:underline"
+        {showOwnerActions && (
+          <div className="flex gap-2 mt-3 pt-3 border-t border-gray-50">
+            <button
+              onClick={() => onEdit?.(car)}
+              className="flex-1 text-xs py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              View &rarr;
-            </Link>
-          )}
-        </div>
+              Edit
+            </button>
+            <button
+              onClick={() => onDelete?.(car.id)}
+              className="flex-1 text-xs py-1.5 border border-red-100 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

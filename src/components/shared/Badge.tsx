@@ -1,25 +1,34 @@
 import { cn } from '@/lib/utils';
-
-type BadgeVariant = 'green' | 'gray' | 'yellow' | 'red' | 'blue';
+import { BookingStatus } from '@/types';
 
 interface BadgeProps {
-  variant?: BadgeVariant;
-  children: React.ReactNode;
-  className?: string;
+  label: string;
+  variant?: 'green' | 'yellow' | 'red' | 'gray' | 'blue';
 }
 
-const variants: Record<BadgeVariant, string> = {
-  green:  'bg-green-50 text-green-700',
-  gray:   'bg-gray-100 text-gray-600',
-  yellow: 'bg-yellow-50 text-yellow-700',
-  red:    'bg-red-50 text-red-600',
-  blue:   'bg-blue-50 text-blue-700',
-};
+export default function Badge({ label, variant = 'gray' }: BadgeProps) {
+  const variants = {
+    green: 'bg-green-50 text-green-700 border border-green-200',
+    yellow: 'bg-yellow-50 text-yellow-700 border border-yellow-200',
+    red: 'bg-red-50 text-red-700 border border-red-200',
+    gray: 'bg-gray-100 text-gray-600 border border-gray-200',
+    blue: 'bg-blue-50 text-blue-700 border border-blue-200',
+  };
 
-export default function Badge({ variant = 'gray', children, className }: BadgeProps) {
   return (
-    <span className={cn('inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium', variants[variant], className)}>
-      {children}
+    <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium', variants[variant])}>
+      {label}
     </span>
   );
+}
+
+export function BookingStatusBadge({ status }: { status: BookingStatus }) {
+  const map: Record<BookingStatus, { label: string; variant: BadgeProps['variant'] }> = {
+    pending:   { label: 'Pending',   variant: 'yellow' },
+    confirmed: { label: 'Confirmed', variant: 'green'  },
+    cancelled: { label: 'Cancelled', variant: 'red'    },
+    completed: { label: 'Completed', variant: 'blue'   },
+  };
+  const { label, variant } = map[status];
+  return <Badge label={label} variant={variant} />;
 }

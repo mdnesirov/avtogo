@@ -7,23 +7,25 @@ interface RatingStarsProps {
 }
 
 export default function RatingStars({ rating, totalReviews, size = 14 }: RatingStarsProps) {
-  const full  = Math.floor(rating);
-  const empty = 5 - full;
+  const rounded = Math.round(rating * 2) / 2;
 
   return (
     <div className="flex items-center gap-1">
-      <div className="flex">
-        {Array.from({ length: full }).map((_, i) => (
-          <Star key={`f-${i}`} size={size} className="text-yellow-400 fill-yellow-400" />
-        ))}
-        {Array.from({ length: empty }).map((_, i) => (
-          <Star key={`e-${i}`} size={size} className="text-gray-200 fill-gray-200" />
+      <div className="flex items-center">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            size={size}
+            className={star <= rounded ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'}
+          />
         ))}
       </div>
-      {totalReviews !== undefined && (
+      {rating > 0 ? (
         <span className="text-xs text-gray-500">
-          {rating.toFixed(1)} ({totalReviews})
+          {rating.toFixed(1)}{totalReviews !== undefined && ` (${totalReviews})`}
         </span>
+      ) : (
+        <span className="text-xs text-gray-400">No reviews yet</span>
       )}
     </div>
   );
