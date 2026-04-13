@@ -1,14 +1,19 @@
 # AvtoGo 🚗
 
-Peer-to-peer car rental marketplace for Azerbaijan — a hybrid between Airbnb and Turo where car rental companies and private owners can list vehicles, and locals/tourists can rent them online.
+> Peer-to-peer car rental marketplace for Azerbaijan — powered by Next.js, Supabase, and Stripe.
 
-## Stack
+## Tech Stack
 
-- **Frontend:** Next.js 14 App Router + TailwindCSS
-- **Backend:** Supabase (Postgres + Auth + Storage)
-- **Payments:** Stripe (placeholder integration)
-- **Maps:** Google Maps API
-- **Hosting:** Vercel
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 14 (App Router) + TypeScript |
+| Styling | Tailwind CSS v3 |
+| Auth + Database | Supabase (Postgres + Row Level Security) |
+| Payments | Stripe Checkout |
+| Maps | Google Maps Embed API |
+| Hosting | Vercel |
+
+---
 
 ## Getting Started
 
@@ -17,29 +22,27 @@ Peer-to-peer car rental marketplace for Azerbaijan — a hybrid between Airbnb a
 ```bash
 git clone https://github.com/mdnesirov/avtogo.git
 cd avtogo
-```
-
-### 2. Install dependencies
-
-```bash
 npm install
 ```
 
-### 3. Set up environment variables
-
-Copy `.env.example` to `.env.local` and fill in your values:
+### 2. Set up environment variables
 
 ```bash
 cp .env.example .env.local
 ```
 
-### 4. Set up Supabase
+Fill in `.env.local` with your keys (see `.env.example` for all required variables).
+
+### 3. Set up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com)
-2. Run migrations in order from `supabase/migrations/`
-3. Add your Supabase URL and keys to `.env.local`
+2. Go to **SQL Editor** and run:
+   - `supabase/migrations/001_initial_schema.sql`
+   - `supabase/seed.sql` (optional sample data)
+3. Go to **Storage** → Create a new bucket named `car-images` → Set to **Public**
+4. Copy your project URL and anon key into `.env.local`
 
-### 5. Run dev server
+### 4. Run locally
 
 ```bash
 npm run dev
@@ -47,62 +50,93 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
+---
+
+## Deploy to Vercel
+
+```bash
+npm i -g vercel
+vercel --prod
+```
+
+Add all environment variables from `.env.example` in your Vercel project settings under **Settings → Environment Variables**.
+
+### Stripe Webhook (production)
+
+Once deployed, register your webhook URL in the Stripe Dashboard:
+
+```
+https://your-domain.vercel.app/api/stripe/webhook
+```
+
+Events to listen for:
+- `checkout.session.completed`
+- `checkout.session.expired`
+- `payment_intent.payment_failed`
+
+---
+
 ## Project Structure
 
 ```
-avtogo/
+src/
 ├── app/                  # Next.js App Router pages
 │   ├── page.tsx           # Landing page /
-│   ├── cars/             # Browse + car detail
-│   ├── booking/          # Booking flow
-│   ├── list-car/         # Owner listing form
-│   ├── dashboard/        # Owner dashboard
-│   ├── auth/             # Login / Signup
-│   └── api/              # API routes
-├── components/
-│   ├── layout/           # Navbar, Footer
-│   ├── cars/             # CarCard, CarFilters, etc.
-│   ├── booking/          # BookingForm, Calendar
-│   ├── forms/            # ListCarForm, SearchBar
-│   ├── dashboard/        # Owner tables
-│   └── ui/               # Button, Input, Badge, etc.
-├── lib/
-│   ├── supabase/         # Browser + server clients
-│   ├── actions/          # Server actions
-│   ├── validations/      # Zod schemas
-│   ├── stripe.ts
-│   ├── maps.ts
-│   └── whatsapp.ts
-├── supabase/
-│   └── migrations/       # SQL schema + policies + seed
-└── types/                # TypeScript types
+│   ├── cars/page.tsx      # Browse cars /cars
+│   ├── cars/[id]/page.tsx # Car detail /cars/[id]
+│   ├── booking/           # Booking flow
+│   ├── list-car/          # List a car
+│   ├── dashboard/         # Owner dashboard
+│   ├── auth/              # Login / signup
+│   └── api/               # API routes
+├── components/            # Reusable UI components
+├── hooks/                 # Custom React hooks
+├── lib/                   # Supabase, Stripe, Maps clients
+└── types/                 # TypeScript interfaces
 ```
+
+---
 
 ## Pages
 
 | Route | Description |
 |---|---|
-| `/` | Landing page — hero, search, featured cars, owner CTA |
-| `/cars` | Browse with filters |
-| `/cars/[id]` | Car detail, gallery, booking CTA |
-| `/booking/[carId]` | 3-step booking flow |
-| `/list-car` | Owner listing form |
-| `/dashboard` | Owner dashboard |
-| `/auth/login` | Sign in |
-| `/auth/signup` | Create account |
+| `/` | Landing — hero search, featured cars, owner CTA |
+| `/cars` | Browse all available cars with filters |
+| `/cars/[id]` | Car detail — gallery, specs, booking calendar |
+| `/booking/confirmation` | Post-payment booking confirmation |
+| `/list-car` | Form to list a new vehicle |
+| `/dashboard` | Owner dashboard — manage cars and bookings |
+| `/auth` | Login / Sign up |
 
-## Deployment
+---
 
-Deploy to Vercel:
-1. Push to GitHub
-2. Import at [vercel.com](https://vercel.com)
-3. Add all environment variables
-4. Deploy
+## Database Schema
+
+See `supabase/migrations/001_initial_schema.sql` for full schema including:
+- `profiles` — extends Supabase auth users
+- `cars` — vehicle listings with location, specs, pricing
+- `bookings` — rental records with Stripe session references
+- Row Level Security policies on all tables
+- Postgres EXCLUDE constraint to prevent booking overlaps
+
+---
 
 ## Environment Variables
 
-See `.env.example` for all required variables.
+See `.env.example` for the full list. Required:
 
-## License
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
+NEXT_PUBLIC_APP_URL=
+```
 
-MIT
+---
+
+Built with ❤️ for Azerbaijan 🇦🇿

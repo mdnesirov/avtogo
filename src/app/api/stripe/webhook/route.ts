@@ -1,74 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { stripe } from '@/lib/stripe';
 import { createClient } from '@supabase/supabase-js';
 
-// Use raw body for Stripe signature verification
-export const config = { api: { bodyParser: false } };
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-export async function POST(req: NextRequest) {
-  // Placeholder: Stripe is not yet live. In production, replace this block
-  // with actual stripe.webhooks.constructEvent() signature verification.
-  //
-  // Pattern:
-  //   const sig = req.headers.get('stripe-signature')!;
-  //   const body = await req.text();
-  //   const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
-
-  let body: Record<string, unknown>;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+export async function POST(request: NextRequest) {
+  if (!stripe) {
+    return NextResponse.json({ error: 'Stripe not configured' }, { status: 503 });
   }
 
-  const eventType = body?.type as string | undefined;
+  const body = await request.text();
+  const signature = request.headers.get('stripe-signature');
 
-  switch (eventType) {
+  if (!signature || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: 'Missing signature or webhook secret' }, { status: 400 });
+  }
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err);
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+  }
+
+  // Use service role for webhook (bypasses RLS)
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  switch (event.type) {
     case 'checkout.session.completed': {
-      const session = body?.data as { object?: { metadata?: { booking_id?: string } } };
-      const bookingId = session?.object?.metadata?.booking_id;
+      const session = event.data.object;
+      const bookingId = session.metadata?.booking_id;
 
-      if (!bookingId) {
-        console.warn('[Stripe Webhook] checkout.session.completed missing booking_id in metadata');
-        break;
+      if (bookingId) {
+        await supabase
+          .from('bookings')
+          .update({ status: 'confirmed' })
+          .eq('id', bookingId);
       }
-
-      const { error } = await supabase
-        .from('bookings')
-        .update({ status: 'confirmed' })
-        .eq('id', bookingId);
-
-      if (error) {
-        console.error('[Stripe Webhook] Failed to confirm booking:', error.message);
-        return NextResponse.json({ error: 'DB update failed' }, { status: 500 });
-      }
-
-      console.log(`[Stripe Webhook] Booking ${bookingId} confirmed.`);
       break;
     }
 
-    case 'checkout.session.expired':
-    case 'payment_intent.payment_failed': {
-      const session = body?.data as { object?: { metadata?: { booking_id?: string } } };
-      const bookingId = session?.object?.metadata?.booking_id;
+    case 'checkout.session.expired': {
+      const session = event.data.object;
+      const bookingId = session.metadata?.booking_id;
 
       if (bookingId) {
         await supabase
           .from('bookings')
           .update({ status: 'cancelled' })
           .eq('id', bookingId);
-        console.log(`[Stripe Webhook] Booking ${bookingId} cancelled due to failed/expired payment.`);
       }
       break;
     }
 
+    case 'payment_intent.payment_failed': {
+      console.log('Payment failed for intent:', event.data.object.id);
+      break;
+    }
+
     default:
-      // Unhandled event — return 200 so Stripe stops retrying
-      console.log(`[Stripe Webhook] Unhandled event type: ${eventType}`);
+      console.log(`Unhandled event type: ${event.type}`);
   }
 
   return NextResponse.json({ received: true });
