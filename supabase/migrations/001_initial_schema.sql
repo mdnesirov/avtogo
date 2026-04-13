@@ -41,6 +41,8 @@ CREATE TABLE public.cars (
 -- ──────────────────────────────────────────
 -- BOOKINGS
 -- ──────────────────────────────────────────
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
 CREATE TABLE public.bookings (
   id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id           UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -55,7 +57,11 @@ CREATE TABLE public.bookings (
   driver_license    TEXT,
   stripe_session_id TEXT,
   notes             TEXT,
-  created_at        TIMESTAMPTZ DEFAULT NOW()
+  created_at        TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT no_overlap EXCLUDE USING gist (
+    car_id WITH =,
+    daterange(start_date, end_date, '[)') WITH &&
+  )
 );
 
 -- ──────────────────────────────────────────

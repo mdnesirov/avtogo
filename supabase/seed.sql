@@ -1,13 +1,16 @@
 -- Sample seed data for development
--- Run AFTER the migration and AFTER creating at least one auth user
+-- Run AFTER the migration
 
--- Insert a sample owner profile (replace UUID with a real auth.users id)
--- INSERT INTO public.profiles (id, full_name, phone, role, whatsapp)
--- VALUES ('your-auth-user-uuid', 'Elçin Məmmədov', '+994501234567', 'owner', '+994501234567');
+-- Note: profiles are auto-created via trigger when users sign up.
+-- These INSERTs assume you have already created users via Supabase Auth
+-- and have their UUIDs. Replace the UUIDs below with real ones.
 
--- Sample cars (replace owner_id with a real profile id)
--- INSERT INTO public.cars (owner_id, brand, model, year, transmission, fuel_type, price_per_day, location, description, images)
--- VALUES
---   ('owner-uuid', 'Toyota', 'Camry', 2022, 'automatic', 'petrol', 80, 'Baku', 'Comfortable sedan for city driving.', ARRAY['https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800']),
---   ('owner-uuid', 'BMW',    '5 Series', 2023, 'automatic', 'petrol', 150, 'Baku', 'Premium business class sedan.', ARRAY['https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800']),
---   ('owner-uuid', 'Kia',   'Sportage', 2023, 'automatic', 'petrol', 90, 'Baku', 'Spacious SUV perfect for families.', ARRAY['https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800']);
+-- Example car listings (replace owner_id with a real profile UUID)
+/*
+INSERT INTO public.cars (owner_id, brand, model, year, transmission, fuel_type, price_per_day, location, description, airport_delivery)
+VALUES
+  ('YOUR-UUID-HERE', 'Toyota', 'Camry', 2022, 'automatic', 'petrol', 80, 'Baku', 'Clean and comfortable sedan, perfect for city driving.', true),
+  ('YOUR-UUID-HERE', 'Hyundai', 'Tucson', 2023, 'automatic', 'petrol', 100, 'Baku', 'Spacious SUV with all the latest features.', true),
+  ('YOUR-UUID-HERE', 'BMW', '5 Series', 2021, 'automatic', 'petrol', 150, 'Baku', 'Premium executive sedan.', false),
+  ('YOUR-UUID-HERE', 'Kia', 'Sportage', 2022, 'automatic', 'diesel', 90, 'Ganja', 'Great fuel economy, ideal for long trips.', false);
+*/
