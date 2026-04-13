@@ -1,109 +1,134 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { Button } from '@/components/shared/Button';
-import { Input } from '@/components/shared/Input';
+import { useState } from 'react'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+import Button from '@/components/shared/Button'
+import Input from '@/components/shared/Input'
 
 export default function SignupPage() {
-  const router = useRouter();
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [done, setDone] = useState(false);
+  const [fullName, setFullName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [role, setRole] = useState<'renter' | 'owner'>('renter')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+
+  const supabase = createClient()
 
   async function handleSignup(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
-    });
+      options: {
+        data: { full_name: fullName, role },
+      },
+    })
 
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
+    if (error) {
+      setError(error.message)
     } else {
-      setDone(true);
+      setSuccess(true)
     }
+    setLoading(false)
   }
 
-  if (done) {
+  if (success) {
     return (
-      <div className="pt-16 min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="text-center max-w-sm">
-          <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5">
-              <path d="M20 6L9 17l-5-5" />
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Check your email</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Check your email</h2>
           <p className="text-gray-500 text-sm">We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.</p>
-          <Button href="/auth/login" variant="secondary" className="mt-6">Back to sign in</Button>
+          <Link href="/auth/login" className="mt-6 inline-block text-sm text-green-600 hover:text-green-700 font-medium">
+            Back to sign in
+          </Link>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="pt-16 min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Create an account</h1>
-          <p className="text-gray-500 mt-1 text-sm">Start renting or listing cars in minutes</p>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-2xl shadow-sm border border-black/8 p-8">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900">Create your account</h1>
+            <p className="text-gray-500 text-sm mt-1">Join AvtoGo and start renting or listing cars.</p>
+          </div>
+
+          {/* Role selector */}
+          <div className="grid grid-cols-2 gap-2 mb-6 p-1 bg-gray-100 rounded-lg">
+            {(['renter', 'owner'] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRole(r)}
+                className={`py-2 rounded-md text-sm font-medium transition-all ${
+                  role === r
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {r === 'renter' ? '🚗 I want to rent' : '🔑 I own a car'}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSignup} className="flex flex-col gap-4">
+            <Input
+              label="Full name"
+              type="text"
+              placeholder="Murad Nasirov"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+            />
+            <Input
+              label="Email address"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <Input
+              label="Password"
+              type="password"
+              placeholder="Min. 8 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            {error && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                {error}
+              </p>
+            )}
+
+            <Button type="submit" loading={loading} className="w-full justify-center mt-2" size="lg">
+              Create account
+            </Button>
+          </form>
+
+          <p className="text-center text-sm text-gray-500 mt-6">
+            Already have an account?{' '}
+            <Link href="/auth/login" className="text-green-600 hover:text-green-700 font-medium">
+              Sign in
+            </Link>
+          </p>
         </div>
-
-        <form onSubmit={handleSignup} className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-4">
-          <Input
-            label="Full name"
-            placeholder="Murad Nasirov"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-            autoComplete="name"
-          />
-          <Input
-            label="Email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-          />
-          <Input
-            label="Password"
-            type="password"
-            placeholder="Min. 8 characters"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={8}
-            required
-            autoComplete="new-password"
-          />
-
-          {error && (
-            <p className="text-sm text-red-600 bg-red-50 rounded-lg p-3" role="alert">{error}</p>
-          )}
-
-          <Button type="submit" fullWidth loading={loading} size="lg">
-            Create account
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Already have an account?{' '}
-          <Link href="/auth/login" className="text-green-600 hover:text-green-700 font-medium">Sign in</Link>
-        </p>
       </div>
     </div>
-  );
+  )
 }
