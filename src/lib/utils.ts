@@ -1,37 +1,55 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-import { differenceInDays, format, parseISO } from 'date-fns';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+/**
+ * Format a number as Azerbaijani Manat (₼)
+ */
+export function formatPrice(amount: number): string {
+  return `₼${amount.toFixed(2)}`;
 }
 
-export function formatPrice(amount: number, currency = 'AZN'): string {
-  return `${amount.toFixed(0)} ${currency}`;
-}
-
+/**
+ * Format a date string to a human-readable format
+ */
 export function formatDate(dateStr: string): string {
-  return format(parseISO(dateStr), 'MMM d, yyyy');
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
-export function calcTotalPrice(
-  pricePerDay: number,
-  startDate: string,
-  endDate: string
-): number {
-  const days = differenceInDays(parseISO(endDate), parseISO(startDate));
-  return Math.max(1, days) * pricePerDay;
+/**
+ * Slugify a string
+ */
+export function slugify(str: string): string {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
-export function calcDays(startDate: string, endDate: string): number {
-  return Math.max(1, differenceInDays(parseISO(endDate), parseISO(startDate)));
+/**
+ * Calculate the number of calendar days between two Date objects
+ */
+export function differenceInCalendarDays(dateA: Date, dateB: Date): number {
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const utcA = Date.UTC(dateA.getFullYear(), dateA.getMonth(), dateA.getDate());
+  const utcB = Date.UTC(dateB.getFullYear(), dateB.getMonth(), dateB.getDate());
+  return Math.floor((utcA - utcB) / msPerDay);
 }
 
-export function buildWhatsAppUrl(phone: string, message: string): string {
-  const clean = phone.replace(/\D/g, '');
-  return `https://wa.me/${clean}?text=${encodeURIComponent(message)}`;
+/**
+ * Clamp a number between min and max
+ */
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
 }
 
-export function capitalise(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+/**
+ * Truncate a string to a maximum length
+ */
+export function truncate(str: string, maxLength: number): string {
+  if (str.length <= maxLength) return str;
+  return str.slice(0, maxLength - 3) + '...';
 }

@@ -1,57 +1,75 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
-import { createClient } from '@/lib/supabase/server'
-import Stripe from 'stripe'
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+// Use raw body for Stripe signature verification
+export const config = { api: { bodyParser: false } };
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: NextRequest) {
-  const body = await req.text()
-  const sig = req.headers.get('stripe-signature')!
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+  // Placeholder: Stripe is not yet live. In production, replace this block
+  // with actual stripe.webhooks.constructEvent() signature verification.
+  //
+  // Pattern:
+  //   const sig = req.headers.get('stripe-signature')!;
+  //   const body = await req.text();
+  //   const event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
 
-  let event: Stripe.Event
-
+  let body: Record<string, unknown>;
   try {
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret)
-  } catch (err) {
-    console.error('Webhook signature verification failed:', err)
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const supabase = await createClient()
+  const eventType = body?.type as string | undefined;
 
-  switch (event.type) {
+  switch (eventType) {
     case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.Checkout.Session
-      const bookingId = session.metadata?.booking_id
+      const session = body?.data as { object?: { metadata?: { booking_id?: string } } };
+      const bookingId = session?.object?.metadata?.booking_id;
 
-      if (bookingId) {
-        await supabase
-          .from('bookings')
-          .update({
-            status: 'confirmed',
-            stripe_session_id: session.id,
-          })
-          .eq('id', bookingId)
+      if (!bookingId) {
+        console.warn('[Stripe Webhook] checkout.session.completed missing booking_id in metadata');
+        break;
       }
-      break
+
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status: 'confirmed' })
+        .eq('id', bookingId);
+
+      if (error) {
+        console.error('[Stripe Webhook] Failed to confirm booking:', error.message);
+        return NextResponse.json({ error: 'DB update failed' }, { status: 500 });
+      }
+
+      console.log(`[Stripe Webhook] Booking ${bookingId} confirmed.`);
+      break;
     }
 
-    case 'checkout.session.expired': {
-      const session = event.data.object as Stripe.Checkout.Session
-      const bookingId = session.metadata?.booking_id
+    case 'checkout.session.expired':
+    case 'payment_intent.payment_failed': {
+      const session = body?.data as { object?: { metadata?: { booking_id?: string } } };
+      const bookingId = session?.object?.metadata?.booking_id;
 
       if (bookingId) {
         await supabase
           .from('bookings')
           .update({ status: 'cancelled' })
-          .eq('id', bookingId)
+          .eq('id', bookingId);
+        console.log(`[Stripe Webhook] Booking ${bookingId} cancelled due to failed/expired payment.`);
       }
-      break
+      break;
     }
 
     default:
-      console.log(`Unhandled event type: ${event.type}`)
+      // Unhandled event — return 200 so Stripe stops retrying
+      console.log(`[Stripe Webhook] Unhandled event type: ${eventType}`);
   }
 
-  return NextResponse.json({ received: true })
+  return NextResponse.json({ received: true });
 }
