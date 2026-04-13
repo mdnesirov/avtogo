@@ -1,178 +1,169 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Car, Booking } from '@/types';
-import { CarCard } from '@/components/cars/CarCard';
-import { Badge } from '@/components/shared/Badge';
-import { Button } from '@/components/shared/Button';
-import { formatPrice, formatDate } from '@/lib/utils';
+import MyCars from '@/components/dashboard/MyCars';
+import MyBookings from '@/components/dashboard/MyBookings';
 
-type TabKey = 'cars' | 'bookings';
-
-const STATUS_VARIANT: Record<string, 'green' | 'yellow' | 'red' | 'gray' | 'blue'> = {
-  confirmed: 'green',
-  pending:   'yellow',
-  cancelled: 'red',
-  completed: 'blue',
-};
+type Tab = 'my-cars' | 'bookings-received' | 'my-bookings';
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [tab, setTab]         = useState<TabKey>('cars');
-  const [cars, setCars]       = useState<Car[]>([]);
-  const [bookings, setBookings] = useState<(Booking & { car: Car })[]>([]);
+  const supabase = createClient();
+  const searchParams = useSearchParams();
+  const justListed = searchParams.get('listed') === 'true';
+
+  const [userId, setUserId] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>('my-cars');
+  const [cars, setCars] = useState<Car[]>([]);
+  const [receivedBookings, setReceivedBookings] = useState<Booking[]>([]);
+  const [myBookings, setMyBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId]   = useState<string | null>(null);
+  const [showBanner, setShowBanner] = useState(justListed);
 
   useEffect(() => {
-    (async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id);
+    });
+  }, []);
 
-      if (!user) { router.push('/auth/login?redirect=/dashboard'); return; }
-      setUserId(user.id);
+  async function fetchData() {
+    if (!userId) return;
+    setLoading(true);
+    try {
+      // Fetch owner's cars
+      const { data: carsData } = await supabase
+        .from('cars')
+        .select('*')
+        .eq('owner_id', userId)
+        .order('created_at', { ascending: false });
+      setCars((carsData as Car[]) || []);
 
-      const [carsRes, bookingsRes] = await Promise.all([
-        supabase.from('cars').select('*').eq('owner_id', user.id).order('created_at', { ascending: false }),
-        supabase.from('bookings').select('*, car:cars(*)').eq('user_id', user.id).order('created_at', { ascending: false }),
-      ]);
+      // Fetch bookings received on owner's cars
+      const carIds = (carsData || []).map((c: Car) => c.id);
+      if (carIds.length > 0) {
+        const { data: recvd } = await supabase
+          .from('bookings')
+          .select('*, car:cars(*)')
+          .in('car_id', carIds)
+          .order('created_at', { ascending: false });
+        setReceivedBookings((recvd as Booking[]) || []);
+      } else {
+        setReceivedBookings([]);
+      }
 
-      if (carsRes.data)     setCars(carsRes.data as Car[]);
-      if (bookingsRes.data) setBookings(bookingsRes.data as (Booking & { car: Car })[]);
+      // Fetch bookings made by this user as renter
+      const { data: mine } = await supabase
+        .from('bookings')
+        .select('*, car:cars(*)')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      setMyBookings((mine as Booking[]) || []);
+    } finally {
       setLoading(false);
-    })();
-  }, [router]);
-
-  async function handleDelete(carId: string) {
-    if (!confirm('Delete this listing?')) return;
-    const supabase = createClient();
-    await supabase.from('cars').delete().eq('id', carId);
-    setCars((prev) => prev.filter((c) => c.id !== carId));
+    }
   }
 
-  if (loading) {
+  useEffect(() => { fetchData(); }, [userId]);
+
+  const TABS: { id: Tab; label: string; count?: number }[] = [
+    { id: 'my-cars', label: 'My Cars', count: cars.length },
+    { id: 'bookings-received', label: 'Bookings Received', count: receivedBookings.filter(b => b.status === 'pending').length || undefined },
+    { id: 'my-bookings', label: 'My Rentals', count: myBookings.length || undefined },
+  ];
+
+  if (!userId) {
     return (
-      <div className="pt-16 min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
-      </div>
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500 mb-4">You need to be signed in to view your dashboard.</p>
+          <a href="/auth/login" className="bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl px-5 py-2.5 text-sm transition-colors">
+            Sign in
+          </a>
+        </div>
+      </main>
     );
   }
 
   return (
-    <div className="pt-16 min-h-screen bg-gray-50">
-      <div className="container py-10">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-500 mt-1">Manage your cars and bookings</p>
+    <main className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 py-10">
+        {/* Success banner */}
+        {showBanner && (
+          <div className="flex items-center justify-between bg-green-50 border border-green-200 text-green-800 rounded-2xl px-5 py-4 mb-6">
+            <div className="flex items-center gap-3">
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              <div>
+                <p className="font-semibold text-sm">Your car was listed successfully!</p>
+                <p className="text-xs text-green-600">It's now visible to renters across Azerbaijan.</p>
+              </div>
+            </div>
+            <button onClick={() => setShowBanner(false)} aria-label="Dismiss" className="text-green-600 hover:text-green-800">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
           </div>
-          <Button href="/list-car">+ List a car</Button>
+        )}
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <a href="/list-car"
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl px-4 py-2.5 text-sm transition-colors">
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+            List a car
+          </a>
+        </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          {[
+            { label: 'Total listings', value: cars.length },
+            { label: 'Bookings received', value: receivedBookings.length },
+            { label: 'My rentals', value: myBookings.length },
+          ].map((stat) => (
+            <div key={stat.label} className="bg-white border border-gray-200 rounded-2xl p-4 text-center">
+              <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{stat.label}</p>
+            </div>
+          ))}
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-white rounded-xl border border-gray-200 p-1 w-fit mb-8">
-          {(['cars', 'bookings'] as TabKey[]).map((t) => (
+        <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6">
+          {TABS.map((t) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-5 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
-                tab === t
-                  ? 'bg-green-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900'
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 text-sm font-medium rounded-lg py-2 transition-all ${
+                tab === t.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              {t === 'cars' ? `My Cars (${cars.length})` : `My Bookings (${bookings.length})`}
+              {t.label}
+              {t.count !== undefined && t.count > 0 && (
+                <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold ${
+                  tab === t.id ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'
+                }`}>{t.count}</span>
+              )}
             </button>
           ))}
         </div>
 
-        {/* My Cars */}
-        {tab === 'cars' && (
-          <div>
-            {cars.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-2xl border border-gray-200">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-300 mb-4">
-                  <path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h2l3-4h8l3 4h2a2 2 0 012 2v6a2 2 0 01-2 2h-2" />
-                  <circle cx="7.5" cy="17.5" r="2.5" />
-                  <circle cx="16.5" cy="17.5" r="2.5" />
-                </svg>
-                <h3 className="font-semibold text-gray-800 mb-1">No cars listed yet</h3>
-                <p className="text-gray-500 text-sm mb-6">Start earning by listing your first car.</p>
-                <Button href="/list-car">List your first car</Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {cars.map((car) => (
-                  <CarCard
-                    key={car.id}
-                    car={car}
-                    showOwnerActions
-                    onEdit={(c) => router.push(`/list-car/edit/${c.id}`)}
-                    onDelete={handleDelete}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* My Bookings */}
-        {tab === 'bookings' && (
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            {bookings.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24 text-center">
-                <h3 className="font-semibold text-gray-800 mb-1">No bookings yet</h3>
-                <p className="text-gray-500 text-sm mb-6">Browse available cars and make your first booking.</p>
-                <Button href="/cars" variant="secondary">Browse cars</Button>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      {['Car', 'Dates', 'Total', 'Status', ''].map((h) => (
-                        <th key={h} className="text-left px-5 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {bookings.map((b) => (
-                      <tr key={b.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-5 py-4 font-medium text-gray-900">
-                          {b.car?.brand} {b.car?.model}
-                        </td>
-                        <td className="px-5 py-4 text-gray-600">
-                          {formatDate(b.start_date)} &rarr; {formatDate(b.end_date)}
-                        </td>
-                        <td className="px-5 py-4 font-semibold text-gray-900">
-                          {formatPrice(b.total_price)}
-                        </td>
-                        <td className="px-5 py-4">
-                          <Badge variant={STATUS_VARIANT[b.status] ?? 'gray'}>
-                            {b.status}
-                          </Badge>
-                        </td>
-                        <td className="px-5 py-4">
-                          <Link
-                            href={`/cars/${b.car_id}`}
-                            className="text-green-600 hover:text-green-700 font-medium"
-                          >
-                            View &rarr;
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Content */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-6">
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-green-600 border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              {tab === 'my-cars' && <MyCars cars={cars} onRefresh={fetchData} />}
+              {tab === 'bookings-received' && <MyBookings bookings={receivedBookings} mode="owner" />}
+              {tab === 'my-bookings' && <MyBookings bookings={myBookings} mode="renter" />}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
