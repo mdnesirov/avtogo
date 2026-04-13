@@ -1,104 +1,123 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { Car } from '@/types';
-import { CarImageGallery } from '@/components/cars/CarImageGallery';
-import { CarSpecs } from '@/components/cars/CarSpecs';
-import { RatingStars } from '@/components/shared/RatingStars';
-import { WhatsAppButton } from '@/components/shared/WhatsAppButton';
-import { AirportToggle } from '@/components/shared/AirportToggle';
-import { MapEmbed } from '@/components/shared/MapEmbed';
-import { formatPrice } from '@/lib/utils';
-import BookingWidget from '@/components/booking/BookingWidget';
+import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import { MapPin, Calendar, Fuel, Settings, User } from 'lucide-react';
+import { formatPrice, formatDate } from '@/lib/utils';
+import RatingStars from '@/components/shared/RatingStars';
+import WhatsAppButton from '@/components/shared/WhatsAppButton';
+import AirportToggle from '@/components/shared/AirportToggle';
+import MapEmbed from '@/components/shared/MapEmbed';
+import BookingFormClient from '@/components/booking/BookingForm';
 
-interface Props {
+export default async function CarDetailPage({
+  params,
+}: {
   params: Promise<{ id: string }>;
-}
-
-export default async function CarDetailPage({ params }: Props) {
+}) {
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: car, error } = await supabase
+  const { data: car } = await supabase
     .from('cars')
-    .select('*, owner:profiles(id, full_name, whatsapp, avatar_url)')
+    .select('*, owner:profiles(*)')
     .eq('id', id)
     .single();
 
-  if (error || !car) notFound();
+  if (!car) notFound();
 
-  const typedCar = car as Car & { owner: { id: string; full_name: string; whatsapp: string | null } };
+  const images = car.images?.length ? car.images : [
+    'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80',
+  ];
 
   return (
-    <div className="pt-16 min-h-screen">
-      <div className="container py-10">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
-          <Link href="/cars" className="hover:text-gray-700">Cars</Link>
-          <span aria-hidden>/</span>
-          <span className="text-gray-900">{typedCar.brand} {typedCar.model}</span>
-        </nav>
-
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10">
-          {/* Left column */}
-          <div className="space-y-8">
-            <CarImageGallery images={typedCar.images} carName={`${typedCar.brand} ${typedCar.model}`} />
-
-            <div>
-              <div className="flex items-start justify-between gap-4 mb-2">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {typedCar.brand} {typedCar.model} {typedCar.year}
-                </h1>
-                <div className="text-right shrink-0">
-                  <p className="text-2xl font-bold text-green-600">{formatPrice(typedCar.price_per_day)}</p>
-                  <p className="text-sm text-gray-500">per day</p>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
+        {/* Left: Car info */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Image gallery */}
+          <div className="rounded-2xl overflow-hidden bg-gray-100 aspect-video relative">
+            <Image
+              src={images[0]}
+              alt={`${car.brand} ${car.model}`}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+          {images.length > 1 && (
+            <div className="grid grid-cols-4 gap-2">
+              {images.slice(1, 5).map((img: string, i: number) => (
+                <div key={i} className="rounded-xl overflow-hidden aspect-square relative bg-gray-100">
+                  <Image src={img} alt={`Photo ${i + 2}`} fill className="object-cover" />
                 </div>
-              </div>
-
-              <div className="flex items-center gap-3 mb-4">
-                <RatingStars rating={typedCar.rating} totalReviews={typedCar.total_reviews} size="md" />
-                <span className="text-sm text-gray-400">&bull;</span>
-                <span className="text-sm text-gray-500">{typedCar.location}</span>
-              </div>
-
-              {typedCar.description && (
-                <p className="text-gray-600 leading-relaxed">{typedCar.description}</p>
-              )}
+              ))}
             </div>
+          )}
 
-            <CarSpecs car={typedCar} />
-
-            <AirportToggle checked={typedCar.airport_delivery} readOnly />
-
-            {/* Map */}
-            <div>
-              <h2 className="font-semibold text-gray-900 mb-3">Location</h2>
-              <MapEmbed location={typedCar.location} lat={typedCar.latitude} lng={typedCar.longitude} height={300} />
-            </div>
-
-            {/* Owner */}
-            <div className="flex items-center justify-between p-4 rounded-2xl border border-gray-200 bg-gray-50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold">
-                  {typedCar.owner?.full_name?.[0]?.toUpperCase() ?? 'O'}
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">{typedCar.owner?.full_name ?? 'Owner'}</p>
-                  <p className="text-xs text-gray-500">Car owner</p>
-                </div>
-              </div>
-              {typedCar.owner?.whatsapp && (
-                <WhatsAppButton
-                  phone={typedCar.owner.whatsapp}
-                  message={`Hi! I'm interested in renting your ${typedCar.brand} ${typedCar.model} on AvtoGo.`}
-                />
-              )}
+          {/* Title & rating */}
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{car.brand} {car.model} {car.year}</h1>
+            <div className="flex items-center gap-3 mt-2">
+              <RatingStars rating={car.rating} totalReviews={car.total_reviews} />
+              <span className="text-gray-300">|</span>
+              <span className="text-sm text-gray-500 flex items-center gap-1"><MapPin size={13} /> {car.location}, Azerbaijan</span>
             </div>
           </div>
 
-          {/* Right column — Booking widget */}
-          <div className="lg:sticky lg:top-24 h-fit">
-            <BookingWidget car={typedCar} />
+          {/* Specs */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { icon: Calendar, label: 'Year', value: car.year },
+              { icon: Settings, label: 'Transmission', value: car.transmission === 'automatic' ? 'Automatic' : 'Manual' },
+              { icon: Fuel, label: 'Fuel', value: car.fuel_type.charAt(0).toUpperCase() + car.fuel_type.slice(1) },
+              { icon: User, label: 'Owner type', value: 'Private' },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="bg-gray-50 rounded-xl p-3 text-center">
+                <Icon size={18} className="text-green-600 mx-auto mb-1" />
+                <p className="text-xs text-gray-400">{label}</p>
+                <p className="text-sm font-medium text-gray-900">{value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Airport delivery */}
+          <AirportToggle enabled={car.airport_delivery} readOnly />
+
+          {/* Description */}
+          {car.description && (
+            <div>
+              <h2 className="font-semibold text-gray-900 mb-2">About this car</h2>
+              <p className="text-gray-600 text-sm leading-relaxed">{car.description}</p>
+            </div>
+          )}
+
+          {/* Map */}
+          <div>
+            <h2 className="font-semibold text-gray-900 mb-3">Location</h2>
+            <MapEmbed location={car.location} />
+          </div>
+        </div>
+
+        {/* Right: Booking card */}
+        <div className="lg:col-span-2">
+          <div className="sticky top-24 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm space-y-5">
+            <div className="flex items-baseline justify-between">
+              <span className="text-3xl font-bold text-gray-900">{formatPrice(car.price_per_day)}</span>
+              <span className="text-sm text-gray-400">per day</span>
+            </div>
+
+            <BookingFormClient car={car} />
+
+            <div className="border-t border-gray-100 pt-4">
+              {car.owner?.whatsapp && (
+                <WhatsAppButton
+                  phone={car.owner.whatsapp}
+                  message={`Hi, I am interested in renting your ${car.brand} ${car.model} on AvtoGo.`}
+                />
+              )}
+            </div>
+
+            <p className="text-xs text-gray-400 text-center">You won&apos;t be charged yet</p>
           </div>
         </div>
       </div>
