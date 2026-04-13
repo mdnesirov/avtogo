@@ -1,28 +1,15 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-});
-
 export const metadata: Metadata = {
-  title: {
-    default: 'AvtoGo — Car Rentals in Azerbaijan',
-    template: '%s | AvtoGo',
-  },
-  description:
-    'Rent cars from local owners and rental companies across Azerbaijan. Best prices in Baku, Ganja, Sumqayit and beyond.',
-  keywords: ['car rental', 'azerbaijan', 'baku', 'avtogo', 'rent a car'],
+  title: 'AvtoGo — Car Rental in Azerbaijan',
+  description: 'Rent cars from trusted owners and companies across Azerbaijan. Best prices in Baku and beyond.',
   openGraph: {
-    title: 'AvtoGo — Car Rentals in Azerbaijan',
-    description: 'The easiest way to rent a car in Azerbaijan.',
+    title: 'AvtoGo',
+    description: 'Car rental marketplace in Azerbaijan',
     type: 'website',
-    locale: 'en_US',
   },
 };
 
@@ -32,7 +19,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body>
         <Navbar />
         <main>{children}</main>
