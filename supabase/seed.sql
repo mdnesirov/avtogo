@@ -1,14 +1,13 @@
--- Sample data for local development
--- Run AFTER migrations and AFTER creating at least one user via Supabase Auth
+-- Sample seed data for development
+-- Run AFTER the migration and AFTER creating at least one auth user
 
--- Insert sample cars (replace owner_id with a real user UUID after sign-up)
-/*
-INSERT INTO public.cars (owner_id, brand, model, year, transmission, fuel_type, price_per_day, location, description, is_available, airport_delivery)
-VALUES
-  ('YOUR-USER-UUID', 'Toyota', 'Camry', 2022, 'automatic', 'petrol', 80, 'Baku', 'Clean and comfortable. Perfect for city and highway.', true, true),
-  ('YOUR-USER-UUID', 'Hyundai', 'Tucson', 2021, 'automatic', 'diesel', 100, 'Baku', 'Spacious SUV. Great for families.', true, false),
-  ('YOUR-USER-UUID', 'Kia', 'Sportage', 2020, 'automatic', 'petrol', 90, 'Ganja', 'Well-maintained. Non-smoker car.', true, false),
-  ('YOUR-USER-UUID', 'Volkswagen', 'Passat', 2019, 'manual', 'diesel', 70, 'Sumqayit', 'Economic and reliable.', true, true);
-*/
+-- Insert a sample owner profile (replace UUID with a real auth.users id)
+-- INSERT INTO public.profiles (id, full_name, phone, role, whatsapp)
+-- VALUES ('your-auth-user-uuid', 'Elçin Məmmədov', '+994501234567', 'owner', '+994501234567');
 
--- Note: Uncomment and replace YOUR-USER-UUID with a real user ID from auth.users
+-- Sample cars (replace owner_id with a real profile id)
+-- INSERT INTO public.cars (owner_id, brand, model, year, transmission, fuel_type, price_per_day, location, description, images)
+-- VALUES
+--   ('owner-uuid', 'Toyota', 'Camry', 2022, 'automatic', 'petrol', 80, 'Baku', 'Comfortable sedan for city driving.', ARRAY['https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800']),
+--   ('owner-uuid', 'BMW',    '5 Series', 2023, 'automatic', 'petrol', 150, 'Baku', 'Premium business class sedan.', ARRAY['https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800']),
+--   ('owner-uuid', 'Kia',   'Sportage', 2023, 'automatic', 'petrol', 90, 'Baku', 'Spacious SUV perfect for families.', ARRAY['https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800']);
