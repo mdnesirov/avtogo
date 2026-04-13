@@ -1,39 +1,30 @@
+import { Star } from 'lucide-react';
+
 interface RatingStarsProps {
   rating: number;
   totalReviews?: number;
-  size?: 'sm' | 'md';
+  size?: number;
 }
 
-export function RatingStars({ rating, totalReviews, size = 'sm' }: RatingStarsProps) {
-  const starSize = size === 'sm' ? 14 : 18;
-  const filled = Math.round(rating);
+export default function RatingStars({ rating, totalReviews, size = 14 }: RatingStarsProps) {
+  const full  = Math.floor(rating);
+  const empty = 5 - full;
 
   return (
     <div className="flex items-center gap-1">
-      <div className="flex items-center gap-0.5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <svg
-            key={i}
-            width={starSize}
-            height={starSize}
-            viewBox="0 0 24 24"
-            fill={i < filled ? '#facc15' : 'none'}
-            stroke={i < filled ? '#facc15' : '#d1d5db'}
-            strokeWidth="2"
-            aria-hidden
-          >
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
+      <div className="flex">
+        {Array.from({ length: full }).map((_, i) => (
+          <Star key={`f-${i}`} size={size} className="text-yellow-400 fill-yellow-400" />
+        ))}
+        {Array.from({ length: empty }).map((_, i) => (
+          <Star key={`e-${i}`} size={size} className="text-gray-200 fill-gray-200" />
         ))}
       </div>
       {totalReviews !== undefined && (
         <span className="text-xs text-gray-500">
-          {rating > 0 ? rating.toFixed(1) : 'New'}
-          {totalReviews > 0 && ` (${totalReviews})`}
+          {rating.toFixed(1)} ({totalReviews})
         </span>
       )}
     </div>
   );
 }
-
-export default RatingStars;
