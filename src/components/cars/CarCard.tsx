@@ -32,7 +32,7 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
             <Badge label="✈ Airport delivery" variant="green" />
           </div>
         )}
-        {!car.is_available && (
+        {!car.is_active && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <Badge label="Not available" variant="gray" />
           </div>
@@ -61,7 +61,7 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
           <span>{car.year}</span>
         </div>
 
-        <RatingStars rating={car.rating} totalReviews={car.total_reviews} />
+        <RatingStars rating={car.rating} totalReviews={car.review_count ?? undefined} />
 
         <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50 text-xs text-gray-500">
           <span className="flex items-center gap-1">
