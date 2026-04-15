@@ -1,13 +1,14 @@
 import { Star } from 'lucide-react';
 
 interface RatingStarsProps {
-  rating: number;
+  rating: number | null | undefined;
   totalReviews?: number;
   size?: number;
 }
 
 export default function RatingStars({ rating, totalReviews, size = 14 }: RatingStarsProps) {
-  const rounded = Math.round(rating * 2) / 2;
+  const safeRating = rating ?? 0;
+  const rounded = Math.round(safeRating * 2) / 2;
 
   return (
     <div className="flex items-center gap-1">
@@ -20,9 +21,9 @@ export default function RatingStars({ rating, totalReviews, size = 14 }: RatingS
           />
         ))}
       </div>
-      {rating > 0 ? (
+      {safeRating > 0 ? (
         <span className="text-xs text-gray-500">
-          {rating.toFixed(1)}{totalReviews !== undefined && ` (${totalReviews})`}
+          {safeRating.toFixed(1)}{totalReviews !== undefined && ` (${totalReviews})`}
         </span>
       ) : (
         <span className="text-xs text-gray-400">No reviews yet</span>
