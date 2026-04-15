@@ -1,11 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
+import createMiddleware from 'next-intl/middleware';
+import {routing} from './i18n/routing';
 
 type CookieToSet = { name: string; value: string; options?: Partial<ResponseCookie> }
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request })
+  const handleI18nRouting = createMiddleware(routing);
+  let supabaseResponse = handleI18nRouting(request);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,7 +20,6 @@ export async function middleware(request: NextRequest) {
         },
         setAll(cookiesToSet: CookieToSet[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
           )
@@ -28,12 +30,19 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  const pathname = request.nextUrl.pathname;
+  const locale = routing.locales.find((entry) => pathname === `/${entry}` || pathname.startsWith(`/${entry}/`));
+  const pathWithoutLocale = locale ? pathname.slice(locale.length + 1) || '/' : pathname;
+
   const protectedRoutes = ['/dashboard', '/list-car']
-  const isProtected = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))
+  const isProtected = protectedRoutes.some(route => pathWithoutLocale.startsWith(route))
 
   if (isProtected && !user) {
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/auth/login'
+    const loginPath = locale && locale !== routing.defaultLocale
+      ? `/${locale}/auth/login`
+      : '/auth/login';
+    redirectUrl.pathname = loginPath;
     redirectUrl.searchParams.set('redirectedFrom', request.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
   }
@@ -42,5 +51,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/list-car/:path*'],
+  matcher: '/((?!api|_next|.*\\..*).*)'
 }

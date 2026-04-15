@@ -1,6 +1,9 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import { ButtonHTMLAttributes, AnchorHTMLAttributes, forwardRef } from 'react';
-import Link from 'next/link';
+import {Link} from '@/i18n/navigation';
+import {useTranslations} from 'next-intl';
 
 type BaseProps = {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -42,6 +45,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
     },
     ref
   ) => {
+    const t = useTranslations('common');
     const base =
       'inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
@@ -69,11 +73,11 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
 
     const content = loading ? (
       <>
-        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+         <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
-        Loading...
+        {t('loading')}
       </>
     ) : (
       children

@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 import { Upload, X, ImageIcon } from 'lucide-react';
+import {useTranslations} from 'next-intl';
 
 interface ImageUploadProps {
   images: string[];          // current list of public URLs
@@ -12,6 +13,7 @@ interface ImageUploadProps {
 }
 
 export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUploadProps) {
+  const t = useTranslations('imageUpload');
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
@@ -24,7 +26,7 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
     const toUpload = Array.from(files).slice(0, remaining);
 
     if (toUpload.length === 0) {
-      setError(`Maximum ${maxImages} photos allowed.`);
+      setError(t('maxPhotos', {max: maxImages}));
       return;
     }
 
@@ -33,7 +35,7 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      setError('You must be logged in to upload images.');
+      setError(t('mustBeLoggedIn'));
       setUploading(false);
       return;
     }
@@ -43,7 +45,7 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
     for (const file of toUpload) {
       // accept any image type including HEIC from iPhones
       if (!file.type.startsWith('image/') && !file.name.toLowerCase().endsWith('.heic')) {
-        setError('Only image files are supported.');
+        setError(t('onlyImages'));
         continue;
       }
 
@@ -55,7 +57,7 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
         .upload(filename, file, { upsert: false, contentType: file.type || 'image/jpeg' });
 
       if (uploadError) {
-        setError(`Upload failed: ${uploadError.message}`);
+        setError(t('uploadFailed', {error: uploadError.message}));
         continue;
       }
 
@@ -79,7 +81,7 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
 
   return (
     <div className="flex flex-col gap-3">
-      <label className="text-sm font-medium text-gray-700">Photos</label>
+      <label className="text-sm font-medium text-gray-700">{t('photos')}</label>
 
       {/* Upload zone */}
       {images.length < maxImages && (
@@ -92,13 +94,13 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
           {uploading ? (
             <>
               <div className="w-6 h-6 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-gray-500">Uploading...</p>
+               <p className="text-sm text-gray-500">{t('uploading')}</p>
             </>
           ) : (
             <>
               <Upload size={24} className="text-gray-400" />
-              <p className="text-sm font-medium text-gray-600">Tap to add photos</p>
-              <p className="text-xs text-gray-400">JPG, PNG, HEIC (iPhone) · up to {maxImages} photos</p>
+               <p className="text-sm font-medium text-gray-600">{t('tapToAdd')}</p>
+               <p className="text-xs text-gray-400">{t('formatHint', {max: maxImages})}</p>
             </>
           )}
         </div>
@@ -131,13 +133,13 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
                 type="button"
                 onClick={() => removeImage(url)}
                 className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-label="Remove photo"
+                 aria-label={t('removePhoto')}
               >
                 <X size={14} />
               </button>
               {i === 0 && (
                 <span className="absolute bottom-1 left-1 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
-                  Cover
+                  {t('cover')}
                 </span>
               )}
             </div>
@@ -148,7 +150,7 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
       {images.length === 0 && !uploading && (
         <div className="flex items-center gap-2 text-xs text-gray-400">
           <ImageIcon size={14} />
-          <span>First photo will be the cover image shown on listings</span>
+          <span>{t('coverHint')}</span>
         </div>
       )}
 

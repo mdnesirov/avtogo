@@ -1,5 +1,6 @@
 import { Car } from '@/types';
 import { differenceInCalendarDays } from '@/lib/utils';
+import {useLocale, useTranslations} from 'next-intl';
 
 interface BookingSummaryProps {
   car: Car;
@@ -8,6 +9,8 @@ interface BookingSummaryProps {
 }
 
 export default function BookingSummary({ car, startDate, endDate }: BookingSummaryProps) {
+  const t = useTranslations('bookingSummary');
+  const locale = useLocale();
   const nights =
     startDate && endDate
       ? differenceInCalendarDays(new Date(endDate), new Date(startDate))
@@ -18,7 +21,7 @@ export default function BookingSummary({ car, startDate, endDate }: BookingSumma
 
   return (
     <div className="border border-gray-200 rounded-2xl p-5 bg-white">
-      <h3 className="font-semibold text-gray-900 mb-4">Booking Summary</h3>
+      <h3 className="font-semibold text-gray-900 mb-4">{t('title')}</h3>
 
       {/* Car info */}
       <div className="flex gap-3 mb-4 pb-4 border-b border-gray-100">
@@ -32,37 +35,37 @@ export default function BookingSummary({ car, startDate, endDate }: BookingSumma
         )}
         <div>
           <p className="font-medium text-gray-900">{car.brand} {car.model}</p>
-          <p className="text-sm text-gray-500">{car.year} · {car.transmission} · {car.location}</p>
+          <p className="text-sm text-gray-500">{car.year} · {t(`transmission.${car.transmission}`)} · {car.location}</p>
         </div>
       </div>
 
       {/* Dates */}
       {startDate && endDate ? (
         <div className="flex justify-between text-sm mb-3">
-          <span className="text-gray-600">Rental period</span>
-          <span className="font-medium text-gray-900">
-            {new Date(startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} –
-            {' '}{new Date(endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-          </span>
-        </div>
-      ) : (
-        <p className="text-sm text-gray-400 mb-3">Select dates to see pricing</p>
-      )}
+           <span className="text-gray-600">{t('rentalPeriod')}</span>
+           <span className="font-medium text-gray-900">
+             {new Date(startDate).toLocaleDateString(locale, { day: 'numeric', month: 'short' })} –
+             {' '}{new Date(endDate).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}
+           </span>
+         </div>
+       ) : (
+         <p className="text-sm text-gray-400 mb-3">{t('selectDates')}</p>
+       )}
 
       {nights > 0 && (
         <>
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-600">₼{car.price_per_day.toFixed(2)} × {nights} day{nights !== 1 ? 's' : ''}</span>
-            <span className="text-gray-900">₼{subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between text-sm mb-4 pb-4 border-b border-gray-100">
-            <span className="text-gray-600">Service fee (5%)</span>
-            <span className="text-gray-900">₼{serviceFee.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between font-semibold text-gray-900">
-            <span>Total</span>
-            <span className="text-green-600">₼{total.toFixed(2)}</span>
-          </div>
+             <span className="text-gray-600">{t('pricePerDays', {price: car.price_per_day.toFixed(2), count: nights})}</span>
+             <span className="text-gray-900">₼{subtotal.toFixed(2)}</span>
+           </div>
+           <div className="flex justify-between text-sm mb-4 pb-4 border-b border-gray-100">
+             <span className="text-gray-600">{t('serviceFee')}</span>
+             <span className="text-gray-900">₼{serviceFee.toFixed(2)}</span>
+           </div>
+           <div className="flex justify-between font-semibold text-gray-900">
+             <span>{t('total')}</span>
+             <span className="text-green-600">₼{total.toFixed(2)}</span>
+           </div>
         </>
       )}
     </div>

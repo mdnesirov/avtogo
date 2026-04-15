@@ -1,23 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import {Link, useRouter } from '@/i18n/navigation';
 import CarCard from '@/components/cars/CarCard';
 import { Car } from '@/types';
+import {useTranslations} from 'next-intl';
 
 export default function DashboardClient({ cars }: { cars: Car[] }) {
   const router = useRouter();
+  const t = useTranslations('dashboard');
   const [deleting, setDeleting] = useState<string | null>(null);
 
   async function handleDelete(carId: string) {
-    if (!confirm('Are you sure you want to delete this listing?')) return;
+    if (!confirm(t('deleteConfirm'))) return;
     setDeleting(carId);
     try {
       const res = await fetch(`/api/cars/${carId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete');
+      if (!res.ok) throw new Error(t('failedToDelete'));
       router.refresh();
     } catch (e) {
-      alert('Could not delete the listing. Please try again.');
+      alert(t('couldNotDelete'));
     } finally {
       setDeleting(null);
     }
@@ -30,10 +32,10 @@ export default function DashboardClient({ cars }: { cars: Car[] }) {
   if (cars.length === 0) {
     return (
       <div className="bg-gray-50 rounded-2xl p-12 text-center text-gray-400">
-        <p className="font-medium">No listings yet</p>
-        <a href="/list-car" className="text-green-600 text-sm mt-1 inline-block hover:text-green-700">
-          Add your first car →
-        </a>
+        <p className="font-medium">{t('noListingsYet')}</p>
+        <Link href="/list-car" className="text-green-600 text-sm mt-1 inline-block hover:text-green-700">
+          {t('addFirstCar')}
+        </Link>
       </div>
     );
   }

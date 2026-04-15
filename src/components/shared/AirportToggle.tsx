@@ -1,4 +1,5 @@
 import { Plane } from 'lucide-react';
+import {useTranslations} from 'next-intl';
 
 interface AirportToggleProps {
   enabled: boolean;
@@ -7,15 +8,16 @@ interface AirportToggleProps {
 }
 
 export default function AirportToggle({ enabled, onChange, readOnly = false }: AirportToggleProps) {
+  const t = useTranslations('carDetail');
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2">
         <Plane size={16} className={enabled ? 'text-green-600' : 'text-gray-400'} />
-        <span className="text-sm text-gray-700">Airport Delivery</span>
+        <span className="text-sm text-gray-700">{t('airportDelivery')}</span>
       </div>
       {readOnly ? (
         <span className={`text-sm font-medium ${enabled ? 'text-green-600' : 'text-gray-400'}`}>
-          {enabled ? 'Available' : 'Not available'}
+          {enabled ? t('available') : t('notAvailable')}
         </span>
       ) : (
         <button

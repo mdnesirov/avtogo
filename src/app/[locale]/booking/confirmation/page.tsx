@@ -1,23 +1,28 @@
 import { createClient } from '@/lib/supabase/server';
-import Link from 'next/link';
+import {Link} from '@/i18n/navigation';
 import { CheckCircle, Calendar, Car, Phone } from 'lucide-react';
 import { formatDate, formatPrice } from '@/lib/utils';
 import { BookingStatusBadge } from '@/components/shared/Badge';
+import {getTranslations} from 'next-intl/server';
 
 export default async function BookingConfirmationPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{locale: string}>;
   searchParams: Promise<{ id?: string }>;
 }) {
-  const params = await searchParams;
+  const {locale} = await params;
+  const t = await getTranslations({locale, namespace: 'bookingConfirmation'});
+  const query = await searchParams;
   const supabase = await createClient();
 
   let booking = null;
-  if (params.id) {
+  if (query.id) {
     const { data } = await supabase
       .from('bookings')
       .select('*, car:cars(*)')
-      .eq('id', params.id)
+      .eq('id', query.id)
       .single();
     booking = data;
   }
@@ -27,8 +32,8 @@ export default async function BookingConfirmationPage({
       <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
         <CheckCircle size={32} className="text-green-600" />
       </div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">Booking Confirmed!</h1>
-      <p className="text-gray-500 mb-8">Your booking request has been submitted. The owner will confirm shortly.</p>
+      <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('title')}</h1>
+      <p className="text-gray-500 mb-8">{t('subtitle')}</p>
 
       {booking && (
         <div className="bg-white border border-gray-100 rounded-2xl p-6 text-left space-y-4 mb-8">
@@ -42,18 +47,18 @@ export default async function BookingConfirmationPage({
             <div className="flex items-center gap-2"><Phone size={14} /> {booking.driver_phone}</div>
           </div>
           <div className="border-t border-gray-100 pt-3 flex justify-between">
-            <span className="text-sm text-gray-500">Total</span>
-            <span className="font-bold text-gray-900">{formatPrice(booking.total_price)}</span>
+             <span className="text-sm text-gray-500">{t('total')}</span>
+             <span className="font-bold text-gray-900">{formatPrice(booking.total_price)}</span>
           </div>
         </div>
       )}
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Link href="/dashboard" className="bg-green-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-green-700 transition-colors">
-          View my bookings
+          {t('viewMyBookings')}
         </Link>
         <Link href="/cars" className="bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 transition-colors">
-          Browse more cars
+          {t('browseMoreCars')}
         </Link>
       </div>
     </div>

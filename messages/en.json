@@ -1,0 +1,311 @@
+{
+  "navigation": {
+    "home": "Home",
+    "browseCars": "Browse Cars",
+    "listYourCar": "List Your Car",
+    "dashboard": "Dashboard",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "signUp": "Sign Up",
+    "toggleMenu": "Toggle menu"
+  },
+  "footer": {
+    "description": "Azerbaijan's peer-to-peer car rental marketplace. Rent from locals or list your car to earn.",
+    "platform": "Platform",
+    "browseCars": "Browse Cars",
+    "listYourCar": "List Your Car",
+    "dashboard": "Dashboard",
+    "contact": "Contact",
+    "whatsappSupport": "WhatsApp Support",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
+  },
+  "home": {
+    "hero": {
+      "liveInBaku": "Now live in Baku",
+      "titleLine1": "Rent any car in",
+      "titleLine2": "Azerbaijan",
+      "subtitle": "Browse cars from local owners and rental companies. Book in minutes, drive today."
+    },
+    "search": {
+      "allCities": "All cities",
+      "from": "From",
+      "to": "To",
+      "search": "Search"
+    },
+    "features": {
+      "verifiedOwnersCars": "Verified owners & cars",
+      "ratedByRenters": "Rated by real renters",
+      "airportDelivery": "Airport delivery available"
+    },
+    "featured": {
+      "title": "Featured Cars",
+      "subtitle": "Handpicked vehicles available now",
+      "viewAll": "View all →",
+      "noCars": "No cars listed yet.",
+      "beFirst": "Be the first to list your car →"
+    },
+    "ownerCta": {
+      "title": "Have a car sitting idle?",
+      "subtitle": "List it on AvtoGo and earn money whenever it's not in use. Setup takes under 5 minutes.",
+      "cta": "List Your Car Free"
+    }
+  },
+  "cars": {
+    "browseCars": "Browse Cars",
+    "carsAvailable": "{count} cars available",
+    "failedToLoad": "Failed to load cars. Please try again.",
+    "noCarsFound": "No cars found",
+    "adjustFilters": "Try adjusting your filters",
+    "airportDelivery": "Airport delivery",
+    "notAvailable": "Not available",
+    "day": "day",
+    "automaticShort": "Auto",
+    "manual": "Manual",
+    "edit": "Edit",
+    "delete": "Delete",
+    "fuel": {
+      "petrol": "Petrol",
+      "diesel": "Diesel",
+      "electric": "Electric",
+      "hybrid": "Hybrid"
+    },
+    "filters": {
+      "title": "Filters",
+      "city": "City",
+      "allCities": "All cities",
+      "transmission": "Transmission",
+      "any": "Any",
+      "automatic": "Automatic",
+      "manual": "Manual",
+      "fuelType": "Fuel Type",
+      "pricePerDay": "Price per day (AZN)",
+      "min": "Min",
+      "max": "Max",
+      "applyFilters": "Apply Filters",
+      "clearAll": "Clear all",
+      "fuel": {
+        "petrol": "Petrol",
+        "diesel": "Diesel",
+        "electric": "Electric",
+        "hybrid": "Hybrid"
+      }
+    }
+  },
+  "carDetail": {
+    "photoAlt": "Photo {index}",
+    "country": "Azerbaijan",
+    "year": "Year",
+    "transmission": "Transmission",
+    "automatic": "Automatic",
+    "manual": "Manual",
+    "fuel": "Fuel",
+    "fuelTypes": {
+      "petrol": "Petrol",
+      "diesel": "Diesel",
+      "electric": "Electric",
+      "hybrid": "Hybrid"
+    },
+    "ownerType": "Owner type",
+    "private": "Private",
+    "airportDelivery": "Airport Delivery",
+    "available": "Available",
+    "notAvailable": "Not available",
+    "aboutThisCar": "About this car",
+    "location": "Location",
+    "perDay": "per day",
+    "contactWhatsApp": "Contact via WhatsApp",
+    "whatsappMessage": "Hi, I am interested in renting your car on AvtoGo.",
+    "whatsappMessageWithCar": "Hi, I am interested in renting your {brand} {model} on AvtoGo.",
+    "youWontBeChargedYet": "You won't be charged yet"
+  },
+  "bookingPage": {
+    "noCarSelected": "No car selected.",
+    "carNotFound": "Car not found.",
+    "browseCars": "Browse cars",
+    "backToCar": "Back to {brand} {model}",
+    "completeYourBooking": "Complete your booking",
+    "selectRentalDates": "1. Select rental dates",
+    "driverInformation": "2. Driver information",
+    "priceBreakdown": "Price breakdown"
+  },
+  "bookingForm": {
+    "pickupDate": "Pick-up date",
+    "returnDate": "Return date",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "continueToDriverInfo": "Continue to driver info",
+    "back": "Back",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Your full name",
+    "phoneNumber": "Phone number",
+    "driverLicense": "Driver license",
+    "optional": "Optional",
+    "notes": "Notes",
+    "notesPlaceholder": "Any special requests...",
+    "totalForDays": "Total for {count, plural, one {# day} other {# days}}",
+    "confirmBooking": "Confirm Booking",
+    "bookingFailed": "Booking failed. Please try again.",
+    "somethingWentWrong": "Something went wrong. Please try again."
+  },
+  "bookingSummary": {
+    "title": "Booking Summary",
+    "rentalPeriod": "Rental period",
+    "selectDates": "Select dates to see pricing",
+    "pricePerDays": "₼{price} × {count, plural, one {# day} other {# days}}",
+    "serviceFee": "Service fee (5%)",
+    "total": "Total",
+    "transmission": {
+      "automatic": "Automatic",
+      "manual": "Manual"
+    }
+  },
+  "bookingConfirmation": {
+    "title": "Booking Confirmed!",
+    "subtitle": "Your booking request has been submitted. The owner will confirm shortly.",
+    "total": "Total",
+    "viewMyBookings": "View my bookings",
+    "browseMoreCars": "Browse more cars"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "listCar": "List a car",
+    "myListings": "My Listings",
+    "myBookings": "My Bookings",
+    "car": "Car",
+    "dates": "Dates",
+    "total": "Total",
+    "status": "Status",
+    "noBookingsYet": "No bookings yet",
+    "browseCars": "Browse cars →",
+    "deleteConfirm": "Are you sure you want to delete this listing?",
+    "failedToDelete": "Failed to delete",
+    "couldNotDelete": "Could not delete the listing. Please try again.",
+    "noListingsYet": "No listings yet",
+    "addFirstCar": "Add your first car →"
+  },
+  "listCar": {
+    "title": "List Your Car",
+    "subtitle": "Fill in your car details and start earning. It's free to list.",
+    "brand": "Brand",
+    "model": "Model",
+    "year": "Year",
+    "pricePerDay": "Price per day (AZN)",
+    "transmission": "Transmission",
+    "automatic": "Automatic",
+    "manual": "Manual",
+    "fuelType": "Fuel Type",
+    "location": "City",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe your car, its condition, any extras...",
+    "airportDeliveryHint": "Offer delivery to Heydar Aliyev International Airport",
+    "submit": "Publish Listing",
+    "failedToCreate": "Failed to create listing.",
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "fuel": {
+      "petrol": "Petrol",
+      "diesel": "Diesel",
+      "electric": "Electric",
+      "hybrid": "Hybrid"
+    }
+  },
+  "editCar": {
+    "title": "Edit Listing",
+    "subtitle": "Update your car details below.",
+    "brand": "Brand",
+    "model": "Model",
+    "year": "Year",
+    "pricePerDay": "Price per day (AZN)",
+    "transmission": "Transmission",
+    "automatic": "Automatic",
+    "manual": "Manual",
+    "fuelType": "Fuel Type",
+    "location": "City",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe your car, its condition, any extras...",
+    "airportDeliveryHint": "Offer delivery to Heydar Aliyev International Airport",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "failedToUpdate": "Failed to update listing.",
+    "somethingWentWrong": "Something went wrong. Please try again.",
+    "fuel": {
+      "petrol": "Petrol",
+      "diesel": "Diesel",
+      "electric": "Electric",
+      "hybrid": "Hybrid"
+    }
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "signInToAccount": "Sign in to your account",
+    "email": "Email",
+    "password": "Password",
+    "yourPassword": "Your password",
+    "signIn": "Sign in",
+    "noAccount": "No account?",
+    "signUp": "Sign up",
+    "createAccount": "Create an account",
+    "startRenting": "Start renting or listing today",
+    "fullName": "Full name",
+    "atLeast8Chars": "At least 8 characters",
+    "createAccountButton": "Create account",
+    "alreadyHaveAccount": "Already have an account?"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Go home",
+    "browseCars": "Browse cars"
+  },
+  "common": {
+    "loading": "Loading...",
+    "noReviewsYet": "No reviews yet"
+  },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "completed": "Completed"
+  },
+  "imageUpload": {
+    "maxPhotos": "Maximum {max} photos allowed.",
+    "mustBeLoggedIn": "You must be logged in to upload images.",
+    "onlyImages": "Only image files are supported.",
+    "uploadFailed": "Upload failed: {error}",
+    "photos": "Photos",
+    "uploading": "Uploading...",
+    "tapToAdd": "Tap to add photos",
+    "formatHint": "JPG, PNG, HEIC (iPhone) · up to {max} photos",
+    "removePhoto": "Remove photo",
+    "cover": "Cover",
+    "coverHint": "First photo will be the cover image shown on listings"
+  },
+  "bookingCalendar": {
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "selected": "Selected",
+    "unavailable": "Unavailable",
+    "weekdays": {
+      "su": "Su",
+      "mo": "Mo",
+      "tu": "Tu",
+      "we": "We",
+      "th": "Th",
+      "fr": "Fr",
+      "sa": "Sa"
+    },
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    }
+  }
+}

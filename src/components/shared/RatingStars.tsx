@@ -1,4 +1,5 @@
 import { Star } from 'lucide-react';
+import {useTranslations} from 'next-intl';
 
 interface RatingStarsProps {
   rating: number | null | undefined;
@@ -7,6 +8,7 @@ interface RatingStarsProps {
 }
 
 export default function RatingStars({ rating, totalReviews, size = 14 }: RatingStarsProps) {
+  const t = useTranslations('common');
   const safeRating = rating ?? 0;
   const rounded = Math.round(safeRating * 2) / 2;
 
@@ -26,7 +28,7 @@ export default function RatingStars({ rating, totalReviews, size = 14 }: RatingS
           {safeRating.toFixed(1)}{totalReviews !== undefined && ` (${totalReviews})`}
         </span>
       ) : (
-        <span className="text-xs text-gray-400">No reviews yet</span>
+        <span className="text-xs text-gray-400">{t('noReviewsYet')}</span>
       )}
     </div>
   );

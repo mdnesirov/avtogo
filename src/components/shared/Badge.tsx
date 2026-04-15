@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { BookingStatus } from '@/types';
+import {useTranslations} from 'next-intl';
 
 interface BadgeProps {
   label: string;
@@ -23,11 +24,12 @@ export default function Badge({ label, variant = 'gray' }: BadgeProps) {
 }
 
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {
+  const t = useTranslations('status');
   const map: Record<BookingStatus, { label: string; variant: BadgeProps['variant'] }> = {
-    pending:   { label: 'Pending',   variant: 'yellow' },
-    confirmed: { label: 'Confirmed', variant: 'green'  },
-    cancelled: { label: 'Cancelled', variant: 'red'    },
-    completed: { label: 'Completed', variant: 'blue'   },
+    pending:   { label: t('pending'),   variant: 'yellow' },
+    confirmed: { label: t('confirmed'), variant: 'green'  },
+    cancelled: { label: t('cancelled'), variant: 'red'    },
+    completed: { label: t('completed'), variant: 'blue'   },
   };
   const { label, variant } = map[status];
   return <Badge label={label} variant={variant} />;

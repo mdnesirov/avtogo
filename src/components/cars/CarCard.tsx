@@ -1,12 +1,13 @@
 'use client';
 
-import Link from 'next/link';
+import {Link} from '@/i18n/navigation';
 import Image from 'next/image';
 import { MapPin, Fuel, Settings, Calendar } from 'lucide-react';
 import { Car } from '@/types';
 import { formatPrice } from '@/lib/utils';
 import RatingStars from '@/components/shared/RatingStars';
 import Badge from '@/components/shared/Badge';
+import {useTranslations} from 'next-intl';
 
 interface CarCardProps {
   car: Car;
@@ -26,6 +27,7 @@ function isValidUrl(str: string | undefined | null): boolean {
 }
 
 export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: CarCardProps) {
+  const t = useTranslations('cars');
   const rawImage = car.images?.[0];
   const imageUrl = isValidUrl(rawImage)
     ? rawImage!
@@ -44,12 +46,12 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
         />
         {car.airport_delivery && (
           <div className="absolute top-3 left-3">
-            <Badge label="✈ Airport delivery" variant="green" />
+            <Badge label={`✈ ${t('airportDelivery')}`} variant="green" />
           </div>
         )}
         {!car.is_active && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <Badge label="Not available" variant="gray" />
+            <Badge label={t('notAvailable')} variant="gray" />
           </div>
         )}
       </Link>
@@ -64,7 +66,7 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
           </Link>
           <span className="text-lg font-bold text-green-600">
             {formatPrice(car.price_per_day)}
-            <span className="text-xs font-normal text-gray-400">/day</span>
+            <span className="text-xs font-normal text-gray-400">/{t('day')}</span>
           </span>
         </div>
 
@@ -81,13 +83,13 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
         <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50 text-xs text-gray-500">
           <span className="flex items-center gap-1">
             <Settings size={12} />
-            {car.transmission === 'automatic' ? 'Auto' : 'Manual'}
-          </span>
-          <span className="flex items-center gap-1">
-            <Fuel size={12} />
-            {car.fuel_type.charAt(0).toUpperCase() + car.fuel_type.slice(1)}
-          </span>
-        </div>
+             {car.transmission === 'automatic' ? t('automaticShort') : t('manual')}
+           </span>
+           <span className="flex items-center gap-1">
+             <Fuel size={12} />
+             {t(`fuel.${car.fuel_type}`)}
+           </span>
+         </div>
 
         {showOwnerActions && (
           <div className="flex gap-2 mt-3 pt-3 border-t border-gray-50">
@@ -95,13 +97,13 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
               onClick={() => onEdit?.(car)}
               className="flex-1 text-xs py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Edit
+              {t('edit')}
             </button>
             <button
               onClick={() => onDelete?.(car.id)}
               className="flex-1 text-xs py-1.5 border border-red-100 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
             >
-              Delete
+              {t('delete')}
             </button>
           </div>
         )}

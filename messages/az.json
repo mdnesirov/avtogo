@@ -1,0 +1,311 @@
+{
+  "navigation": {
+    "home": "Ana səhifə",
+    "browseCars": "Avtomobillərə bax",
+    "listYourCar": "Avtomobilinizi sərgiləyin",
+    "dashboard": "İdarə paneli",
+    "signIn": "Daxil ol",
+    "signOut": "Çıxış",
+    "signUp": "Qeydiyyat",
+    "toggleMenu": "Menyunu aç/bağla"
+  },
+  "footer": {
+    "description": "Azərbaycanın peer-to-peer avtomobil icarəsi platforması. Yerli sahiblərdən kirayələyin və ya qazanc üçün avtomobilinizi yerləşdirin.",
+    "platform": "Platforma",
+    "browseCars": "Avtomobillərə bax",
+    "listYourCar": "Avtomobilinizi sərgiləyin",
+    "dashboard": "İdarə paneli",
+    "contact": "Əlaqə",
+    "whatsappSupport": "WhatsApp dəstəyi",
+    "privacyPolicy": "Məxfilik siyasəti",
+    "termsOfService": "İstifadə şərtləri"
+  },
+  "home": {
+    "hero": {
+      "liveInBaku": "Artıq Bakıda",
+      "titleLine1": "Azərbaycanda istənilən",
+      "titleLine2": "avtomobili kirayələyin",
+      "subtitle": "Yerli sahiblərdən və şirkətlərdən avtomobil seçin. Dəqiqələr içində sifariş edin, bu gün sürün."
+    },
+    "search": {
+      "allCities": "Bütün şəhərlər",
+      "from": "Başlama",
+      "to": "Bitmə",
+      "search": "Axtar"
+    },
+    "features": {
+      "verifiedOwnersCars": "Təsdiqlənmiş sahiblər və avtomobillər",
+      "ratedByRenters": "Real müştəri rəyləri",
+      "airportDelivery": "Aeroport çatdırılması mövcuddur"
+    },
+    "featured": {
+      "title": "Seçilmiş avtomobillər",
+      "subtitle": "Hazırda əlçatan xüsusi seçim",
+      "viewAll": "Hamısına bax →",
+      "noCars": "Hələ avtomobil əlavə edilməyib.",
+      "beFirst": "İlk avtomobili siz əlavə edin →"
+    },
+    "ownerCta": {
+      "title": "Avtomobiliniz boş dayanır?",
+      "subtitle": "AvtoGo-da yerləşdirin və istifadə olunmadığı vaxt qazanc əldə edin. Qurulum 5 dəqiqədən az vaxt aparır.",
+      "cta": "Pulsuz yerləşdir"
+    }
+  },
+  "cars": {
+    "browseCars": "Avtomobillərə bax",
+    "carsAvailable": "{count} avtomobil mövcuddur",
+    "failedToLoad": "Avtomobilləri yükləmək alınmadı. Yenidən cəhd edin.",
+    "noCarsFound": "Avtomobil tapılmadı",
+    "adjustFilters": "Filtrləri dəyişib yenidən yoxlayın",
+    "airportDelivery": "Aeroport çatdırılması",
+    "notAvailable": "Mövcud deyil",
+    "day": "gün",
+    "automaticShort": "Avto",
+    "manual": "Mexaniki",
+    "edit": "Düzəliş et",
+    "delete": "Sil",
+    "fuel": {
+      "petrol": "Benzin",
+      "diesel": "Dizel",
+      "electric": "Elektrik",
+      "hybrid": "Hibrid"
+    },
+    "filters": {
+      "title": "Filtrlər",
+      "city": "Şəhər",
+      "allCities": "Bütün şəhərlər",
+      "transmission": "Sürət qutusu",
+      "any": "Fərqi yoxdur",
+      "automatic": "Avtomat",
+      "manual": "Mexaniki",
+      "fuelType": "Yanacaq növü",
+      "pricePerDay": "Gündəlik qiymət (AZN)",
+      "min": "Min",
+      "max": "Maks",
+      "applyFilters": "Filtrləri tətbiq et",
+      "clearAll": "Hamısını təmizlə",
+      "fuel": {
+        "petrol": "Benzin",
+        "diesel": "Dizel",
+        "electric": "Elektrik",
+        "hybrid": "Hibrid"
+      }
+    }
+  },
+  "carDetail": {
+    "photoAlt": "Şəkil {index}",
+    "country": "Azərbaycan",
+    "year": "İl",
+    "transmission": "Sürət qutusu",
+    "automatic": "Avtomat",
+    "manual": "Mexaniki",
+    "fuel": "Yanacaq",
+    "fuelTypes": {
+      "petrol": "Benzin",
+      "diesel": "Dizel",
+      "electric": "Elektrik",
+      "hybrid": "Hibrid"
+    },
+    "ownerType": "Sahib növü",
+    "private": "Fərdi",
+    "airportDelivery": "Aeroport çatdırılması",
+    "available": "Mövcuddur",
+    "notAvailable": "Mövcud deyil",
+    "aboutThisCar": "Bu avtomobil haqqında",
+    "location": "Məkan",
+    "perDay": "gündəlik",
+    "contactWhatsApp": "WhatsApp ilə əlaqə",
+    "whatsappMessage": "Salam, AvtoGo üzərindən avtomobilinizi kirayələmək istəyirəm.",
+    "whatsappMessageWithCar": "Salam, AvtoGo üzərindən {brand} {model} avtomobilinizi kirayələmək istəyirəm.",
+    "youWontBeChargedYet": "Hələlik sizdən ödəniş tutulmayacaq"
+  },
+  "bookingPage": {
+    "noCarSelected": "Avtomobil seçilməyib.",
+    "carNotFound": "Avtomobil tapılmadı.",
+    "browseCars": "Avtomobillərə bax",
+    "backToCar": "{brand} {model} səhifəsinə qayıt",
+    "completeYourBooking": "Sifarişinizi tamamlayın",
+    "selectRentalDates": "1. İcarə tarixlərini seçin",
+    "driverInformation": "2. Sürücü məlumatları",
+    "priceBreakdown": "Qiymət bölgüsü"
+  },
+  "bookingForm": {
+    "pickupDate": "Götürmə tarixi",
+    "returnDate": "Qaytarma tarixi",
+    "days": "{count, plural, one {# gün} other {# gün}}",
+    "continueToDriverInfo": "Sürücü məlumatlarına davam et",
+    "back": "Geri",
+    "fullName": "Ad Soyad",
+    "fullNamePlaceholder": "Ad və soyadınızı daxil edin",
+    "phoneNumber": "Telefon nömrəsi",
+    "driverLicense": "Sürücülük vəsiqəsi",
+    "optional": "İstəyə bağlı",
+    "notes": "Qeydlər",
+    "notesPlaceholder": "Xüsusi istəklərinizi yazın...",
+    "totalForDays": "{count, plural, one {# gün üçün cəmi} other {# gün üçün cəmi}}",
+    "confirmBooking": "Sifarişi təsdiqlə",
+    "bookingFailed": "Sifariş alınmadı. Yenidən cəhd edin.",
+    "somethingWentWrong": "Xəta baş verdi. Yenidən cəhd edin."
+  },
+  "bookingSummary": {
+    "title": "Sifariş xülasəsi",
+    "rentalPeriod": "İcarə müddəti",
+    "selectDates": "Qiyməti görmək üçün tarix seçin",
+    "pricePerDays": "₼{price} × {count, plural, one {# gün} other {# gün}}",
+    "serviceFee": "Xidmət haqqı (5%)",
+    "total": "Cəmi",
+    "transmission": {
+      "automatic": "Avtomat",
+      "manual": "Mexaniki"
+    }
+  },
+  "bookingConfirmation": {
+    "title": "Sifariş təsdiqləndi!",
+    "subtitle": "Sifariş sorğunuz göndərildi. Sahib qısa müddətdə təsdiqləyəcək.",
+    "total": "Cəmi",
+    "viewMyBookings": "Sifarişlərimə bax",
+    "browseMoreCars": "Daha çox avtomobilə bax"
+  },
+  "dashboard": {
+    "title": "İdarə paneli",
+    "listCar": "Avtomobil əlavə et",
+    "myListings": "Elanlarım",
+    "myBookings": "Sifarişlərim",
+    "car": "Avtomobil",
+    "dates": "Tarixlər",
+    "total": "Cəmi",
+    "status": "Status",
+    "noBookingsYet": "Hələ sifariş yoxdur",
+    "browseCars": "Avtomobillərə bax →",
+    "deleteConfirm": "Bu elanı silmək istədiyinizə əminsiniz?",
+    "failedToDelete": "Silmək mümkün olmadı",
+    "couldNotDelete": "Elanı silmək olmadı. Yenidən cəhd edin.",
+    "noListingsYet": "Hələ elan yoxdur",
+    "addFirstCar": "İlk avtomobilinizi əlavə edin →"
+  },
+  "listCar": {
+    "title": "Avtomobilinizi sərgiləyin",
+    "subtitle": "Avtomobil məlumatlarını doldurun və qazanmağa başlayın. Yerləşdirmək pulsuzdur.",
+    "brand": "Marka",
+    "model": "Model",
+    "year": "İl",
+    "pricePerDay": "Gündəlik qiymət (AZN)",
+    "transmission": "Sürət qutusu",
+    "automatic": "Avtomat",
+    "manual": "Mexaniki",
+    "fuelType": "Yanacaq növü",
+    "location": "Şəhər",
+    "description": "Təsvir",
+    "descriptionPlaceholder": "Avtomobili, vəziyyətini və əlavə imkanları təsvir edin...",
+    "airportDeliveryHint": "Heydər Əliyev Beynəlxalq Aeroportuna çatdırılma təklif edin",
+    "submit": "Elanı yayımla",
+    "failedToCreate": "Elan yaratmaq alınmadı.",
+    "somethingWentWrong": "Xəta baş verdi. Yenidən cəhd edin.",
+    "fuel": {
+      "petrol": "Benzin",
+      "diesel": "Dizel",
+      "electric": "Elektrik",
+      "hybrid": "Hibrid"
+    }
+  },
+  "editCar": {
+    "title": "Elanı redaktə et",
+    "subtitle": "Aşağıda avtomobil məlumatlarını yeniləyin.",
+    "brand": "Marka",
+    "model": "Model",
+    "year": "İl",
+    "pricePerDay": "Gündəlik qiymət (AZN)",
+    "transmission": "Sürət qutusu",
+    "automatic": "Avtomat",
+    "manual": "Mexaniki",
+    "fuelType": "Yanacaq növü",
+    "location": "Şəhər",
+    "description": "Təsvir",
+    "descriptionPlaceholder": "Avtomobili, vəziyyətini və əlavə imkanları təsvir edin...",
+    "airportDeliveryHint": "Heydər Əliyev Beynəlxalq Aeroportuna çatdırılma təklif edin",
+    "cancel": "Ləğv et",
+    "saveChanges": "Dəyişiklikləri yadda saxla",
+    "failedToUpdate": "Elanı yeniləmək alınmadı.",
+    "somethingWentWrong": "Xəta baş verdi. Yenidən cəhd edin.",
+    "fuel": {
+      "petrol": "Benzin",
+      "diesel": "Dizel",
+      "electric": "Elektrik",
+      "hybrid": "Hibrid"
+    }
+  },
+  "auth": {
+    "welcomeBack": "Yenidən xoş gəldiniz",
+    "signInToAccount": "Hesabınıza daxil olun",
+    "email": "E-poçt",
+    "password": "Şifrə",
+    "yourPassword": "Şifrəniz",
+    "signIn": "Daxil ol",
+    "noAccount": "Hesabınız yoxdur?",
+    "signUp": "Qeydiyyat",
+    "createAccount": "Hesab yaradın",
+    "startRenting": "Kirayəyə götürməyə və ya yerləşdirməyə bu gün başlayın",
+    "fullName": "Ad Soyad",
+    "atLeast8Chars": "Ən azı 8 simvol",
+    "createAccountButton": "Hesab yarat",
+    "alreadyHaveAccount": "Hesabınız var?"
+  },
+  "notFound": {
+    "title": "Səhifə tapılmadı",
+    "description": "Axtardığınız səhifə mövcud deyil və ya köçürülüb.",
+    "goHome": "Ana səhifəyə qayıt",
+    "browseCars": "Avtomobillərə bax"
+  },
+  "common": {
+    "loading": "Yüklənir...",
+    "noReviewsYet": "Hələ rəy yoxdur"
+  },
+  "status": {
+    "pending": "Gözləmədə",
+    "confirmed": "Təsdiqlənib",
+    "cancelled": "Ləğv edilib",
+    "completed": "Tamamlanıb"
+  },
+  "imageUpload": {
+    "maxPhotos": "Maksimum {max} şəkil yükləyə bilərsiniz.",
+    "mustBeLoggedIn": "Şəkil yükləmək üçün daxil olmalısınız.",
+    "onlyImages": "Yalnız şəkil faylları dəstəklənir.",
+    "uploadFailed": "Yükləmə alınmadı: {error}",
+    "photos": "Şəkillər",
+    "uploading": "Yüklənir...",
+    "tapToAdd": "Şəkil əlavə etmək üçün toxunun",
+    "formatHint": "JPG, PNG, HEIC (iPhone) · maksimum {max} şəkil",
+    "removePhoto": "Şəkli sil",
+    "cover": "Üzlük",
+    "coverHint": "İlk şəkil elanda üzlük şəkli kimi göstəriləcək"
+  },
+  "bookingCalendar": {
+    "previousMonth": "Əvvəlki ay",
+    "nextMonth": "Növbəti ay",
+    "selected": "Seçilib",
+    "unavailable": "Mövcud deyil",
+    "weekdays": {
+      "su": "B.",
+      "mo": "Be.",
+      "tu": "Ça.",
+      "we": "Ç.",
+      "th": "C.a.",
+      "fr": "C.",
+      "sa": "Ş."
+    },
+    "months": {
+      "january": "Yanvar",
+      "february": "Fevral",
+      "march": "Mart",
+      "april": "Aprel",
+      "may": "May",
+      "june": "İyun",
+      "july": "İyul",
+      "august": "Avqust",
+      "september": "Sentyabr",
+      "october": "Oktyabr",
+      "november": "Noyabr",
+      "december": "Dekabr"
+    }
+  }
+}

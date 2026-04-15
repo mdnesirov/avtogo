@@ -1,15 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import {Link, usePathname, useRouter} from '@/i18n/navigation';
+import {useTranslations} from 'next-intl';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import LanguageSwitcher from '@/components/shared/LanguageSwitcher';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{ email?: string } | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
+  const t = useTranslations('navigation');
   const supabase = createClient();
 
   useEffect(() => {
@@ -24,7 +27,8 @@ export default function Navbar() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    window.location.href = '/';
+    router.replace('/');
+    router.refresh();
   };
 
   const navLink = (href: string, label: string, onClick?: () => void) => {
@@ -62,9 +66,10 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
-            {navLink('/', 'Home')}
-            {navLink('/cars', 'Browse Cars')}
-            {navLink('/list-car', 'List Your Car')}
+            {navLink('/', t('home'))}
+            {navLink('/cars', t('browseCars'))}
+            {navLink('/list-car', t('listYourCar'))}
+            <LanguageSwitcher />
             {user ? (
               <>
                 <Link
@@ -73,23 +78,23 @@ export default function Navbar() {
                     pathname === '/dashboard' ? 'text-green-600' : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  <User size={16} /> Dashboard
+                  <User size={16} /> {t('dashboard')}
                 </Link>
                 <button
                   onClick={handleSignOut}
                   className="text-gray-500 hover:text-gray-900 text-sm flex items-center gap-1 transition-colors"
                 >
-                  <LogOut size={16} /> Sign out
+                  <LogOut size={16} /> {t('signOut')}
                 </button>
               </>
             ) : (
               <>
-                <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Sign in</Link>
+                <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 text-sm font-medium">{t('signIn')}</Link>
                 <Link
-                  href="/auth/signup"
+                  href="/auth/register"
                   className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
                 >
-                  Get started
+                  {t('signUp')}
                 </Link>
               </>
             )}
@@ -99,7 +104,7 @@ export default function Navbar() {
           <button
             className="md:hidden p-2 text-gray-600"
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
+            aria-label={t('toggleMenu')}
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -108,18 +113,21 @@ export default function Navbar() {
         {/* Mobile menu */}
         {isOpen && (
           <div className="md:hidden py-4 border-t border-gray-100 space-y-3">
-            <Link href="/" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Home</Link>
-            <Link href="/cars" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Browse Cars</Link>
-            <Link href="/list-car" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>List Your Car</Link>
+            <Link href="/" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>{t('home')}</Link>
+            <Link href="/cars" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>{t('browseCars')}</Link>
+            <Link href="/list-car" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>{t('listYourCar')}</Link>
+            <div className="pt-1">
+              <LanguageSwitcher />
+            </div>
             {user ? (
               <>
-                <Link href="/dashboard" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Dashboard</Link>
-                <button onClick={handleSignOut} className="block text-gray-500 py-2 text-sm">Sign out</button>
+                <Link href="/dashboard" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>{t('dashboard')}</Link>
+                <button onClick={handleSignOut} className="block text-gray-500 py-2 text-sm">{t('signOut')}</button>
               </>
             ) : (
               <>
-                <Link href="/auth/login" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Sign in</Link>
-                <Link href="/auth/signup" className="block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium text-center" onClick={() => setIsOpen(false)}>Get started</Link>
+                <Link href="/auth/login" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>{t('signIn')}</Link>
+                <Link href="/auth/register" className="block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium text-center" onClick={() => setIsOpen(false)}>{t('signUp')}</Link>
               </>
             )}
           </div>

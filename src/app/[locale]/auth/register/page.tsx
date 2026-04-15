@@ -1,17 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import {Link, useRouter } from '@/i18n/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
+import {useTranslations} from 'next-intl';
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
+  const t = useTranslations('auth');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ fullName: '', email: '', password: '' });
 
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(prev => ({ ...prev, [field]: e.target.value }));
@@ -21,7 +22,11 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword(form);
+    const { error } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: { data: { full_name: form.fullName } },
+    });
     if (error) {
       setError(error.message);
       setLoading(false);
@@ -44,20 +49,21 @@ export default function LoginPage() {
             </svg>
             AvtoGo
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-500 text-sm mt-1">Sign in to your account</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('createAccount')}</h1>
+          <p className="text-gray-500 text-sm mt-1">{t('startRenting')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 bg-white border border-gray-100 rounded-2xl p-6">
-          <Input label="Email" type="email" placeholder="you@example.com" value={form.email} onChange={handleChange('email')} required />
-          <Input label="Password" type="password" placeholder="Your password" value={form.password} onChange={handleChange('password')} required />
+          <Input label={t('fullName')} placeholder="Murad Nasirov" value={form.fullName} onChange={handleChange('fullName')} required />
+          <Input label={t('email')} type="email" placeholder="you@example.com" value={form.email} onChange={handleChange('email')} required />
+          <Input label={t('password')} type="password" placeholder={t('atLeast8Chars')} value={form.password} onChange={handleChange('password')} minLength={8} required />
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button type="submit" className="w-full" size="lg" loading={loading}>Sign in</Button>
+          <Button type="submit" className="w-full" size="lg" loading={loading}>{t('createAccountButton')}</Button>
         </form>
 
         <p className="text-center text-sm text-gray-500 mt-4">
-          No account?{' '}
-          <Link href="/auth/signup" className="text-green-600 hover:text-green-700 font-medium">Sign up</Link>
+          {t('alreadyHaveAccount')}{' '}
+          <Link href="/auth/login" className="text-green-600 hover:text-green-700 font-medium">{t('signIn')}</Link>
         </p>
       </div>
     </div>

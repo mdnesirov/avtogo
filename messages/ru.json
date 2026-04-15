@@ -1,0 +1,311 @@
+{
+  "navigation": {
+    "home": "Главная",
+    "browseCars": "Автомобили",
+    "listYourCar": "Сдать авто",
+    "dashboard": "Панель",
+    "signIn": "Войти",
+    "signOut": "Выйти",
+    "signUp": "Регистрация",
+    "toggleMenu": "Переключить меню"
+  },
+  "footer": {
+    "description": "P2P-платформа аренды авто в Азербайджане. Арендуйте у местных владельцев или сдавайте свой автомобиль.",
+    "platform": "Платформа",
+    "browseCars": "Автомобили",
+    "listYourCar": "Сдать авто",
+    "dashboard": "Панель",
+    "contact": "Контакты",
+    "whatsappSupport": "Поддержка в WhatsApp",
+    "privacyPolicy": "Политика конфиденциальности",
+    "termsOfService": "Условия использования"
+  },
+  "home": {
+    "hero": {
+      "liveInBaku": "Уже доступно в Баку",
+      "titleLine1": "Арендуйте любой автомобиль",
+      "titleLine2": "в Азербайджане",
+      "subtitle": "Выбирайте авто у частных владельцев и компаний. Бронируйте за минуты и выезжайте уже сегодня."
+    },
+    "search": {
+      "allCities": "Все города",
+      "from": "С",
+      "to": "По",
+      "search": "Поиск"
+    },
+    "features": {
+      "verifiedOwnersCars": "Проверенные владельцы и авто",
+      "ratedByRenters": "Отзывы реальных арендаторов",
+      "airportDelivery": "Доставка в аэропорт доступна"
+    },
+    "featured": {
+      "title": "Рекомендуемые авто",
+      "subtitle": "Подобранные автомобили, доступные сейчас",
+      "viewAll": "Смотреть все →",
+      "noCars": "Пока нет доступных автомобилей.",
+      "beFirst": "Добавьте свой автомобиль первым →"
+    },
+    "ownerCta": {
+      "title": "Авто простаивает?",
+      "subtitle": "Разместите его на AvtoGo и зарабатывайте, когда не используете. Настройка займет меньше 5 минут.",
+      "cta": "Разместить бесплатно"
+    }
+  },
+  "cars": {
+    "browseCars": "Автомобили",
+    "carsAvailable": "Доступно автомобилей: {count}",
+    "failedToLoad": "Не удалось загрузить автомобили. Попробуйте снова.",
+    "noCarsFound": "Автомобили не найдены",
+    "adjustFilters": "Попробуйте изменить фильтры",
+    "airportDelivery": "Доставка в аэропорт",
+    "notAvailable": "Недоступно",
+    "day": "день",
+    "automaticShort": "Авто",
+    "manual": "Механика",
+    "edit": "Изменить",
+    "delete": "Удалить",
+    "fuel": {
+      "petrol": "Бензин",
+      "diesel": "Дизель",
+      "electric": "Электро",
+      "hybrid": "Гибрид"
+    },
+    "filters": {
+      "title": "Фильтры",
+      "city": "Город",
+      "allCities": "Все города",
+      "transmission": "Коробка передач",
+      "any": "Любая",
+      "automatic": "Автомат",
+      "manual": "Механика",
+      "fuelType": "Тип топлива",
+      "pricePerDay": "Цена в день (AZN)",
+      "min": "Мин",
+      "max": "Макс",
+      "applyFilters": "Применить фильтры",
+      "clearAll": "Сбросить",
+      "fuel": {
+        "petrol": "Бензин",
+        "diesel": "Дизель",
+        "electric": "Электро",
+        "hybrid": "Гибрид"
+      }
+    }
+  },
+  "carDetail": {
+    "photoAlt": "Фото {index}",
+    "country": "Азербайджан",
+    "year": "Год",
+    "transmission": "Коробка",
+    "automatic": "Автомат",
+    "manual": "Механика",
+    "fuel": "Топливо",
+    "fuelTypes": {
+      "petrol": "Бензин",
+      "diesel": "Дизель",
+      "electric": "Электро",
+      "hybrid": "Гибрид"
+    },
+    "ownerType": "Тип владельца",
+    "private": "Частный",
+    "airportDelivery": "Доставка в аэропорт",
+    "available": "Доступно",
+    "notAvailable": "Недоступно",
+    "aboutThisCar": "Об автомобиле",
+    "location": "Местоположение",
+    "perDay": "в день",
+    "contactWhatsApp": "Связаться через WhatsApp",
+    "whatsappMessage": "Здравствуйте, меня интересует аренда вашего автомобиля на AvtoGo.",
+    "whatsappMessageWithCar": "Здравствуйте, меня интересует аренда вашего {brand} {model} на AvtoGo.",
+    "youWontBeChargedYet": "Сейчас с вас не спишут оплату"
+  },
+  "bookingPage": {
+    "noCarSelected": "Автомобиль не выбран.",
+    "carNotFound": "Автомобиль не найден.",
+    "browseCars": "Смотреть автомобили",
+    "backToCar": "Назад к {brand} {model}",
+    "completeYourBooking": "Завершите бронирование",
+    "selectRentalDates": "1. Выберите даты аренды",
+    "driverInformation": "2. Данные водителя",
+    "priceBreakdown": "Детализация цены"
+  },
+  "bookingForm": {
+    "pickupDate": "Дата получения",
+    "returnDate": "Дата возврата",
+    "days": "{count, plural, one {# день} few {# дня} many {# дней} other {# дня}}",
+    "continueToDriverInfo": "Перейти к данным водителя",
+    "back": "Назад",
+    "fullName": "ФИО",
+    "fullNamePlaceholder": "Введите полное имя",
+    "phoneNumber": "Номер телефона",
+    "driverLicense": "Водительское удостоверение",
+    "optional": "Необязательно",
+    "notes": "Заметки",
+    "notesPlaceholder": "Особые пожелания...",
+    "totalForDays": "Итого за {count, plural, one {# день} few {# дня} many {# дней} other {# дня}}",
+    "confirmBooking": "Подтвердить бронирование",
+    "bookingFailed": "Не удалось оформить бронирование. Попробуйте снова.",
+    "somethingWentWrong": "Что-то пошло не так. Попробуйте снова."
+  },
+  "bookingSummary": {
+    "title": "Сводка бронирования",
+    "rentalPeriod": "Период аренды",
+    "selectDates": "Выберите даты, чтобы увидеть стоимость",
+    "pricePerDays": "₼{price} × {count, plural, one {# день} few {# дня} many {# дней} other {# дня}}",
+    "serviceFee": "Сервисный сбор (5%)",
+    "total": "Итого",
+    "transmission": {
+      "automatic": "Автомат",
+      "manual": "Механика"
+    }
+  },
+  "bookingConfirmation": {
+    "title": "Бронирование подтверждено!",
+    "subtitle": "Ваш запрос отправлен. Владелец скоро подтвердит бронирование.",
+    "total": "Итого",
+    "viewMyBookings": "Мои бронирования",
+    "browseMoreCars": "Смотреть другие авто"
+  },
+  "dashboard": {
+    "title": "Панель",
+    "listCar": "Добавить авто",
+    "myListings": "Мои объявления",
+    "myBookings": "Мои бронирования",
+    "car": "Авто",
+    "dates": "Даты",
+    "total": "Итого",
+    "status": "Статус",
+    "noBookingsYet": "Бронирований пока нет",
+    "browseCars": "Смотреть автомобили →",
+    "deleteConfirm": "Вы уверены, что хотите удалить это объявление?",
+    "failedToDelete": "Не удалось удалить",
+    "couldNotDelete": "Не удалось удалить объявление. Попробуйте снова.",
+    "noListingsYet": "Объявлений пока нет",
+    "addFirstCar": "Добавьте первое авто →"
+  },
+  "listCar": {
+    "title": "Сдать ваш автомобиль",
+    "subtitle": "Заполните данные автомобиля и начните зарабатывать. Размещение бесплатное.",
+    "brand": "Марка",
+    "model": "Модель",
+    "year": "Год",
+    "pricePerDay": "Цена в день (AZN)",
+    "transmission": "Коробка передач",
+    "automatic": "Автомат",
+    "manual": "Механика",
+    "fuelType": "Тип топлива",
+    "location": "Город",
+    "description": "Описание",
+    "descriptionPlaceholder": "Опишите автомобиль, состояние и дополнительные опции...",
+    "airportDeliveryHint": "Предложить доставку в Международный аэропорт Гейдар Алиев",
+    "submit": "Опубликовать объявление",
+    "failedToCreate": "Не удалось создать объявление.",
+    "somethingWentWrong": "Что-то пошло не так. Попробуйте снова.",
+    "fuel": {
+      "petrol": "Бензин",
+      "diesel": "Дизель",
+      "electric": "Электро",
+      "hybrid": "Гибрид"
+    }
+  },
+  "editCar": {
+    "title": "Редактировать объявление",
+    "subtitle": "Обновите данные автомобиля ниже.",
+    "brand": "Марка",
+    "model": "Модель",
+    "year": "Год",
+    "pricePerDay": "Цена в день (AZN)",
+    "transmission": "Коробка передач",
+    "automatic": "Автомат",
+    "manual": "Механика",
+    "fuelType": "Тип топлива",
+    "location": "Город",
+    "description": "Описание",
+    "descriptionPlaceholder": "Опишите автомобиль, состояние и дополнительные опции...",
+    "airportDeliveryHint": "Предложить доставку в Международный аэропорт Гейдар Алиев",
+    "cancel": "Отмена",
+    "saveChanges": "Сохранить изменения",
+    "failedToUpdate": "Не удалось обновить объявление.",
+    "somethingWentWrong": "Что-то пошло не так. Попробуйте снова.",
+    "fuel": {
+      "petrol": "Бензин",
+      "diesel": "Дизель",
+      "electric": "Электро",
+      "hybrid": "Гибрид"
+    }
+  },
+  "auth": {
+    "welcomeBack": "С возвращением",
+    "signInToAccount": "Войдите в аккаунт",
+    "email": "Email",
+    "password": "Пароль",
+    "yourPassword": "Ваш пароль",
+    "signIn": "Войти",
+    "noAccount": "Нет аккаунта?",
+    "signUp": "Зарегистрироваться",
+    "createAccount": "Создать аккаунт",
+    "startRenting": "Начните арендовать или сдавать уже сегодня",
+    "fullName": "Полное имя",
+    "atLeast8Chars": "Минимум 8 символов",
+    "createAccountButton": "Создать аккаунт",
+    "alreadyHaveAccount": "Уже есть аккаунт?"
+  },
+  "notFound": {
+    "title": "Страница не найдена",
+    "description": "Страница, которую вы ищете, не существует или была перемещена.",
+    "goHome": "На главную",
+    "browseCars": "Смотреть автомобили"
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "noReviewsYet": "Пока нет отзывов"
+  },
+  "status": {
+    "pending": "Ожидает",
+    "confirmed": "Подтверждено",
+    "cancelled": "Отменено",
+    "completed": "Завершено"
+  },
+  "imageUpload": {
+    "maxPhotos": "Максимум {max} фото.",
+    "mustBeLoggedIn": "Чтобы загружать фото, нужно войти.",
+    "onlyImages": "Поддерживаются только изображения.",
+    "uploadFailed": "Ошибка загрузки: {error}",
+    "photos": "Фотографии",
+    "uploading": "Загрузка...",
+    "tapToAdd": "Нажмите, чтобы добавить фото",
+    "formatHint": "JPG, PNG, HEIC (iPhone) · до {max} фото",
+    "removePhoto": "Удалить фото",
+    "cover": "Обложка",
+    "coverHint": "Первое фото будет обложкой объявления"
+  },
+  "bookingCalendar": {
+    "previousMonth": "Предыдущий месяц",
+    "nextMonth": "Следующий месяц",
+    "selected": "Выбрано",
+    "unavailable": "Недоступно",
+    "weekdays": {
+      "su": "Вс",
+      "mo": "Пн",
+      "tu": "Вт",
+      "we": "Ср",
+      "th": "Чт",
+      "fr": "Пт",
+      "sa": "Сб"
+    },
+    "months": {
+      "january": "Январь",
+      "february": "Февраль",
+      "march": "Март",
+      "april": "Апрель",
+      "may": "Май",
+      "june": "Июнь",
+      "july": "Июль",
+      "august": "Август",
+      "september": "Сентябрь",
+      "october": "Октябрь",
+      "november": "Ноябрь",
+      "december": "Декабрь"
+    }
+  }
+}

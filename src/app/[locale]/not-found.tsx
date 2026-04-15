@@ -1,6 +1,8 @@
-import Link from 'next/link';
+import {Link} from '@/i18n/navigation';
+import {getTranslations} from 'next-intl/server';
 
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations('notFound');
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="text-center">
@@ -21,22 +23,22 @@ export default function NotFound() {
           </svg>
         </div>
         <h1 className="text-6xl font-bold text-gray-900 mb-2">404</h1>
-        <h2 className="text-xl font-semibold text-gray-700 mb-2">Page not found</h2>
+        <h2 className="text-xl font-semibold text-gray-700 mb-2">{t('title')}</h2>
         <p className="text-gray-500 text-sm mb-8 max-w-sm mx-auto">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
+          {t('description')}
         </p>
         <div className="flex items-center justify-center gap-4">
           <Link
             href="/"
             className="bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
           >
-            Go home
+            {t('goHome')}
           </Link>
           <Link
             href="/cars"
             className="border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
           >
-            Browse cars
+            {t('browseCars')}
           </Link>
         </div>
       </div>

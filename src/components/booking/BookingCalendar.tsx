@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import {useTranslations} from 'next-intl';
 
 interface BookingCalendarProps {
   bookedRanges?: { start: string; end: string }[];
@@ -21,6 +22,7 @@ export default function BookingCalendar({
   onSelectStart,
   onSelectEnd,
 }: BookingCalendarProps) {
+  const t = useTranslations('bookingCalendar');
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -29,7 +31,20 @@ export default function BookingCalendar({
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
 
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthNames = [
+    t('months.january'),
+    t('months.february'),
+    t('months.march'),
+    t('months.april'),
+    t('months.may'),
+    t('months.june'),
+    t('months.july'),
+    t('months.august'),
+    t('months.september'),
+    t('months.october'),
+    t('months.november'),
+    t('months.december')
+  ];
 
   function isBooked(dateStr: string): boolean {
     return bookedRanges.some((r) => dateStr >= r.start && dateStr <= r.end);
@@ -76,18 +91,18 @@ export default function BookingCalendar({
     <div className="border border-gray-200 rounded-2xl p-4 bg-white">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <button onClick={prevMonth} aria-label="Previous month" className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+        <button onClick={prevMonth} aria-label={t('previousMonth')} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
         </button>
         <span className="font-semibold text-gray-900">{monthNames[viewMonth]} {viewYear}</span>
-        <button onClick={nextMonth} aria-label="Next month" className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+        <button onClick={nextMonth} aria-label={t('nextMonth')} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
         </button>
       </div>
 
       {/* Weekday labels */}
       <div className="grid grid-cols-7 mb-1">
-        {['Su','Mo','Tu','We','Th','Fr','Sa'].map((d) => (
+        {[t('weekdays.su'),t('weekdays.mo'),t('weekdays.tu'),t('weekdays.we'),t('weekdays.th'),t('weekdays.fr'),t('weekdays.sa')].map((d) => (
           <div key={d} className="text-center text-xs text-gray-400 font-medium py-1">{d}</div>
         ))}
       </div>
@@ -126,8 +141,8 @@ export default function BookingCalendar({
 
       {/* Legend */}
       <div className="flex gap-4 mt-3 text-xs text-gray-500">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-600 inline-block" /> Selected</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> Unavailable</span>
+         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-600 inline-block" /> {t('selected')}</span>
+         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> {t('unavailable')}</span>
       </div>
     </div>
   );

@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/navigation';
 import { Car } from '@/types';
 import { calculateDays, calculateTotalPrice, formatPrice } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
+import {useTranslations} from 'next-intl';
 
 interface BookingFormProps {
   car: Car;
@@ -16,6 +17,7 @@ interface BookingFormProps {
 
 export default function BookingForm({ car, startDate: propStartDate = '', endDate: propEndDate = '' }: BookingFormProps) {
   const router = useRouter();
+  const t = useTranslations('bookingForm');
   const [step, setStep] = useState<1 | 2>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -74,7 +76,7 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Booking failed. Please try again.');
+        setError(data.error || t('bookingFailed'));
       } else if (data.checkoutUrl) {
         // Redirect to Stripe checkout
         window.location.href = data.checkoutUrl;
@@ -82,7 +84,7 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
         router.push(`/booking/confirmation?id=${data.booking.id}`);
       }
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(t('somethingWentWrong'));
     } finally {
       setLoading(false);
     }
@@ -93,14 +95,14 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
       {step === 1 && (
         <>
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Pick-up date" type="date" value={form.startDate} onChange={handleChange('startDate')} min={new Date().toISOString().split('T')[0]} />
-            <Input label="Return date" type="date" value={form.endDate} onChange={handleChange('endDate')} min={form.startDate || new Date().toISOString().split('T')[0]} />
+            <Input label={t('pickupDate')} type="date" value={form.startDate} onChange={handleChange('startDate')} min={new Date().toISOString().split('T')[0]} />
+            <Input label={t('returnDate')} type="date" value={form.endDate} onChange={handleChange('endDate')} min={form.startDate || new Date().toISOString().split('T')[0]} />
           </div>
 
           {days > 0 && (
             <div className="bg-green-50 border border-green-100 rounded-xl p-3 text-sm">
               <div className="flex justify-between text-gray-600">
-                <span>{formatPrice(car.price_per_day)} &times; {days} days</span>
+                <span>{formatPrice(car.price_per_day)} &times; {t('days', {count: days})}</span>
                 <span className="font-semibold text-gray-900">{formatPrice(total)}</span>
               </div>
             </div>
@@ -112,21 +114,21 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
             disabled={days <= 0}
             onClick={() => setStep(2)}
           >
-            Continue to driver info
+            {t('continueToDriverInfo')}
           </Button>
         </>
       )}
 
       {step === 2 && (
         <>
-          <button onClick={() => setStep(1)} className="text-sm text-gray-400 hover:text-gray-600 mb-1">&larr; Back</button>
-          <Input label="Full name" placeholder="Your full name" value={form.driverName} onChange={handleChange('driverName')} required />
-          <Input label="Phone number" type="tel" placeholder="+994 XX XXX XXXX" value={form.driverPhone} onChange={handleChange('driverPhone')} required />
-          <Input label="Driver license #" placeholder="Optional" value={form.driverLicense} onChange={handleChange('driverLicense')} />
+          <button onClick={() => setStep(1)} className="text-sm text-gray-400 hover:text-gray-600 mb-1">&larr; {t('back')}</button>
+          <Input label={t('fullName')} placeholder={t('fullNamePlaceholder')} value={form.driverName} onChange={handleChange('driverName')} required />
+          <Input label={t('phoneNumber')} type="tel" placeholder="+994 XX XXX XXXX" value={form.driverPhone} onChange={handleChange('driverPhone')} required />
+          <Input label={t('driverLicense')} placeholder={t('optional')} value={form.driverLicense} onChange={handleChange('driverLicense')} />
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Notes</label>
+            <label className="text-sm font-medium text-gray-700">{t('notes')}</label>
             <textarea
-              placeholder="Any special requests..."
+              placeholder={t('notesPlaceholder')}
               value={form.notes}
               onChange={handleChange('notes')}
               rows={2}
@@ -137,12 +139,12 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           <div className="bg-gray-50 rounded-xl p-3 text-sm flex justify-between">
-            <span className="text-gray-500">Total for {days} days</span>
+            <span className="text-gray-500">{t('totalForDays', {count: days})}</span>
             <span className="font-bold text-gray-900">{formatPrice(total)}</span>
           </div>
 
           <Button className="w-full" size="lg" loading={loading} onClick={handleSubmit}>
-            Confirm Booking
+            {t('confirmBooking')}
           </Button>
         </>
       )}
