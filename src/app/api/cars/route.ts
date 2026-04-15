@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
       .from('cars')
       .insert({
         owner_id: user.id,
+        car_name: `${body.brand} ${body.model} ${body.year}`,
         brand: body.brand,
         model: body.model,
         year: parseInt(body.year),
