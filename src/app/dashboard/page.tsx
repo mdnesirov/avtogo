@@ -6,6 +6,8 @@ import MyCars from '@/components/dashboard/MyCars';
 import MyBookings from '@/components/dashboard/MyBookings';
 import { Car, Plus } from 'lucide-react';
 
+const OWNER_BOOKING_STATUSES = ['confirmed', 'cancelled'] as const;
+
 export default async function DashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -82,9 +84,12 @@ export default async function DashboardPage() {
 
     const bookingId = formData.get('bookingId');
     const status = formData.get('status');
+    const isValidStatus = OWNER_BOOKING_STATUSES.includes(
+      status as (typeof OWNER_BOOKING_STATUSES)[number]
+    );
     if (
       typeof bookingId !== 'string'
-      || (status !== 'confirmed' && status !== 'cancelled')
+      || !isValidStatus
     ) return;
 
     const { data: ownerCars } = await supabase
