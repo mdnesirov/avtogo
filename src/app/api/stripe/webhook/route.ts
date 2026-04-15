@@ -48,17 +48,19 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
-        if (session.id) {
-          await updateBookingStatusBySessionId(session.id, 'confirmed');
+        if (!session.id) {
+          throw new Error('checkout.session.completed payload missing session id');
         }
+        await updateBookingStatusBySessionId(session.id, 'confirmed');
         break;
       }
 
       case 'checkout.session.expired': {
         const session = event.data.object;
-        if (session.id) {
-          await updateBookingStatusBySessionId(session.id, 'cancelled');
+        if (!session.id) {
+          throw new Error('checkout.session.expired payload missing session id');
         }
+        await updateBookingStatusBySessionId(session.id, 'cancelled');
         break;
       }
 
@@ -86,7 +88,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('Webhook processing failed:', error);
-    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Webhook processing failed', eventType: event.type }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
