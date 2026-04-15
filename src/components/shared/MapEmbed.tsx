@@ -14,11 +14,13 @@ export default function MapEmbed({ location }: MapEmbedProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
+    const message = process.env.NODE_ENV === 'development'
+      ? 'Map is unavailable right now. Please set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY.'
+      : 'Map is temporarily unavailable.';
+
     return (
       <div className="rounded-xl overflow-hidden border border-gray-100 p-4 bg-gray-50">
-        <p className="text-sm text-gray-600">
-          Map is unavailable right now. Please set <code>NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code>.
-        </p>
+        <p className="text-sm text-gray-600">{message}</p>
       </div>
     );
   }
