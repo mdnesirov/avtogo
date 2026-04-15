@@ -12,21 +12,36 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/auth/login');
 
-  const [{ data: myCars }, { data: myBookings }, { data: incomingBookings }] = await Promise.all([
-    supabase.from('cars').select('*').eq('owner_id', user.id).order('created_at', { ascending: false }),
-    supabase.from('bookings').select('*, car:cars(brand, model, images)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
+  // Step 1: fetch myCars first so we have the IDs
+  const { data: myCars } = await supabase
+    .from('cars')
+    .select('*')
+    .eq('owner_id', user.id)
+    .order('created_at', { ascending: false });
+
+  const carIds: string[] = (myCars ?? []).map((c: any) => c.id);
+
+  // Step 2: fetch myBookings and incomingBookings in parallel
+  const [{ data: myBookings }, { data: incomingBookings }] = await Promise.all([
     supabase
       .from('bookings')
-      .select('*, car:cars(id, brand, model, year, images)')
-      .in('car_id', (myCars ?? []).map((c: any) => c.id))
+      .select('*, car:cars(brand, model, images)')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(20),
+      .limit(10),
+    carIds.length > 0
+      ? supabase
+          .from('bookings')
+          .select('*, car:cars(id, brand, model, year, images)')
+          .in('car_id', carIds)
+          .order('created_at', { ascending: false })
+          .limit(20)
+      : Promise.resolve({ data: [] }),
   ]);
 
-  // Map of carId -> has pending booking (for graying out)
-  const pendingCarIds = new Set(
-    (incomingBookings ?? []).filter((b: any) => b.status === 'pending' || b.status === 'paid').map((b: any) => b.car_id)
-  );
+  const pendingCarIds: string[] = (incomingBookings ?? [])
+    .filter((b: any) => b.status === 'pending' || b.status === 'paid')
+    .map((b: any) => b.car_id as string);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -48,7 +63,11 @@ export default async function DashboardPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Car size={18} className="text-green-600" /> My Listings
         </h2>
-        <DashboardClient cars={myCars ?? []} pendingCarIds={Array.from(pendingCarIds)} incomingBookings={incomingBookings ?? []} />
+        <DashboardClient
+          cars={myCars ?? []}
+          pendingCarIds={pendingCarIds}
+          incomingBookings={incomingBookings ?? []}
+        />
       </section>
 
       {/* My Bookings */}
