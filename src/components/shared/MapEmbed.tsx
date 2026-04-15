@@ -1,12 +1,30 @@
-import { getMapEmbedUrl, getMapsLink } from '@/lib/maps';
-
 interface MapEmbedProps {
   location: string;
 }
 
 export default function MapEmbed({ location }: MapEmbedProps) {
-  const embedUrl = getMapEmbedUrl(location);
-  const mapsLink = getMapsLink(location);
+  if (!location?.trim()) {
+    return (
+      <div className="rounded-xl overflow-hidden border border-gray-100 p-4 bg-gray-50">
+        <p className="text-sm text-gray-600">Pickup location is not available.</p>
+      </div>
+    );
+  }
+
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  if (!apiKey) {
+    return (
+      <div className="rounded-xl overflow-hidden border border-gray-100 p-4 bg-gray-50">
+        <p className="text-sm text-gray-600">
+          Map is unavailable right now. Please set <code>NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code>.
+        </p>
+      </div>
+    );
+  }
+
+  const embedUrl = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(location)}&zoom=14`;
+  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 
   return (
     <div className="rounded-xl overflow-hidden border border-gray-100">
