@@ -37,6 +37,10 @@ export default function ListCarForm() {
       setError('Please fill in all required fields.');
       return;
     }
+    if (Number(form.year) <= 0 || Number(form.price_per_day) <= 0) {
+      setError('Year and price per day must be positive numbers.');
+      return;
+    }
     if (photos.length === 0) {
       setError('Please add at least one photo.');
       return;
