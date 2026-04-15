@@ -10,8 +10,10 @@ export async function POST(req: NextRequest) {
   const {
     brand, model, year, car_type, transmission,
     fuel_type, price_per_day, location, city, description,
-    images, airport_delivery, whatsapp_phone,
+    images, whatsapp_phone,
     requires_deposit, deposit_amount,
+    offers_delivery, delivery_fee,
+    offers_airport_delivery, airport_delivery_fee,
   } = body;
 
   // Build and trim car_name from brand + model
@@ -37,10 +39,15 @@ export async function POST(req: NextRequest) {
       city: city || null,
       description: description || null,
       images: images || [],
-      airport_delivery: airport_delivery || false,
+      // Keep legacy airport_delivery column in sync
+      airport_delivery: offers_airport_delivery || false,
       whatsapp_phone: whatsapp_phone || null,
       requires_deposit: requires_deposit || false,
       deposit_amount: requires_deposit && deposit_amount ? Number(deposit_amount) : null,
+      offers_delivery: offers_delivery || false,
+      delivery_fee: offers_delivery && delivery_fee ? Number(delivery_fee) : null,
+      offers_airport_delivery: offers_airport_delivery || false,
+      airport_delivery_fee: offers_airport_delivery && airport_delivery_fee ? Number(airport_delivery_fee) : null,
     })
     .select()
     .single();

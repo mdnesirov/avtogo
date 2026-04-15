@@ -37,6 +37,10 @@ export interface Car {
   review_count: number | null;
   requires_deposit: boolean | null;
   deposit_amount: number | null;
+  offers_delivery: boolean;
+  delivery_fee: number | null;
+  offers_airport_delivery: boolean;
+  airport_delivery_fee: number | null;
   created_at: string;
   updated_at: string | null;
   owner?: Profile;

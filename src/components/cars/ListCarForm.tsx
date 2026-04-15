@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, Car as CarIcon, Plane, MapPin } from 'lucide-react';
 
 const BRANDS = ['Toyota', 'BMW', 'Mercedes', 'Audi', 'Hyundai', 'Kia', 'Volkswagen', 'Ford', 'Chevrolet', 'Nissan', 'Honda', 'Mazda', 'Porsche', 'Land Rover', 'Lexus', 'Other'];
 const CAR_TYPES = ['Sedan', 'SUV', 'Hatchback', 'Coupe', 'Convertible', 'Van', 'Minivan', 'Pickup', 'Wagon', 'Other'];
@@ -14,6 +14,8 @@ export default function ListCarForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [requiresDeposit, setRequiresDeposit] = useState(false);
+  const [offersDelivery, setOffersDelivery] = useState(false);
+  const [offersAirport, setOffersAirport] = useState(false);
 
   const [form, setForm] = useState({
     brand: '',
@@ -24,11 +26,12 @@ export default function ListCarForm() {
     fuel_type: 'Petrol',
     price_per_day: '',
     deposit_amount: '',
+    delivery_fee: '',
+    airport_delivery_fee: '',
     location: '',
     city: '',
     description: '',
     whatsapp_phone: '',
-    airport_delivery: false,
   });
 
   function set(field: string, value: string | boolean) {
@@ -57,10 +60,13 @@ export default function ListCarForm() {
       city: form.city.trim() || null,
       description: form.description.trim() || null,
       images: [],
-      airport_delivery: form.airport_delivery,
       whatsapp_phone: form.whatsapp_phone.trim() || null,
       requires_deposit: requiresDeposit,
       deposit_amount: requiresDeposit && form.deposit_amount ? Number(form.deposit_amount) : null,
+      offers_delivery: offersDelivery,
+      delivery_fee: offersDelivery && form.delivery_fee ? Number(form.delivery_fee) : null,
+      offers_airport_delivery: offersAirport,
+      airport_delivery_fee: offersAirport && form.airport_delivery_fee ? Number(form.airport_delivery_fee) : null,
     };
 
     try {
@@ -82,6 +88,19 @@ export default function ListCarForm() {
 
   const inputCls = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white';
   const labelCls = 'block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide';
+
+  function Toggle({ on, onToggle, color = 'green' }: { on: boolean; onToggle: () => void; color?: 'green' | 'amber' | 'blue' }) {
+    const colors = {
+      green: on ? 'bg-green-500' : 'bg-gray-200',
+      amber: on ? 'bg-amber-500' : 'bg-gray-200',
+      blue: on ? 'bg-blue-500' : 'bg-gray-200',
+    };
+    return (
+      <div onClick={onToggle} className={`w-10 h-6 rounded-full transition-colors relative cursor-pointer flex-shrink-0 ${colors[color]}`}>
+        <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-5' : 'translate-x-1'}`} />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -141,16 +160,7 @@ export default function ListCarForm() {
         {/* Deposit section */}
         <div className={`border rounded-2xl p-4 space-y-3 transition-colors ${requiresDeposit ? 'border-amber-200 bg-amber-50/40' : 'border-gray-100 bg-gray-50/40'}`}>
           <label className="flex items-center gap-3 cursor-pointer">
-            <div
-              onClick={() => setRequiresDeposit(v => !v)}
-              className={`w-10 h-6 rounded-full transition-colors relative cursor-pointer ${
-                requiresDeposit ? 'bg-amber-500' : 'bg-gray-200'
-              }`}
-            >
-              <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${
-                requiresDeposit ? 'translate-x-5' : 'translate-x-1'
-              }`} />
-            </div>
+            <Toggle on={requiresDeposit} onToggle={() => setRequiresDeposit(v => !v)} color="amber" />
             <div>
               <p className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
                 <ShieldAlert size={14} className={requiresDeposit ? 'text-amber-500' : 'text-gray-300'} />
@@ -159,7 +169,6 @@ export default function ListCarForm() {
               <p className="text-xs text-gray-400">Held and paid to you if the renter cancels or no-shows</p>
             </div>
           </label>
-
           {requiresDeposit && (
             <div className="space-y-2">
               <div>
@@ -176,14 +185,14 @@ export default function ListCarForm() {
                 />
               </div>
               <div className="bg-amber-100/60 rounded-xl px-3 py-2 text-xs text-amber-800 leading-relaxed">
-                <strong>How it works:</strong> The renter is shown this amount before booking and must acknowledge it. The deposit is handled directly between you and the renter at pickup. If they cancel after confirmation or don't show up, you keep the deposit. If the rental completes normally, you return it.
+                <strong>How it works:</strong> The renter is shown this amount before booking and must acknowledge it. The deposit is handled directly between you and the renter at pickup.
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Location */}
+      {/* Location & Delivery */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
         <h2 className="font-semibold text-gray-800">Location & Contact</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -195,15 +204,90 @@ export default function ListCarForm() {
             <label className={labelCls}>City</label>
             <input className={inputCls} placeholder="e.g. Baku" value={form.city} onChange={e => set('city', e.target.value)} />
           </div>
-          <div>
+          <div className="sm:col-span-2">
             <label className={labelCls}>WhatsApp Number</label>
             <input className={inputCls} placeholder="+994 50 000 0000" value={form.whatsapp_phone} onChange={e => set('whatsapp_phone', e.target.value)} />
           </div>
         </div>
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" checked={form.airport_delivery} onChange={e => set('airport_delivery', e.target.checked)} className="w-4 h-4 rounded accent-green-600" />
-          <span className="text-sm text-gray-700">I offer airport delivery/pickup</span>
-        </label>
+
+        <h3 className="font-semibold text-gray-700 text-sm pt-1">Handoff Options</h3>
+        <p className="text-xs text-gray-400 -mt-2">Choose which options you offer and set a fee — or leave free.</p>
+
+        {/* Self Pickup — always available, informational */}
+        <div className="border border-gray-100 bg-gray-50/40 rounded-2xl p-4 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+            <MapPin size={15} className="text-gray-500" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-800">Self Pickup</p>
+            <p className="text-xs text-gray-400">Renter picks up from your location — always available, no fee</p>
+          </div>
+          <span className="ml-auto text-xs font-medium text-green-600 bg-green-50 border border-green-100 rounded-full px-2.5 py-0.5">Free</span>
+        </div>
+
+        {/* City Delivery */}
+        <div className={`border rounded-2xl p-4 space-y-3 transition-colors ${offersDelivery ? 'border-green-200 bg-green-50/30' : 'border-gray-100 bg-gray-50/40'}`}>
+          <div className="flex items-center gap-3">
+            <Toggle on={offersDelivery} onToggle={() => setOffersDelivery(v => !v)} color="green" />
+            <div className="flex items-center gap-2">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center ${offersDelivery ? 'bg-green-100' : 'bg-gray-100'}`}>
+                <CarIcon size={13} className={offersDelivery ? 'text-green-600' : 'text-gray-400'} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">City Delivery</p>
+                <p className="text-xs text-gray-400">You deliver the car to the renter&apos;s address</p>
+              </div>
+            </div>
+          </div>
+          {offersDelivery && (
+            <div>
+              <label className={labelCls}>Delivery Fee (AZN)</label>
+              <div className="relative">
+                <input
+                  className={inputCls}
+                  type="number"
+                  min={0}
+                  step={0.01}
+                  placeholder="Leave blank for free delivery"
+                  value={form.delivery_fee}
+                  onChange={e => set('delivery_fee', e.target.value)}
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-1">Enter 0 or leave blank to offer delivery for free</p>
+            </div>
+          )}
+        </div>
+
+        {/* Airport Delivery */}
+        <div className={`border rounded-2xl p-4 space-y-3 transition-colors ${offersAirport ? 'border-blue-200 bg-blue-50/30' : 'border-gray-100 bg-gray-50/40'}`}>
+          <div className="flex items-center gap-3">
+            <Toggle on={offersAirport} onToggle={() => setOffersAirport(v => !v)} color="blue" />
+            <div className="flex items-center gap-2">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center ${offersAirport ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                <Plane size={13} className={offersAirport ? 'text-blue-600' : 'text-gray-400'} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-800">Airport Delivery / Pickup</p>
+                <p className="text-xs text-gray-400">Deliver or pick up at Heydar Aliyev International Airport</p>
+              </div>
+            </div>
+          </div>
+          {offersAirport && (
+            <div>
+              <label className={labelCls}>Airport Fee (AZN)</label>
+              <input
+                className={inputCls}
+                type="number"
+                min={0}
+                step={0.01}
+                placeholder="Leave blank for free airport delivery"
+                value={form.airport_delivery_fee}
+                onChange={e => set('airport_delivery_fee', e.target.value)}
+              />
+              <p className="text-xs text-gray-400 mt-1">Enter 0 or leave blank to offer airport delivery for free</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Description */}
