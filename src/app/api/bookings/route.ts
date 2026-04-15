@@ -108,7 +108,6 @@ export async function POST(request: NextRequest) {
       booking,
       bookingId: booking.id,
       url: checkoutSession.url,
-      checkoutUrl: checkoutSession.url,
       sessionId: checkoutSession.id,
     });
   } catch (error) {

@@ -31,22 +31,38 @@ export async function POST(request: NextRequest) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object;
-      if (session.id) {
+      const bookingId = session.metadata?.booking_id;
+
+      const { data: bySession } = await supabase
+        .from('bookings')
+        .update({ status: 'confirmed' })
+        .eq('stripe_session_id', session.id)
+        .select('id');
+
+      if ((!bySession || bySession.length === 0) && bookingId) {
         await supabase
           .from('bookings')
           .update({ status: 'confirmed' })
-          .eq('stripe_session_id', session.id);
+          .eq('id', bookingId);
       }
       break;
     }
 
     case 'checkout.session.expired': {
       const session = event.data.object;
-      if (session.id) {
+      const bookingId = session.metadata?.booking_id;
+
+      const { data: bySession } = await supabase
+        .from('bookings')
+        .update({ status: 'cancelled' })
+        .eq('stripe_session_id', session.id)
+        .select('id');
+
+      if ((!bySession || bySession.length === 0) && bookingId) {
         await supabase
           .from('bookings')
           .update({ status: 'cancelled' })
-          .eq('stripe_session_id', session.id);
+          .eq('id', bookingId);
       }
       break;
     }
