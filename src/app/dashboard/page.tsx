@@ -12,10 +12,21 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/auth/login');
 
-  const [{ data: myCars }, { data: myBookings }] = await Promise.all([
+  const [{ data: myCars }, { data: myBookings }, { data: incomingBookings }] = await Promise.all([
     supabase.from('cars').select('*').eq('owner_id', user.id).order('created_at', { ascending: false }),
     supabase.from('bookings').select('*, car:cars(brand, model, images)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
+    supabase
+      .from('bookings')
+      .select('*, car:cars(id, brand, model, year, images)')
+      .in('car_id', (myCars ?? []).map((c: any) => c.id))
+      .order('created_at', { ascending: false })
+      .limit(20),
   ]);
+
+  // Map of carId -> has pending booking (for graying out)
+  const pendingCarIds = new Set(
+    (incomingBookings ?? []).filter((b: any) => b.status === 'pending' || b.status === 'paid').map((b: any) => b.car_id)
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -37,7 +48,7 @@ export default async function DashboardPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Car size={18} className="text-green-600" /> My Listings
         </h2>
-        <DashboardClient cars={myCars ?? []} />
+        <DashboardClient cars={myCars ?? []} pendingCarIds={Array.from(pendingCarIds)} incomingBookings={incomingBookings ?? []} />
       </section>
 
       {/* My Bookings */}
@@ -55,7 +66,7 @@ export default async function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {myBookings.map((booking) => (
+                {myBookings.map((booking: any) => (
                   <tr key={booking.id} className="hover:bg-gray-50">
                     <td className="px-5 py-3 font-medium text-gray-900">
                       {booking.car?.brand} {booking.car?.model}
