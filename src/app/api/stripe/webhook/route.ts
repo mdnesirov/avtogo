@@ -31,26 +31,22 @@ export async function POST(request: NextRequest) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object;
-      const bookingId = session.metadata?.booking_id;
-
-      if (bookingId) {
+      if (session.id) {
         await supabase
           .from('bookings')
           .update({ status: 'confirmed' })
-          .eq('id', bookingId);
+          .eq('stripe_session_id', session.id);
       }
       break;
     }
 
     case 'checkout.session.expired': {
       const session = event.data.object;
-      const bookingId = session.metadata?.booking_id;
-
-      if (bookingId) {
+      if (session.id) {
         await supabase
           .from('bookings')
           .update({ status: 'cancelled' })
-          .eq('id', bookingId);
+          .eq('stripe_session_id', session.id);
       }
       break;
     }

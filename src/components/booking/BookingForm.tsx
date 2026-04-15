@@ -61,13 +61,12 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          car_id: car.id,
-          start_date: form.startDate,
-          end_date: form.endDate,
-          total_price: total,
-          driver_name: form.driverName,
-          driver_phone: form.driverPhone,
-          driver_license: form.driverLicense,
+          carId: car.id,
+          startDate: form.startDate,
+          endDate: form.endDate,
+          driverName: form.driverName,
+          driverPhone: form.driverPhone,
+          driverLicense: form.driverLicense,
           notes: form.notes,
         }),
       });
@@ -77,7 +76,7 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
       if (!res.ok) {
         setError(data.error || 'Booking failed. Please try again.');
       } else {
-        router.push(`/booking/confirmation?id=${data.booking.id}`);
+        window.location.href = data.url;
       }
     } catch {
       setError('Something went wrong. Please try again.');

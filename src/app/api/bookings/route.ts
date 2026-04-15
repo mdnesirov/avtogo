@@ -106,6 +106,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       booking,
+      bookingId: booking.id,
+      url: checkoutSession.url,
       checkoutUrl: checkoutSession.url,
       sessionId: checkoutSession.id,
     });

@@ -7,17 +7,24 @@ import { BookingStatusBadge } from '@/components/shared/Badge';
 export default async function BookingConfirmationPage({
   searchParams,
 }: {
-  searchParams: Promise<{ id?: string }>;
+  searchParams: Promise<{ id?: string; booking_id?: string; session_id?: string }>;
 }) {
   const params = await searchParams;
   const supabase = await createClient();
 
   let booking = null;
-  if (params.id) {
+  if (params.session_id) {
     const { data } = await supabase
       .from('bookings')
       .select('*, car:cars(*)')
-      .eq('id', params.id)
+      .eq('stripe_session_id', params.session_id)
+      .single();
+    booking = data;
+  } else if (params.booking_id || params.id) {
+    const { data } = await supabase
+      .from('bookings')
+      .select('*, car:cars(*)')
+      .eq('id', params.booking_id || params.id)
       .single();
     booking = data;
   }
