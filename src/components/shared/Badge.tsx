@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import { BookingStatus } from '@/types';
 import {useTranslations} from 'next-intl';

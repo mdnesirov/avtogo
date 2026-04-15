@@ -133,6 +133,7 @@
     "pickupDate": "Pick-up date",
     "returnDate": "Return date",
     "days": "{count, plural, one {# day} other {# days}}",
+    "pricePerDays": "{price} × {count, plural, one {# day} other {# days}}",
     "continueToDriverInfo": "Continue to driver info",
     "back": "Back",
     "fullName": "Full name",

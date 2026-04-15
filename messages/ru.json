@@ -132,7 +132,8 @@
   "bookingForm": {
     "pickupDate": "Дата получения",
     "returnDate": "Дата возврата",
-    "days": "{count, plural, one {# день} few {# дня} many {# дней} other {# дня}}",
+    "days": "{count, plural, one {# день} few {# дня} many {# дней} other {# дней}}",
+    "pricePerDays": "{price} × {count, plural, one {# день} few {# дня} many {# дней} other {# дней}}",
     "continueToDriverInfo": "Перейти к данным водителя",
     "back": "Назад",
     "fullName": "ФИО",
@@ -142,7 +143,7 @@
     "optional": "Необязательно",
     "notes": "Заметки",
     "notesPlaceholder": "Особые пожелания...",
-    "totalForDays": "Итого за {count, plural, one {# день} few {# дня} many {# дней} other {# дня}}",
+    "totalForDays": "Итого за {count, plural, one {# день} few {# дня} many {# дней} other {# дней}}",
     "confirmBooking": "Подтвердить бронирование",
     "bookingFailed": "Не удалось оформить бронирование. Попробуйте снова.",
     "somethingWentWrong": "Что-то пошло не так. Попробуйте снова."
@@ -151,7 +152,7 @@
     "title": "Сводка бронирования",
     "rentalPeriod": "Период аренды",
     "selectDates": "Выберите даты, чтобы увидеть стоимость",
-    "pricePerDays": "₼{price} × {count, plural, one {# день} few {# дня} many {# дней} other {# дня}}",
+    "pricePerDays": "₼{price} × {count, plural, one {# день} few {# дня} many {# дней} other {# дней}}",
     "serviceFee": "Сервисный сбор (5%)",
     "total": "Итого",
     "transmission": {

@@ -42,30 +42,30 @@ export default function BookingSummary({ car, startDate, endDate }: BookingSumma
       {/* Dates */}
       {startDate && endDate ? (
         <div className="flex justify-between text-sm mb-3">
-           <span className="text-gray-600">{t('rentalPeriod')}</span>
-           <span className="font-medium text-gray-900">
-             {new Date(startDate).toLocaleDateString(locale, { day: 'numeric', month: 'short' })} –
-             {' '}{new Date(endDate).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}
-           </span>
-         </div>
-       ) : (
-         <p className="text-sm text-gray-400 mb-3">{t('selectDates')}</p>
-       )}
+          <span className="text-gray-600">{t('rentalPeriod')}</span>
+          <span className="font-medium text-gray-900">
+            {new Date(startDate).toLocaleDateString(locale, { day: 'numeric', month: 'short' })} –
+            {' '}{new Date(endDate).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })}
+          </span>
+        </div>
+      ) : (
+        <p className="text-sm text-gray-400 mb-3">{t('selectDates')}</p>
+      )}
 
       {nights > 0 && (
         <>
           <div className="flex justify-between text-sm mb-2">
-             <span className="text-gray-600">{t('pricePerDays', {price: car.price_per_day.toFixed(2), count: nights})}</span>
-             <span className="text-gray-900">₼{subtotal.toFixed(2)}</span>
-           </div>
-           <div className="flex justify-between text-sm mb-4 pb-4 border-b border-gray-100">
-             <span className="text-gray-600">{t('serviceFee')}</span>
-             <span className="text-gray-900">₼{serviceFee.toFixed(2)}</span>
-           </div>
-           <div className="flex justify-between font-semibold text-gray-900">
-             <span>{t('total')}</span>
-             <span className="text-green-600">₼{total.toFixed(2)}</span>
-           </div>
+            <span className="text-gray-600">{t('pricePerDays', {price: car.price_per_day.toFixed(2), count: nights})}</span>
+            <span className="text-gray-900">₼{subtotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between text-sm mb-4 pb-4 border-b border-gray-100">
+            <span className="text-gray-600">{t('serviceFee')}</span>
+            <span className="text-gray-900">₼{serviceFee.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between font-semibold text-gray-900">
+            <span>{t('total')}</span>
+            <span className="text-green-600">₼{total.toFixed(2)}</span>
+          </div>
         </>
       )}
     </div>

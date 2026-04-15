@@ -94,13 +94,13 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
           {uploading ? (
             <>
               <div className="w-6 h-6 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
-               <p className="text-sm text-gray-500">{t('uploading')}</p>
+              <p className="text-sm text-gray-500">{t('uploading')}</p>
             </>
           ) : (
             <>
               <Upload size={24} className="text-gray-400" />
-               <p className="text-sm font-medium text-gray-600">{t('tapToAdd')}</p>
-               <p className="text-xs text-gray-400">{t('formatHint', {max: maxImages})}</p>
+              <p className="text-sm font-medium text-gray-600">{t('tapToAdd')}</p>
+              <p className="text-xs text-gray-400">{t('formatHint', {max: maxImages})}</p>
             </>
           )}
         </div>
@@ -133,7 +133,7 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
                 type="button"
                 onClick={() => removeImage(url)}
                 className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                 aria-label={t('removePhoto')}
+                aria-label={t('removePhoto')}
               >
                 <X size={14} />
               </button>

@@ -102,7 +102,7 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
           {days > 0 && (
             <div className="bg-green-50 border border-green-100 rounded-xl p-3 text-sm">
               <div className="flex justify-between text-gray-600">
-                <span>{formatPrice(car.price_per_day)} &times; {t('days', {count: days})}</span>
+                <span>{t('pricePerDays', {price: formatPrice(car.price_per_day), count: days})}</span>
                 <span className="font-semibold text-gray-900">{formatPrice(total)}</span>
               </div>
             </div>

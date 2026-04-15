@@ -133,6 +133,7 @@
     "pickupDate": "Götürmə tarixi",
     "returnDate": "Qaytarma tarixi",
     "days": "{count, plural, one {# gün} other {# gün}}",
+    "pricePerDays": "{price} × {count, plural, one {# gün} other {# gün}}",
     "continueToDriverInfo": "Sürücü məlumatlarına davam et",
     "back": "Geri",
     "fullName": "Ad Soyad",

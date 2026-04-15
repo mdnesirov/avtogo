@@ -8,7 +8,7 @@ type CookieToSet = { name: string; value: string; options?: Partial<ResponseCook
 
 export async function middleware(request: NextRequest) {
   const handleI18nRouting = createMiddleware(routing);
-  let supabaseResponse = handleI18nRouting(request);
+  let response = await handleI18nRouting(request);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
         setAll(cookiesToSet: CookieToSet[]) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            response.cookies.set(name, value, options)
           )
         },
       },
@@ -39,15 +39,13 @@ export async function middleware(request: NextRequest) {
 
   if (isProtected && !user) {
     const redirectUrl = request.nextUrl.clone()
-    const loginPath = locale && locale !== routing.defaultLocale
-      ? `/${locale}/auth/login`
-      : '/auth/login';
+    const loginPath = locale ? `/${locale}/auth/login` : '/en/auth/login';
     redirectUrl.pathname = loginPath;
     redirectUrl.searchParams.set('redirectedFrom', request.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
   }
 
-  return supabaseResponse
+  return response
 }
 
 export const config = {

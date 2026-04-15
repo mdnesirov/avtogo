@@ -83,13 +83,13 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
         <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50 text-xs text-gray-500">
           <span className="flex items-center gap-1">
             <Settings size={12} />
-             {car.transmission === 'automatic' ? t('automaticShort') : t('manual')}
-           </span>
-           <span className="flex items-center gap-1">
-             <Fuel size={12} />
-             {t(`fuel.${car.fuel_type}`)}
-           </span>
-         </div>
+            {car.transmission === 'automatic' ? t('automaticShort') : t('manual')}
+          </span>
+          <span className="flex items-center gap-1">
+            <Fuel size={12} />
+            {t(`fuel.${car.fuel_type}`)}
+          </span>
+        </div>
 
         {showOwnerActions && (
           <div className="flex gap-2 mt-3 pt-3 border-t border-gray-50">

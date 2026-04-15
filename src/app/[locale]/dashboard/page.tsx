@@ -17,9 +17,8 @@ export default async function DashboardPage({
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) redirect({href: '/auth/login', locale});
-  const safeUser = user!;
-  const userId = safeUser.id;
-  const userEmail = safeUser.email;
+  const userId = user!.id;
+  const userEmail = user!.email;
 
   const [{ data: myCars }, { data: myBookings }] = await Promise.all([
     supabase.from('cars').select('*').eq('owner_id', userId).order('created_at', { ascending: false }),

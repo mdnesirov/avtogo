@@ -47,8 +47,8 @@ export default async function BookingConfirmationPage({
             <div className="flex items-center gap-2"><Phone size={14} /> {booking.driver_phone}</div>
           </div>
           <div className="border-t border-gray-100 pt-3 flex justify-between">
-             <span className="text-sm text-gray-500">{t('total')}</span>
-             <span className="font-bold text-gray-900">{formatPrice(booking.total_price)}</span>
+            <span className="text-sm text-gray-500">{t('total')}</span>
+            <span className="font-bold text-gray-900">{formatPrice(booking.total_price)}</span>
           </div>
         </div>
       )}
