@@ -2,6 +2,26 @@
  * Google Maps helpers for AvtoGo
  */
 
+/**
+ * FIX: Added getMapEmbedUrl — imported by MapEmbed.tsx (src/components/shared/MapEmbed.tsx).
+ * Was missing; file only had lat/lng-based helpers but MapEmbed passes a string address.
+ * This version accepts a plain address string and uses the Places embed API.
+ */
+export function getMapEmbedUrl(address: string): string {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  if (!apiKey) return '';
+  return `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(address)}`;
+}
+
+/**
+ * FIX: Added getMapsLink — imported by MapEmbed.tsx.
+ * Was missing; returns a shareable Google Maps search URL for a given address string.
+ */
+export function getMapsLink(address: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+}
+
+// Original lat/lng helpers kept for any other usage in the codebase
 export function getGoogleMapsEmbedUrl(lat: number, lng: number, zoom = 14): string {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) return '';

@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 
-// Simple className merger (no clsx dependency needed, but included for safety)
+// FIX: Simple className merger using clsx
 export function cn(...inputs: ClassValue[]) {
   return inputs
     .flat()
@@ -42,6 +42,18 @@ export function calculateDays(startDate: string, endDate: string): number {
 }
 
 /**
+ * FIX: Added differenceInCalendarDays — imported by BookingSummary.tsx.
+ * Was missing; only calculateDays existed (different name).
+ * Returns the number of calendar days between dateLeft and dateRight.
+ */
+export function differenceInCalendarDays(dateLeft: Date, dateRight: Date): number {
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const utcLeft = Date.UTC(dateLeft.getFullYear(), dateLeft.getMonth(), dateLeft.getDate());
+  const utcRight = Date.UTC(dateRight.getFullYear(), dateRight.getMonth(), dateRight.getDate());
+  return Math.round((utcLeft - utcRight) / msPerDay);
+}
+
+/**
  * Calculate total rental price
  */
 export function calculateTotalPrice(pricePerDay: number, startDate: string, endDate: string): number {
@@ -50,12 +62,22 @@ export function calculateTotalPrice(pricePerDay: number, startDate: string, endD
 }
 
 /**
- * Build a WhatsApp link with a pre-filled message
+ * FIX: Added getWhatsAppLink — imported by WhatsAppButton.tsx.
+ * Was missing; only buildWhatsAppLink existed (different name).
+ * Alias kept consistent with component import.
+ */
+export function getWhatsAppLink(phone: string, message?: string): string {
+  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  const base = `https://wa.me/${cleanPhone}`;
+  if (!message) return base;
+  return `${base}?text=${encodeURIComponent(message)}`;
+}
+
+/**
+ * Build a WhatsApp link with a pre-filled message (original name kept for compatibility)
  */
 export function buildWhatsAppLink(phone: string, message: string): string {
-  const cleanPhone = phone.replace(/[^0-9]/g, '');
-  const encodedMessage = encodeURIComponent(message);
-  return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+  return getWhatsAppLink(phone, message);
 }
 
 /**
