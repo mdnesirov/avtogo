@@ -33,3 +33,16 @@ export function getInitials(name: string): string {
     .toUpperCase()
     .slice(0, 2)
 }
+
+export function differenceInCalendarDays(dateLeft: Date, dateRight: Date): number {
+  const startOfDayLeft  = new Date(dateLeft.getFullYear(), dateLeft.getMonth(), dateLeft.getDate())
+  const startOfDayRight = new Date(dateRight.getFullYear(), dateRight.getMonth(), dateRight.getDate())
+  const diff = startOfDayLeft.getTime() - startOfDayRight.getTime()
+  return Math.round(diff / (1000 * 60 * 60 * 24))
+}
+
+export function getWhatsAppLink(phone: string, message?: string): string {
+  const cleaned = phone.replace(/[^\d+]/g, '')
+  const base    = `https://wa.me/${cleaned}`
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base
+}
