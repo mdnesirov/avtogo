@@ -14,7 +14,7 @@ export default async function DashboardPage() {
 
   const { data: cars } = await supabase
     .from('cars')
-    .select('*')
+    .select('id, brand, model, year, location, price_per_day, is_available, images')
     .eq('owner_id', user.id)
     .order('created_at', { ascending: false });
 
@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   const bookings = carIds.length > 0
     ? (await supabase
       .from('bookings')
-      .select('*, car:cars(brand, model, images), user:profiles(full_name, phone)')
+      .select('id, car_id, start_date, end_date, total_price, status, notes, driver_name, driver_phone, car:cars(brand, model, images), user:profiles(full_name, phone)')
       .in('car_id', carIds)
       .order('created_at', { ascending: false })).data
     : [];
@@ -35,12 +35,19 @@ export default async function DashboardPage() {
     if (!user) redirect('/auth/login');
 
     const carId = formData.get('carId');
-    const nextAvailability = formData.get('nextAvailability');
-    if (typeof carId !== 'string' || typeof nextAvailability !== 'string') return;
+    if (typeof carId !== 'string') return;
+
+    const { data: car } = await supabase
+      .from('cars')
+      .select('is_available')
+      .eq('id', carId)
+      .eq('owner_id', user.id)
+      .single();
+    if (!car) return;
 
     await supabase
       .from('cars')
-      .update({ is_available: nextAvailability === 'true' })
+      .update({ is_available: !car.is_available })
       .eq('id', carId)
       .eq('owner_id', user.id);
 
@@ -80,25 +87,18 @@ export default async function DashboardPage() {
       || (status !== 'confirmed' && status !== 'cancelled')
     ) return;
 
-    const { data: booking } = await supabase
-      .from('bookings')
-      .select('car_id')
-      .eq('id', bookingId)
-      .single();
-    if (!booking) return;
-
-    const { data: ownerCar } = await supabase
+    const { data: ownerCars } = await supabase
       .from('cars')
       .select('id')
-      .eq('id', booking.car_id)
-      .eq('owner_id', user.id)
-      .single();
-    if (!ownerCar) return;
+      .eq('owner_id', user.id);
+    const ownerCarIds = ownerCars?.map((car) => car.id) ?? [];
+    if (ownerCarIds.length === 0) return;
 
     await supabase
       .from('bookings')
       .update({ status })
-      .eq('id', bookingId);
+      .eq('id', bookingId)
+      .in('car_id', ownerCarIds);
 
     revalidatePath('/dashboard');
   }
