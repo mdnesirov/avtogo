@@ -9,7 +9,7 @@ export default async function HomePage() {
   const { data: featuredCars } = await supabase
     .from('cars')
     .select('*')
-    .eq('is_available', true)
+    .eq('is_active', true)
     .order('created_at', { ascending: false })
     .limit(4);
 
