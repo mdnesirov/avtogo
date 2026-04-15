@@ -72,7 +72,9 @@ export default function BookingWidget({ car }: BookingWidgetProps) {
         <p className="text-xs text-gray-400 font-mono bg-gray-50 px-3 py-1.5 rounded-lg mb-4">
           Ref: {bookingId.slice(0, 8).toUpperCase()}
         </p>
-        <Button href="/dashboard" variant="secondary" fullWidth>View my bookings</Button>
+        <Button href="/dashboard" variant="secondary" fullWidth>
+          View my bookings
+        </Button>
       </div>
     );
   }
