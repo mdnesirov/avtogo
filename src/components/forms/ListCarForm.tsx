@@ -6,12 +6,14 @@ import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
 import AirportToggle from '@/components/shared/AirportToggle';
+import ImageUpload from '@/components/shared/ImageUpload';
 
 export default function ListCarForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [airportDelivery, setAirportDelivery] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
   const [form, setForm] = useState({
     brand: '',
     model: '',
@@ -49,6 +51,7 @@ export default function ListCarForm() {
           year: Number(form.year),
           price_per_day: Number(form.price_per_day),
           airport_delivery: airportDelivery,
+          images,
         }),
       });
 
@@ -74,7 +77,7 @@ export default function ListCarForm() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Input label="Year" type="number" placeholder="2022" value={form.year} onChange={handleChange('year')} min="1990" max="2025" required />
+        <Input label="Year" type="number" placeholder="2022" value={form.year} onChange={handleChange('year')} min="1990" max="2026" required />
         <Input label="Price per day (AZN)" type="number" placeholder="80" value={form.price_per_day} onChange={handleChange('price_per_day')} min="1" required />
       </div>
 
@@ -117,6 +120,8 @@ export default function ListCarForm() {
           className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-600"
         />
       </div>
+
+      <ImageUpload images={images} onChange={setImages} />
 
       <div className="bg-gray-50 rounded-xl p-4">
         <AirportToggle enabled={airportDelivery} onChange={setAirportDelivery} />

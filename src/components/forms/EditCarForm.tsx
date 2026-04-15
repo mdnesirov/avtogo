@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
 import AirportToggle from '@/components/shared/AirportToggle';
+import ImageUpload from '@/components/shared/ImageUpload';
 import { Car } from '@/types';
 
 export default function EditCarForm({ car }: { car: Car }) {
@@ -12,6 +13,12 @@ export default function EditCarForm({ car }: { car: Car }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [airportDelivery, setAirportDelivery] = useState(car.airport_delivery ?? false);
+  // pre-fill with existing images, but only keep valid URLs
+  const [images, setImages] = useState<string[]>(
+    (car.images ?? []).filter((u: string) => {
+      try { return Boolean(new URL(u)); } catch { return false; }
+    })
+  );
   const [form, setForm] = useState({
     brand: car.brand ?? '',
     model: car.model ?? '',
@@ -41,6 +48,7 @@ export default function EditCarForm({ car }: { car: Car }) {
           year: Number(form.year),
           price_per_day: Number(form.price_per_day),
           airport_delivery: airportDelivery,
+          images,
         }),
       });
 
@@ -110,6 +118,8 @@ export default function EditCarForm({ car }: { car: Car }) {
           className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-600"
         />
       </div>
+
+      <ImageUpload images={images} onChange={setImages} />
 
       <div className="bg-gray-50 rounded-xl p-4">
         <AirportToggle enabled={airportDelivery} onChange={setAirportDelivery} />
