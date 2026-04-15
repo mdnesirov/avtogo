@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Car } from '@/types';
 import { calculateDays, calculateTotalPrice, formatPrice } from '@/lib/utils';
@@ -8,19 +8,34 @@ import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
 
-export default function BookingForm({ car }: { car: Car }) {
+interface BookingFormProps {
+  car: Car;
+  startDate?: string;
+  endDate?: string;
+}
+
+export default function BookingForm({ car, startDate: propStartDate = '', endDate: propEndDate = '' }: BookingFormProps) {
   const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
-    startDate: '',
-    endDate: '',
+    startDate: propStartDate,
+    endDate: propEndDate,
     driverName: '',
     driverPhone: '',
     driverLicense: '',
     notes: '',
   });
+
+  // Keep form dates in sync if parent calendar selection changes
+  useEffect(() => {
+    setForm(prev => ({
+      ...prev,
+      startDate: propStartDate,
+      endDate: propEndDate,
+    }));
+  }, [propStartDate, propEndDate]);
 
   const days = form.startDate && form.endDate ? calculateDays(form.startDate, form.endDate) : 0;
   const total = days > 0 ? calculateTotalPrice(car.price_per_day, form.startDate, form.endDate) : 0;
