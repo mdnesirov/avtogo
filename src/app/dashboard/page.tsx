@@ -84,9 +84,8 @@ export default async function DashboardPage() {
 
     const bookingId = formData.get('bookingId');
     const status = formData.get('status');
-    const isValidStatus = OWNER_BOOKING_STATUSES.includes(
-      status as (typeof OWNER_BOOKING_STATUSES)[number]
-    );
+    const isValidStatus = typeof status === 'string'
+      && OWNER_BOOKING_STATUSES.includes(status as (typeof OWNER_BOOKING_STATUSES)[number]);
     if (
       typeof bookingId !== 'string'
       || !isValidStatus

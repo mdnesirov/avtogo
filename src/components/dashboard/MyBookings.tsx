@@ -76,8 +76,8 @@ export default function MyBookings({ bookings, mode, updateBookingStatusAction }
     <div className="space-y-3">
       {bookings.map((booking) => {
         const car = booking.car;
-        const renterName = booking.user?.full_name || booking.driver_name;
-        const renterPhone = booking.user?.phone || booking.driver_phone;
+        const renterName = booking.user?.full_name || booking.driver_name || 'Unknown';
+        const renterPhone = booking.user?.phone || booking.driver_phone || 'N/A';
         const nights = car
           ? Math.ceil((new Date(booking.end_date).getTime() - new Date(booking.start_date).getTime()) / 86400000)
           : 0;
