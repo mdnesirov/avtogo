@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!data.length) {
-      console.warn(`No booking found for stripe_session_id=${sessionId} while setting status=${status}`);
+      throw new Error(`No booking found for stripe_session_id=${sessionId} while setting status=${status}`);
     }
   };
 
@@ -72,8 +72,9 @@ export async function POST(request: NextRequest) {
         const sessionId = checkoutSessions.data[0]?.id;
 
         if (!sessionId) {
-          console.warn(`No checkout session found for payment_intent=${paymentIntent.id}`);
-          break;
+          throw new Error(
+            `No checkout session found for payment_intent=${paymentIntent.id}; this may indicate the intent was not created via Checkout or linkage is missing`
+          );
         }
 
         await updateBookingStatusBySessionId(sessionId, 'failed');
