@@ -35,6 +35,8 @@ export interface Car {
   whatsapp_phone: string | null;
   rating: number | null;
   review_count: number | null;
+  requires_deposit: boolean | null;
+  deposit_amount: number | null;
   created_at: string;
   updated_at: string | null;
   owner?: Profile;
