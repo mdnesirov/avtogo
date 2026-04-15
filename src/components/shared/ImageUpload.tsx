@@ -21,7 +21,7 @@ export async function uploadImages(
 
   for (let index = 0; index < files.length; index += 1) {
     const file = files[index];
-    const path = `${userId}/${Date.now()}-${file.name}`;
+    const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name}`;
     const { error } = await supabase.storage.from('car-images').upload(path, file);
 
     if (error) {
@@ -123,7 +123,10 @@ export default function ImageUpload({
       {uploading && uploadProgress !== null && (
         <p className="text-xs text-green-600 mt-1">Upload progress: {uploadProgress}%</p>
       )}
-      <p className="text-xs text-gray-400 mt-1">{value.length}/{maxFiles} photos selected. First photo is the cover.</p>
+      <p className="text-xs text-gray-400 mt-1">
+        {value.length}/{maxFiles} photos selected.
+        {value.length > 0 && ' First photo is the cover.'}
+      </p>
     </div>
   );
 }

@@ -37,6 +37,10 @@ export default function ListCarForm() {
       setError('Please fill in all required fields.');
       return;
     }
+    if (photos.length === 0) {
+      setError('Please add at least one photo.');
+      return;
+    }
 
     setLoading(true);
     setError('');
@@ -75,8 +79,8 @@ export default function ListCarForm() {
       }
 
       router.push('/dashboard');
-    } catch {
-      setError('Upload failed. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed. Please try again.');
     } finally {
       setUploadProgress(null);
       setLoading(false);
