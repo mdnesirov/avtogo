@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ShieldAlert } from 'lucide-react';
 
 const BRANDS = ['Toyota', 'BMW', 'Mercedes', 'Audi', 'Hyundai', 'Kia', 'Volkswagen', 'Ford', 'Chevrolet', 'Nissan', 'Honda', 'Mazda', 'Porsche', 'Land Rover', 'Lexus', 'Other'];
 const CAR_TYPES = ['Sedan', 'SUV', 'Hatchback', 'Coupe', 'Convertible', 'Van', 'Minivan', 'Pickup', 'Wagon', 'Other'];
@@ -132,20 +133,18 @@ export default function ListCarForm() {
       {/* Pricing */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
         <h2 className="font-semibold text-gray-800">Pricing</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className={labelCls}>Price per Day (AZN) *</label>
-            <input className={inputCls} type="number" min={1} step={0.01} placeholder="80" value={form.price_per_day} onChange={e => set('price_per_day', e.target.value)} required />
-          </div>
+        <div>
+          <label className={labelCls}>Price per Day (AZN) *</label>
+          <input className={inputCls} type="number" min={1} step={0.01} placeholder="80" value={form.price_per_day} onChange={e => set('price_per_day', e.target.value)} required />
         </div>
 
-        {/* Deposit toggle */}
-        <div className="border border-gray-100 rounded-xl p-4 space-y-3">
+        {/* Deposit section */}
+        <div className={`border rounded-2xl p-4 space-y-3 transition-colors ${requiresDeposit ? 'border-amber-200 bg-amber-50/40' : 'border-gray-100 bg-gray-50/40'}`}>
           <label className="flex items-center gap-3 cursor-pointer">
             <div
               onClick={() => setRequiresDeposit(v => !v)}
               className={`w-10 h-6 rounded-full transition-colors relative cursor-pointer ${
-                requiresDeposit ? 'bg-green-500' : 'bg-gray-200'
+                requiresDeposit ? 'bg-amber-500' : 'bg-gray-200'
               }`}
             >
               <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${
@@ -153,24 +152,32 @@ export default function ListCarForm() {
               }`} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-800">Require a security deposit</p>
-              <p className="text-xs text-gray-400">Renters will see this amount when booking</p>
+              <p className="text-sm font-semibold text-gray-800 flex items-center gap-1.5">
+                <ShieldAlert size={14} className={requiresDeposit ? 'text-amber-500' : 'text-gray-300'} />
+                Require a security deposit
+              </p>
+              <p className="text-xs text-gray-400">Held and paid to you if the renter cancels or no-shows</p>
             </div>
           </label>
+
           {requiresDeposit && (
-            <div>
-              <label className={labelCls}>Deposit Amount (AZN) *</label>
-              <input
-                className={inputCls}
-                type="number"
-                min={1}
-                step={0.01}
-                placeholder="200"
-                value={form.deposit_amount}
-                onChange={e => set('deposit_amount', e.target.value)}
-                required={requiresDeposit}
-              />
-              <p className="text-xs text-gray-400 mt-1">This is collected separately and returned after the rental ends.</p>
+            <div className="space-y-2">
+              <div>
+                <label className={labelCls}>Deposit Amount (AZN) *</label>
+                <input
+                  className={inputCls}
+                  type="number"
+                  min={1}
+                  step={0.01}
+                  placeholder="e.g. 200"
+                  value={form.deposit_amount}
+                  onChange={e => set('deposit_amount', e.target.value)}
+                  required={requiresDeposit}
+                />
+              </div>
+              <div className="bg-amber-100/60 rounded-xl px-3 py-2 text-xs text-amber-800 leading-relaxed">
+                <strong>How it works:</strong> The renter is shown this amount before booking and must acknowledge it. The deposit is handled directly between you and the renter at pickup. If they cancel after confirmation or don't show up, you keep the deposit. If the rental completes normally, you return it.
+              </div>
             </div>
           )}
         </div>

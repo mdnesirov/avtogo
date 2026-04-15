@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { MapPin, Calendar, Fuel, Settings, User } from 'lucide-react';
+import { MapPin, Calendar, Fuel, Settings, User, ShieldAlert } from 'lucide-react';
 import { formatPrice, formatDate } from '@/lib/utils';
 import RatingStars from '@/components/shared/RatingStars';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
@@ -28,6 +28,8 @@ export default async function CarDetailPage({
   const images = car.images?.length ? car.images : [
     'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80',
   ];
+
+  const hasDeposit = car.requires_deposit && car.deposit_amount && car.deposit_amount > 0;
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
@@ -91,6 +93,22 @@ export default async function CarDetailPage({
             </div>
           )}
 
+          {/* Deposit policy — shown prominently if set */}
+          {hasDeposit && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+              <div className="flex items-start gap-3">
+                <ShieldAlert size={20} className="text-amber-500 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold text-amber-900 text-sm">Security deposit required</p>
+                  <p className="text-2xl font-bold text-amber-800 mt-1">{formatPrice(car.deposit_amount)}</p>
+                  <p className="text-xs text-amber-700 mt-2 leading-relaxed">
+                    This deposit is held and paid to the owner if you cancel after the booking is confirmed, or if you do not show up to collect the car. It is fully returned to you once the rental is completed as agreed.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Map */}
           <div>
             <h2 className="font-semibold text-gray-900 mb-3">Location</h2>
@@ -105,6 +123,14 @@ export default async function CarDetailPage({
               <span className="text-3xl font-bold text-gray-900">{formatPrice(car.price_per_day)}</span>
               <span className="text-sm text-gray-400">per day</span>
             </div>
+
+            {/* Deposit badge on booking card */}
+            {hasDeposit && (
+              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                <ShieldAlert size={14} className="text-amber-500" />
+                <span className="text-xs text-amber-800 font-medium">{formatPrice(car.deposit_amount)} security deposit</span>
+              </div>
+            )}
 
             <BookingFormClient car={car} />
 
