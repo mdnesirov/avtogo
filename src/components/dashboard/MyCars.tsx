@@ -77,9 +77,10 @@ export default function MyCars({ cars, onRefresh }: MyCarsProps) {
                 <h3 className="font-semibold text-gray-900 truncate">{car.brand} {car.model} ({car.year})</h3>
                 <p className="text-sm text-gray-500">{car.location} · ₼{car.price_per_day}/day</p>
               </div>
-              <Badge variant={car.is_available ? 'green' : 'gray'}>
-                {car.is_available ? 'Available' : 'Hidden'}
-              </Badge>
+              <Badge
+                variant={car.is_available ? 'green' : 'gray'}
+                label={car.is_available ? 'Available' : 'Hidden'}
+              />
             </div>
             <div className="flex items-center gap-2 mt-3">
               <a href={`/cars/${car.id}`} target="_blank" rel="noopener noreferrer"
