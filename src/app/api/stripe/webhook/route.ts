@@ -28,49 +28,64 @@ export async function POST(request: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  switch (event.type) {
-    case 'checkout.session.completed': {
-      const session = event.data.object;
-      if (session.id) {
-        await supabase
-          .from('bookings')
-          .update({ status: 'confirmed' })
-          .eq('stripe_session_id', session.id);
-      }
-      break;
+  const updateBookingStatusBySessionId = async (sessionId: string, status: string) => {
+    const { data, error } = await supabase
+      .from('bookings')
+      .update({ status })
+      .eq('stripe_session_id', sessionId)
+      .select('id');
+
+    if (error) {
+      throw error;
     }
 
-    case 'checkout.session.expired': {
-      const session = event.data.object;
-      if (session.id) {
-        await supabase
-          .from('bookings')
-          .update({ status: 'cancelled' })
-          .eq('stripe_session_id', session.id);
-      }
-      break;
+    if (!data.length) {
+      console.warn(`No booking found for stripe_session_id=${sessionId} while setting status=${status}`);
     }
+  };
 
-    case 'payment_intent.payment_failed': {
-      const paymentIntent = event.data.object;
-      const checkoutSessions = await stripe.checkout.sessions.list({
-        payment_intent: paymentIntent.id,
-        limit: 1,
-      });
-
-      const sessionId = checkoutSessions.data[0]?.id;
-
-      if (sessionId) {
-        await supabase
-          .from('bookings')
-          .update({ status: 'failed' })
-          .eq('stripe_session_id', sessionId);
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object;
+        if (session.id) {
+          await updateBookingStatusBySessionId(session.id, 'confirmed');
+        }
+        break;
       }
-      break;
-    }
 
-    default:
-      console.log(`Unhandled event type: ${event.type}`);
+      case 'checkout.session.expired': {
+        const session = event.data.object;
+        if (session.id) {
+          await updateBookingStatusBySessionId(session.id, 'cancelled');
+        }
+        break;
+      }
+
+      case 'payment_intent.payment_failed': {
+        const paymentIntent = event.data.object;
+        const checkoutSessions = await stripe.checkout.sessions.list({
+          payment_intent: paymentIntent.id,
+          limit: 1,
+        });
+
+        const sessionId = checkoutSessions.data[0]?.id;
+
+        if (!sessionId) {
+          console.warn(`No checkout session found for payment_intent=${paymentIntent.id}`);
+          break;
+        }
+
+        await updateBookingStatusBySessionId(sessionId, 'failed');
+        break;
+      }
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+  } catch (error) {
+    console.error('Webhook processing failed:', error);
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });
