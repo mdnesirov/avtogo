@@ -18,28 +18,28 @@ export async function uploadImages(
 ) {
   const supabase = createClient();
   const urls: string[] = [];
-  const uploadedPaths: string[] = [];
+  const paths: string[] = [];
 
   for (let index = 0; index < files.length; index += 1) {
     const file = files[index];
     const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
-    const path = `${userId}/${Date.now()}-${crypto.randomUUID()}-${safeFileName}`;
+    const path = `${userId}/${crypto.randomUUID()}-${safeFileName}`;
     const { error } = await supabase.storage.from('car-images').upload(path, file);
 
     if (error) {
-      if (uploadedPaths.length > 0) {
-        await supabase.storage.from('car-images').remove(uploadedPaths);
+      if (paths.length > 0) {
+        await supabase.storage.from('car-images').remove(paths);
       }
       throw new Error(error.message);
     }
 
     const { data } = supabase.storage.from('car-images').getPublicUrl(path);
     urls.push(data.publicUrl);
-    uploadedPaths.push(path);
+    paths.push(path);
     onProgress?.(index + 1, files.length);
   }
 
-  return urls;
+  return { urls, paths };
 }
 
 export default function ImageUpload({

@@ -32,12 +32,14 @@ export default function ListCarForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const requiredFields = [form.brand, form.model, form.year, form.transmission, form.fuel_type, form.price_per_day, form.location];
-    if (requiredFields.some((value) => !String(value).trim())) {
+    const requiredTextFields = [form.brand, form.model, form.location];
+    if (requiredTextFields.some((value) => !value.trim()) || !form.transmission || !form.fuel_type) {
       setError('Please fill in all required fields.');
       return;
     }
-    if (Number(form.year) <= 0 || Number(form.price_per_day) <= 0) {
+    const year = Number(form.year);
+    const pricePerDay = Number(form.price_per_day);
+    if (!Number.isFinite(year) || year <= 0 || !Number.isFinite(pricePerDay) || pricePerDay <= 0) {
       setError('Year and price per day must be positive numbers.');
       return;
     }
@@ -59,7 +61,7 @@ export default function ListCarForm() {
         return;
       }
 
-      const imageUrls = await uploadImages(photos, user.id, (uploadedCount, totalCount) => {
+      const uploadedImages = await uploadImages(photos, user.id, (uploadedCount, totalCount) => {
         setUploadProgress(Math.round((uploadedCount / totalCount) * 100));
       });
 
@@ -67,23 +69,19 @@ export default function ListCarForm() {
         owner_id: user.id,
         brand: form.brand.trim(),
         model: form.model.trim(),
-        year: Number(form.year),
+        year,
         transmission: form.transmission,
         fuel_type: form.fuel_type,
-        price_per_day: Number(form.price_per_day),
+        price_per_day: pricePerDay,
         location: form.location.trim(),
         description: form.description.trim() || null,
-        images: imageUrls,
+        images: uploadedImages.urls,
         airport_delivery: airportDelivery,
       });
 
       if (insertError) {
-        const uploadedPaths = imageUrls
-          .map((url) => url.split('/car-images/')[1]?.split('?')[0])
-          .filter((path): path is string => Boolean(path));
-
-        if (uploadedPaths.length > 0) {
-          await supabase.storage.from('car-images').remove(uploadedPaths);
+        if (uploadedImages.paths.length > 0) {
+          await supabase.storage.from('car-images').remove(uploadedImages.paths);
         }
 
         setError(insertError.message || 'Failed to create listing.');
