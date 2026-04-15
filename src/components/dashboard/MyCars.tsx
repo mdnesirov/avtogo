@@ -30,7 +30,7 @@ export default function MyCars({ cars, onRefresh }: MyCarsProps) {
       await fetch(`/api/cars?id=${car.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_available: !car.is_available }),
+        body: JSON.stringify({ is_active: !car.is_active }),
       });
       onRefresh();
     } finally {
@@ -78,8 +78,8 @@ export default function MyCars({ cars, onRefresh }: MyCarsProps) {
                 <p className="text-sm text-gray-500">{car.location} · ₼{car.price_per_day}/day</p>
               </div>
               <Badge
-                variant={car.is_available ? 'green' : 'gray'}
-                label={car.is_available ? 'Available' : 'Hidden'}
+                variant={car.is_active ? 'green' : 'gray'}
+                label={car.is_active ? 'Available' : 'Hidden'}
               />
             </div>
             <div className="flex items-center gap-2 mt-3">
@@ -92,7 +92,7 @@ export default function MyCars({ cars, onRefresh }: MyCarsProps) {
                 disabled={togglingId === car.id}
                 className="text-xs font-medium text-gray-600 hover:text-gray-900 border border-gray-200 hover:border-gray-400 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
               >
-                {togglingId === car.id ? '...' : car.is_available ? 'Hide' : 'Unhide'}
+                {togglingId === car.id ? '...' : car.is_active ? 'Hide' : 'Unhide'}
               </button>
               <button
                 onClick={() => handleDelete(car.id)}
