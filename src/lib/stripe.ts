@@ -29,7 +29,6 @@ export async function createCheckoutSession({
   cancelUrl: string;
 }) {
   if (!stripe) {
-    // Placeholder mode — return a mock session for development
     return {
       id: `mock_session_${bookingId}`,
       url: `${successUrl}?booking_id=${bookingId}&mock=true`,
@@ -47,7 +46,7 @@ export async function createCheckoutSession({
             description: `${totalDays} day${totalDays > 1 ? 's' : ''} rental`,
             images: [],
           },
-          unit_amount: Math.round(pricePerDay * 100), // Stripe uses smallest currency unit
+          unit_amount: Math.round(pricePerDay * 100),
         },
         quantity: totalDays,
       },
@@ -61,4 +60,44 @@ export async function createCheckoutSession({
   });
 
   return session;
+}
+
+// Creates a deposit hold — money is authorised but NOT charged until captured
+export async function createDepositHold({
+  depositAmount,
+  bookingId,
+  carName,
+}: {
+  depositAmount: number;
+  bookingId: string;
+  carName: string;
+}) {
+  if (!stripe) {
+    return { id: `mock_deposit_${bookingId}` };
+  }
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: Math.round(depositAmount * 100),
+    currency: 'azn',
+    capture_method: 'manual',
+    description: `Security deposit — AvtoGo: ${carName}`,
+    metadata: {
+      booking_id: bookingId,
+      type: 'deposit_hold',
+    },
+  });
+
+  return paymentIntent;
+}
+
+// Rental completed normally — release the hold (renter gets deposit back)
+export async function releaseDepositHold(paymentIntentId: string) {
+  if (!stripe) return;
+  await stripe.paymentIntents.cancel(paymentIntentId);
+}
+
+// Renter cancelled / no-show — capture the hold (owner keeps deposit)
+export async function captureDepositHold(paymentIntentId: string) {
+  if (!stripe) return;
+  await stripe.paymentIntents.capture(paymentIntentId);
 }

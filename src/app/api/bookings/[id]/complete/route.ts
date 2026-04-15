@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { captureDepositHold } from '@/lib/stripe';
+import { releaseDepositHold } from '@/lib/stripe';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
@@ -14,41 +14,37 @@ export async function PATCH(
 
   const { data: booking } = await supabase
     .from('bookings')
-    .select('id, user_id, status, deposit_payment_intent_id, car:cars(owner_id)')
+    .select('id, status, deposit_payment_intent_id, car:cars(owner_id)')
     .eq('id', id)
     .single();
 
   if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
 
   const car = Array.isArray(booking.car) ? booking.car[0] : booking.car;
-  const isRenter = booking.user_id === user.id;
-  const isOwner = car?.owner_id === user.id;
 
-  if (!isRenter && !isOwner) {
+  // Only the car owner can mark a rental as complete
+  if (car?.owner_id !== user.id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  if (!['pending', 'paid', 'confirmed'].includes(booking.status)) {
-    return NextResponse.json({ error: 'Booking cannot be cancelled in its current state' }, { status: 400 });
+  if (!['confirmed', 'paid'].includes(booking.status)) {
+    return NextResponse.json({ error: 'Only confirmed bookings can be completed' }, { status: 400 });
   }
 
-  // Renter cancels a paid/confirmed booking → capture deposit (owner keeps it)
-  if (isRenter && booking.deposit_payment_intent_id && ['paid', 'confirmed'].includes(booking.status)) {
+  // Release deposit hold — renter gets their deposit back
+  if (booking.deposit_payment_intent_id) {
     try {
-      await captureDepositHold(booking.deposit_payment_intent_id);
+      await releaseDepositHold(booking.deposit_payment_intent_id);
     } catch (err) {
-      console.error('[cancel] deposit capture failed:', err);
-      // Don't block cancellation — log and continue
+      console.error('[complete] deposit release failed:', err);
     }
   }
 
-  // Owner cancels → no penalty, hold just expires naturally (or renter pays nothing)
   const { error } = await supabase
     .from('bookings')
     .update({
-      status: 'cancelled',
-      cancelled_at: new Date().toISOString(),
-      cancelled_by: isOwner ? 'owner' : 'renter',
+      status: 'completed',
+      completed_at: new Date().toISOString(),
     })
     .eq('id', id);
 

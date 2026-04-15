@@ -21,6 +21,7 @@ export default function ListCarForm() {
     transmission: 'automatic',
     fuel_type: 'petrol',
     price_per_day: '',
+    deposit_amount: '',
     location: 'Baku',
     description: '',
   });
@@ -43,13 +44,18 @@ export default function ListCarForm() {
         return;
       }
 
+      const depositAmt = Number(form.deposit_amount) || 0;
+
       const res = await fetch('/api/cars', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
+          car_name: `${form.brand} ${form.model}`,
           year: Number(form.year),
           price_per_day: Number(form.price_per_day),
+          deposit_amount: depositAmt,
+          requires_deposit: depositAmt > 0,
           airport_delivery: airportDelivery,
           images,
         }),
@@ -79,6 +85,20 @@ export default function ListCarForm() {
       <div className="grid grid-cols-2 gap-4">
         <Input label="Year" type="number" placeholder="2022" value={form.year} onChange={handleChange('year')} min="1990" max="2026" required />
         <Input label="Price per day (AZN)" type="number" placeholder="80" value={form.price_per_day} onChange={handleChange('price_per_day')} min="1" required />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-700">Security Deposit (AZN)</label>
+        <Input
+          type="number"
+          placeholder="e.g. 200 — leave blank for no deposit"
+          value={form.deposit_amount}
+          onChange={handleChange('deposit_amount')}
+          min="0"
+        />
+        <p className="text-xs text-gray-400 mt-1">
+          This amount is held from the renter and paid to you if they cancel after confirming or don&apos;t collect the car. Leave blank for no deposit.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

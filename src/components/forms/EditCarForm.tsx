@@ -13,7 +13,6 @@ export default function EditCarForm({ car }: { car: Car }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [airportDelivery, setAirportDelivery] = useState(car.airport_delivery ?? false);
-  // pre-fill with existing images, but only keep valid URLs
   const [images, setImages] = useState<string[]>(
     (car.images ?? []).filter((u: string) => {
       try { return Boolean(new URL(u)); } catch { return false; }
@@ -26,6 +25,7 @@ export default function EditCarForm({ car }: { car: Car }) {
     transmission: car.transmission ?? 'automatic',
     fuel_type: car.fuel_type ?? 'petrol',
     price_per_day: String(car.price_per_day ?? ''),
+    deposit_amount: String(car.deposit_amount ?? ''),
     location: car.location ?? 'Baku',
     description: car.description ?? '',
   });
@@ -40,6 +40,8 @@ export default function EditCarForm({ car }: { car: Car }) {
     setError('');
 
     try {
+      const depositAmt = Number(form.deposit_amount) || 0;
+
       const res = await fetch(`/api/cars/${car.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -47,6 +49,8 @@ export default function EditCarForm({ car }: { car: Car }) {
           ...form,
           year: Number(form.year),
           price_per_day: Number(form.price_per_day),
+          deposit_amount: depositAmt,
+          requires_deposit: depositAmt > 0,
           airport_delivery: airportDelivery,
           images,
         }),
@@ -77,6 +81,20 @@ export default function EditCarForm({ car }: { car: Car }) {
       <div className="grid grid-cols-2 gap-4">
         <Input label="Year" type="number" placeholder="2022" value={form.year} onChange={handleChange('year')} min="1990" max="2026" required />
         <Input label="Price per day (AZN)" type="number" placeholder="80" value={form.price_per_day} onChange={handleChange('price_per_day')} min="1" required />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-700">Security Deposit (AZN)</label>
+        <Input
+          type="number"
+          placeholder="e.g. 200 — leave blank for no deposit"
+          value={form.deposit_amount}
+          onChange={handleChange('deposit_amount')}
+          min="0"
+        />
+        <p className="text-xs text-gray-400 mt-1">
+          Held from the renter. Forfeited to you if they cancel after confirming or don&apos;t collect the car.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
