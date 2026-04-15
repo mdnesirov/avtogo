@@ -31,32 +31,41 @@ export async function POST(request: NextRequest) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object;
-      const bookingId = session.metadata?.booking_id;
-
-      if (bookingId) {
+      if (session.id) {
         await supabase
           .from('bookings')
           .update({ status: 'confirmed' })
-          .eq('id', bookingId);
+          .eq('stripe_session_id', session.id);
       }
       break;
     }
 
     case 'checkout.session.expired': {
       const session = event.data.object;
-      const bookingId = session.metadata?.booking_id;
-
-      if (bookingId) {
+      if (session.id) {
         await supabase
           .from('bookings')
           .update({ status: 'cancelled' })
-          .eq('id', bookingId);
+          .eq('stripe_session_id', session.id);
       }
       break;
     }
 
     case 'payment_intent.payment_failed': {
-      console.log('Payment failed for intent:', event.data.object.id);
+      const paymentIntent = event.data.object;
+      const checkoutSessions = await stripe.checkout.sessions.list({
+        payment_intent: paymentIntent.id,
+        limit: 1,
+      });
+
+      const sessionId = checkoutSessions.data[0]?.id;
+
+      if (sessionId) {
+        await supabase
+          .from('bookings')
+          .update({ status: 'failed' })
+          .eq('stripe_session_id', sessionId);
+      }
       break;
     }
 
