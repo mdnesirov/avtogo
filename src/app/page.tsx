@@ -16,7 +16,7 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+      <section className="bg-gray-900 text-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-20 md:py-28 text-center">
           <div className="inline-flex items-center gap-2 bg-green-600/20 border border-green-500/30 text-green-400 px-3 py-1 rounded-full text-sm mb-6">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
@@ -63,7 +63,7 @@ export default async function HomePage() {
       </section>
 
       {/* Features strip */}
-      <section className="border-b border-gray-100 bg-gray-50">
+      <section className="border-b border-gray-100 bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600">
           {[
             { icon: Shield, text: 'Verified owners & cars' },
