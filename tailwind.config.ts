@@ -1,1 +1,42 @@
-aW1wb3J0IHR5cGUgeyBDb25maWcgfSBmcm9tICd0YWlsd2luZGNzcycKCmNvbnN0IGNvbmZpZzogQ29uZmlnID0gewogIGNvbnRlbnQ6IFsKICAgICcuL3NyYy9hcHAvKiovKi57anMsdHMsanN4LHRzeCxtZHh9JywKICAgICcuL3NyYy9jb21wb25lbnRzLyoqLyoue2pzLHRzLGpzeCx0c3gsbWR4fScsCiAgICAnLi9zcmMvbGliLyoqLyoue2pzLHRzLGpzeCx0c3gsbWR4fScsCiAgXSwKICB0aGVtZTogewogICAgZXh0ZW5kOiB7CiAgICAgIGNvbG9yczogewogICAgICAgIGJyYW5kOiB7CiAgICAgICAgICBERUZBVUxUOiAnIzE2YTM0YScsCiAgICAgICAgICBob3ZlcjogICAnIzE1ODAzZCcsCiAgICAgICAgICBsaWdodDogICAnI2YwZmRmNCcsCiAgICAgICAgICBkYXJrOiAgICAnIzE0NTMyZCcsCiAgICAgICAgfSwKICAgICAgICBncmVlbjogewogICAgICAgICAgNTA6ICAnI2YwZmRmNCcsCiAgICAgICAgICAxMDA6ICcjZGNmY2U3JywKICAgICAgICAgIDYwMDogJyMxNmEzNGEnLAogICAgICAgICAgNzAwOiAnIzE1ODAzZCcsCiAgICAgICAgICA4MDA6ICcjMTY2NTM0JywKICAgICAgICAgIDkwMDogJyMxNDUzMmQnLAogICAgICAgIH0sCiAgICAgIH0sCiAgICAgIGZvbnRGYW1pbHk6IHsKICAgICAgICBzYW5zOiBbJ0ludGVyJywgJ3VpLXNhbnMtc2VyaWYnLCAnc3lzdGVtLXVpJywgJ3NhbnMtc2VyaWYnXSwKICAgICAgfSwKICAgICAgYm9yZGVyUmFkaXVzOiB7CiAgICAgICAgc206ICAnMC4zNzVyZW0nLAogICAgICAgIG1kOiAgJzAuNXJlbScsCiAgICAgICAgbGc6ICAnMC43NXJlbScsCiAgICAgICAgeGw6ICAnMXJlbScsCiAgICAgICAgJzJ4bCc6ICcxLjI1cmVtJywKICAgICAgfSwKICAgIH0sCiAgfSwKICBwbHVnaW5zOiBbXSwKfQoKZXhwb3J0IGRlZmF1bHQgY29uZmlnCg==
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/lib/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          DEFAULT: '#16a34a',
+          hover:   '#15803d',
+          light:   '#f0fdf4',
+          dark:    '#14532d',
+        },
+        green: {
+          50:  '#f0fdf4',
+          100: '#dcfce7',
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
+        },
+      },
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      borderRadius: {
+        sm:  '0.375rem',
+        md:  '0.5rem',
+        lg:  '0.75rem',
+        xl:  '1rem',
+        '2xl': '1.25rem',
+      },
+    },
+  },
+  plugins: [],
+}
+
+export default config
