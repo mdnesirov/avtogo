@@ -1,10 +1,11 @@
 import { createClient } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import CarCard from '@/components/cars/CarCard';
-import { BookingStatusBadge } from '@/components/shared/Badge';
-import { formatDate, formatPrice } from '@/lib/utils';
+import MyCars from '@/components/dashboard/MyCars';
+import MyBookings from '@/components/dashboard/MyBookings';
 import { Car, Plus } from 'lucide-react';
+import type { Car as CarType, Booking } from '@/types';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -12,10 +13,96 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/auth/login');
 
-  const [{ data: myCars }, { data: myBookings }] = await Promise.all([
-    supabase.from('cars').select('*').eq('owner_id', user.id).order('created_at', { ascending: false }),
-    supabase.from('bookings').select('*, car:cars(brand, model, images)').eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
-  ]);
+  const { data: cars } = await supabase
+    .from('cars')
+    .select('*')
+    .eq('owner_id', user.id)
+    .order('created_at', { ascending: false });
+
+  const carIds = cars?.map((car) => car.id) ?? [];
+  const bookings = carIds.length > 0
+    ? (await supabase
+      .from('bookings')
+      .select('*, car:cars(brand, model), user:profiles(full_name, phone)')
+      .in('car_id', carIds)
+      .order('created_at', { ascending: false })).data
+    : [];
+
+  async function toggleCarAvailabilityAction(formData: FormData) {
+    'use server';
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) redirect('/auth/login');
+
+    const carId = formData.get('carId');
+    const nextAvailability = formData.get('nextAvailability');
+    if (typeof carId !== 'string' || typeof nextAvailability !== 'string') return;
+
+    await supabase
+      .from('cars')
+      .update({ is_available: nextAvailability === 'true' })
+      .eq('id', carId)
+      .eq('owner_id', user.id);
+
+    revalidatePath('/dashboard');
+  }
+
+  async function deleteCarAction(formData: FormData) {
+    'use server';
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) redirect('/auth/login');
+
+    const carId = formData.get('carId');
+    if (typeof carId !== 'string') return;
+
+    await supabase
+      .from('cars')
+      .delete()
+      .eq('id', carId)
+      .eq('owner_id', user.id);
+
+    revalidatePath('/dashboard');
+  }
+
+  async function updateBookingStatusAction(formData: FormData) {
+    'use server';
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) redirect('/auth/login');
+
+    const bookingId = formData.get('bookingId');
+    const status = formData.get('status');
+    if (
+      typeof bookingId !== 'string'
+      || (status !== 'confirmed' && status !== 'cancelled')
+    ) return;
+
+    const { data: booking } = await supabase
+      .from('bookings')
+      .select('car_id')
+      .eq('id', bookingId)
+      .single();
+    if (!booking) return;
+
+    const { data: ownerCar } = await supabase
+      .from('cars')
+      .select('id')
+      .eq('id', booking.car_id)
+      .eq('owner_id', user.id)
+      .single();
+    if (!ownerCar) return;
+
+    await supabase
+      .from('bookings')
+      .update({ status })
+      .eq('id', bookingId);
+
+    revalidatePath('/dashboard');
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -37,59 +124,21 @@ export default async function DashboardPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Car size={18} className="text-green-600" /> My Listings
         </h2>
-        {myCars && myCars.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {myCars.map((car) => (
-              <CarCard key={car.id} car={car} showOwnerActions />
-            ))}
-          </div>
-        ) : (
-          <div className="bg-gray-50 rounded-2xl p-12 text-center text-gray-400">
-            <Car size={32} className="mx-auto mb-3 text-gray-300" />
-            <p className="font-medium">No listings yet</p>
-            <Link href="/list-car" className="text-green-600 text-sm mt-1 inline-block hover:text-green-700">
-              Add your first car →
-            </Link>
-          </div>
-        )}
+        <MyCars
+          cars={(cars ?? []) as CarType[]}
+          toggleCarAvailabilityAction={toggleCarAvailabilityAction}
+          deleteCarAction={deleteCarAction}
+        />
       </section>
 
       {/* My Bookings */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">My Bookings</h2>
-        {myBookings && myBookings.length > 0 ? (
-          <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-left">
-                <tr>
-                  <th className="px-5 py-3 font-medium text-gray-500">Car</th>
-                  <th className="px-5 py-3 font-medium text-gray-500">Dates</th>
-                  <th className="px-5 py-3 font-medium text-gray-500">Total</th>
-                  <th className="px-5 py-3 font-medium text-gray-500">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {myBookings.map((booking) => (
-                  <tr key={booking.id} className="hover:bg-gray-50">
-                    <td className="px-5 py-3 font-medium text-gray-900">
-                      {booking.car?.brand} {booking.car?.model}
-                    </td>
-                    <td className="px-5 py-3 text-gray-500">
-                      {formatDate(booking.start_date)} — {formatDate(booking.end_date)}
-                    </td>
-                    <td className="px-5 py-3 font-medium">{formatPrice(booking.total_price)}</td>
-                    <td className="px-5 py-3"><BookingStatusBadge status={booking.status} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="bg-gray-50 rounded-2xl p-12 text-center text-gray-400">
-            <p className="font-medium">No bookings yet</p>
-            <Link href="/cars" className="text-green-600 text-sm mt-1 inline-block hover:text-green-700">Browse cars →</Link>
-          </div>
-        )}
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Incoming Bookings</h2>
+        <MyBookings
+          bookings={(bookings ?? []) as Booking[]}
+          mode="owner"
+          updateBookingStatusAction={updateBookingStatusAction}
+        />
       </section>
     </div>
   );

@@ -1,14 +1,37 @@
 'use client';
 
 import { Booking } from '@/types';
+import type { ReactNode } from 'react';
+import { useFormStatus } from 'react-dom';
 import { BookingStatusBadge } from '@/components/shared/Badge';
 
 interface MyBookingsProps {
   bookings: Booking[];
   mode: 'renter' | 'owner';
+  updateBookingStatusAction?: (formData: FormData) => Promise<void>;
 }
 
-export default function MyBookings({ bookings, mode }: MyBookingsProps) {
+function StatusActionButton({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className={`${className} disabled:opacity-50`}
+    >
+      {pending ? '...' : children}
+    </button>
+  );
+}
+
+export default function MyBookings({ bookings, mode, updateBookingStatusAction }: MyBookingsProps) {
   if (bookings.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -58,8 +81,8 @@ export default function MyBookings({ bookings, mode }: MyBookingsProps) {
                   </p>
                   {mode === 'owner' && (
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Renter: <span className="font-medium text-gray-800">{booking.driver_name}</span>
-                      {' · '}{booking.driver_phone}
+                      Renter: <span className="font-medium text-gray-800">{booking.user?.full_name || booking.driver_name}</span>
+                      {' · '}{booking.user?.phone || booking.driver_phone}
                     </p>
                   )}
                 </div>
@@ -68,6 +91,24 @@ export default function MyBookings({ bookings, mode }: MyBookingsProps) {
                   <span className="text-sm font-bold text-gray-900">₼{booking.total_price.toFixed(2)}</span>
                 </div>
               </div>
+              {mode === 'owner' && booking.status === 'pending' && updateBookingStatusAction && (
+                <div className="mt-3 flex items-center gap-2">
+                  <form action={updateBookingStatusAction}>
+                    <input type="hidden" name="bookingId" value={booking.id} />
+                    <input type="hidden" name="status" value="confirmed" />
+                    <StatusActionButton className="text-xs font-medium text-green-700 hover:text-green-800 border border-green-200 hover:border-green-400 rounded-lg px-3 py-1.5 transition-colors">
+                      Confirm
+                    </StatusActionButton>
+                  </form>
+                  <form action={updateBookingStatusAction}>
+                    <input type="hidden" name="bookingId" value={booking.id} />
+                    <input type="hidden" name="status" value="cancelled" />
+                    <StatusActionButton className="text-xs font-medium text-red-600 hover:text-red-700 border border-red-200 hover:border-red-400 rounded-lg px-3 py-1.5 transition-colors">
+                      Cancel
+                    </StatusActionButton>
+                  </form>
+                </div>
+              )}
               {booking.notes && (
                 <p className="text-xs text-gray-400 mt-2 truncate">Note: {booking.notes}</p>
               )}
