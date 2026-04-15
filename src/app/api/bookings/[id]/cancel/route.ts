@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server';
-import { captureDepositHold } from '@/lib/stripe';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
@@ -14,7 +13,7 @@ export async function PATCH(
 
   const { data: booking } = await supabase
     .from('bookings')
-    .select('id, user_id, status, deposit_payment_intent_id, car:cars(owner_id)')
+    .select('id, user_id, status, car:cars(owner_id)')
     .eq('id', id)
     .single();
 
@@ -32,17 +31,6 @@ export async function PATCH(
     return NextResponse.json({ error: 'Booking cannot be cancelled in its current state' }, { status: 400 });
   }
 
-  // Renter cancels a paid/confirmed booking → capture deposit (owner keeps it)
-  if (isRenter && booking.deposit_payment_intent_id && ['paid', 'confirmed'].includes(booking.status)) {
-    try {
-      await captureDepositHold(booking.deposit_payment_intent_id);
-    } catch (err) {
-      console.error('[cancel] deposit capture failed:', err);
-      // Don't block cancellation — log and continue
-    }
-  }
-
-  // Owner cancels → no penalty, hold just expires naturally (or renter pays nothing)
   const { error } = await supabase
     .from('bookings')
     .update({
