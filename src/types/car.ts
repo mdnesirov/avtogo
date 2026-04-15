@@ -36,5 +36,7 @@ export interface Car {
   total_reviews: number;
   car_name?: string;
   car_type?: string;
+  requires_deposit?: boolean;
+  deposit_amount?: number | null;
   created_at: string;
 }
