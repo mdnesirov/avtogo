@@ -20,7 +20,8 @@
     "date-fns": "^4.1.0",
     "react-day-picker": "^9.2.1",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^2.5.4"
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",
