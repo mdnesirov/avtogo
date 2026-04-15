@@ -28,7 +28,11 @@ export async function POST(request: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const updateBookingStatusBySessionId = async (sessionId: string, status: string) => {
+  const updateBookingStatusBySessionId = async (
+    sessionId: string,
+    status: string,
+    eventType: string
+  ) => {
     const { data, error } = await supabase
       .from('bookings')
       .update({ status })
@@ -40,7 +44,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!data.length) {
-      throw new Error(`No booking found for stripe_session_id=${sessionId} while setting status=${status}`);
+      throw new Error(
+        `No booking found for stripe_session_id=${sessionId} while setting status=${status} for event=${eventType}`
+      );
     }
   };
 
@@ -51,7 +57,7 @@ export async function POST(request: NextRequest) {
         if (!session.id) {
           throw new Error('checkout.session.completed payload missing session id');
         }
-        await updateBookingStatusBySessionId(session.id, 'confirmed');
+        await updateBookingStatusBySessionId(session.id, 'confirmed', event.type);
         break;
       }
 
@@ -60,7 +66,7 @@ export async function POST(request: NextRequest) {
         if (!session.id) {
           throw new Error('checkout.session.expired payload missing session id');
         }
-        await updateBookingStatusBySessionId(session.id, 'cancelled');
+        await updateBookingStatusBySessionId(session.id, 'cancelled', event.type);
         break;
       }
 
@@ -71,15 +77,15 @@ export async function POST(request: NextRequest) {
           limit: 1,
         });
 
-        const sessionId = checkoutSessions.data[0]?.id;
-
-        if (!sessionId) {
+        if (!checkoutSessions.data.length) {
           throw new Error(
             `No checkout session found for payment_intent=${paymentIntent.id}; this may indicate the intent was not created via Checkout or linkage is missing`
           );
         }
 
-        await updateBookingStatusBySessionId(sessionId, 'failed');
+        const sessionId = checkoutSessions.data[0].id;
+
+        await updateBookingStatusBySessionId(sessionId, 'failed', event.type);
         break;
       }
 
@@ -87,7 +93,7 @@ export async function POST(request: NextRequest) {
         console.log(`Unhandled event type: ${event.type}`);
     }
   } catch (error) {
-    console.error('Webhook processing failed:', error);
+    console.error(`Webhook processing failed for event=${event.type}:`, error);
     return NextResponse.json({ error: 'Webhook processing failed', eventType: event.type }, { status: 500 });
   }
 
