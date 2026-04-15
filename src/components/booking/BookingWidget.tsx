@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Car } from '@/types';
 import { formatPrice, calcTotalPrice, today, tomorrow } from '@/lib/utils';
-import { Button } from '@/components/shared/Button';
+import Button from '@/components/shared/Button';
 import { createClient } from '@/lib/supabase/client';
 
 interface BookingWidgetProps {
