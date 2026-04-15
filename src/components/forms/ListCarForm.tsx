@@ -6,12 +6,15 @@ import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
 import AirportToggle from '@/components/shared/AirportToggle';
+import ImageUpload, { uploadImages } from '@/components/shared/ImageUpload';
 
 export default function ListCarForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [airportDelivery, setAirportDelivery] = useState(false);
+  const [photos, setPhotos] = useState<File[]>([]);
   const [form, setForm] = useState({
     brand: '',
     model: '',
@@ -29,8 +32,15 @@ export default function ListCarForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const requiredFields = [form.brand, form.model, form.year, form.transmission, form.fuel_type, form.price_per_day, form.location];
+    if (requiredFields.some((value) => !String(value).trim())) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+
     setLoading(true);
     setError('');
+    setUploadProgress(null);
 
     try {
       const supabase = createClient();
@@ -41,27 +51,34 @@ export default function ListCarForm() {
         return;
       }
 
-      const res = await fetch('/api/cars', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          year: Number(form.year),
-          price_per_day: Number(form.price_per_day),
-          airport_delivery: airportDelivery,
-        }),
+      const imageUrls = await uploadImages(photos, user.id, (uploadedCount, totalCount) => {
+        setUploadProgress(Math.round((uploadedCount / totalCount) * 100));
       });
 
-      const data = await res.json();
+      const { error: insertError } = await supabase.from('cars').insert({
+        owner_id: user.id,
+        brand: form.brand.trim(),
+        model: form.model.trim(),
+        year: Number(form.year),
+        transmission: form.transmission,
+        fuel_type: form.fuel_type,
+        price_per_day: Number(form.price_per_day),
+        location: form.location.trim(),
+        description: form.description.trim() || null,
+        images: imageUrls,
+        airport_delivery: airportDelivery,
+      });
 
-      if (!res.ok) {
-        setError(data.error || 'Failed to create listing.');
-      } else {
-        router.push('/dashboard');
+      if (insertError) {
+        setError(insertError.message || 'Failed to create listing.');
+        return;
       }
+
+      router.push('/dashboard');
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError('Upload failed. Please try again.');
     } finally {
+      setUploadProgress(null);
       setLoading(false);
     }
   }
@@ -121,6 +138,16 @@ export default function ListCarForm() {
       <div className="bg-gray-50 rounded-xl p-4">
         <AirportToggle enabled={airportDelivery} onChange={setAirportDelivery} />
         <p className="text-xs text-gray-400 mt-2">Offer delivery to Heydar Aliyev International Airport</p>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-700">Photos</label>
+        <ImageUpload
+          value={photos}
+          onChange={setPhotos}
+          uploading={loading}
+          uploadProgress={uploadProgress}
+        />
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}

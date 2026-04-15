@@ -1,64 +1,84 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 interface ImageUploadProps {
-  value: string[];
-  onChange: (urls: string[]) => void;
+  value: File[];
+  onChange: (files: File[]) => void;
   maxFiles?: number;
+  uploading?: boolean;
+  uploadProgress?: number | null;
 }
 
-export default function ImageUpload({ value, onChange, maxFiles = 8 }: ImageUploadProps) {
+export async function uploadImages(
+  files: File[],
+  userId: string,
+  onProgress?: (uploadedCount: number, totalCount: number) => void
+) {
   const supabase = createClient();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState('');
+  const urls: string[] = [];
 
-  async function handleFiles(files: FileList | null) {
-    if (!files || files.length === 0) return;
-    if (value.length + files.length > maxFiles) {
-      setError(`Maximum ${maxFiles} photos allowed.`);
-      return;
-    }
-    setError('');
-    setUploading(true);
+  for (let index = 0; index < files.length; index += 1) {
+    const file = files[index];
+    const path = `${userId}/${Date.now()}-${file.name}`;
+    const { error } = await supabase.storage.from('car-images').upload(path, file);
 
-    const uploaded: string[] = [];
-    for (const file of Array.from(files)) {
-      const ext = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from('car-images')
-        .upload(fileName, file, { cacheControl: '3600', upsert: false });
-
-      if (upErr) {
-        setError(`Upload failed: ${upErr.message}`);
-        setUploading(false);
-        return;
-      }
-
-      const { data } = supabase.storage.from('car-images').getPublicUrl(fileName);
-      uploaded.push(data.publicUrl);
+    if (error) {
+      throw new Error(error.message);
     }
 
-    onChange([...value, ...uploaded]);
-    setUploading(false);
+    const { data } = supabase.storage.from('car-images').getPublicUrl(path);
+    urls.push(data.publicUrl);
+    onProgress?.(index + 1, files.length);
   }
 
-  function removeImage(url: string) {
-    onChange(value.filter((u) => u !== url));
+  return urls;
+}
+
+export default function ImageUpload({
+  value,
+  onChange,
+  maxFiles = 8,
+  uploading = false,
+  uploadProgress = null,
+}: ImageUploadProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const previews = useMemo(
+    () => value.map((file) => ({ file, url: URL.createObjectURL(file) })),
+    [value]
+  );
+
+  useEffect(() => {
+    return () => {
+      previews.forEach((preview) => URL.revokeObjectURL(preview.url));
+    };
+  }, [previews]);
+
+  function handleFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+
+    const incoming = Array.from(files);
+    const availableSlots = maxFiles - value.length;
+    const nextFiles = incoming.slice(0, availableSlots);
+    if (nextFiles.length === 0) return;
+
+    onChange([...value, ...nextFiles]);
+  }
+
+  function removeImage(indexToRemove: number) {
+    onChange(value.filter((_, index) => index !== indexToRemove));
   }
 
   return (
     <div>
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-3">
-        {value.map((url) => (
-          <div key={url} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
+        {previews.map(({ file, url }, index) => (
+          <div key={`${file.name}-${index}`} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
             <img src={url} alt="Car photo" className="w-full h-full object-cover" loading="lazy" />
             <button
               type="button"
-              onClick={() => removeImage(url)}
+              onClick={() => removeImage(index)}
               aria-label="Remove photo"
               className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full w-6 h-6 flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100"
             >
@@ -75,7 +95,12 @@ export default function ImageUpload({ value, onChange, maxFiles = 8 }: ImageUplo
             className="aspect-square rounded-xl border-2 border-dashed border-gray-300 hover:border-green-500 flex flex-col items-center justify-center gap-1 text-gray-400 hover:text-green-600 transition-colors disabled:opacity-50"
           >
             {uploading ? (
-              <div className="w-5 h-5 rounded-full border-2 border-green-600 border-t-transparent animate-spin" />
+              <div className="text-center space-y-1">
+                <div className="mx-auto w-5 h-5 rounded-full border-2 border-green-600 border-t-transparent animate-spin" />
+                {uploadProgress !== null && (
+                  <span className="text-[10px] text-green-600 font-medium">{uploadProgress}%</span>
+                )}
+              </div>
             ) : (
               <>
                 <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
@@ -95,8 +120,10 @@ export default function ImageUpload({ value, onChange, maxFiles = 8 }: ImageUplo
         onChange={(e) => handleFiles(e.target.files)}
       />
 
-      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
-      <p className="text-xs text-gray-400 mt-1">{value.length}/{maxFiles} photos uploaded. First photo is the cover.</p>
+      {uploading && uploadProgress !== null && (
+        <p className="text-xs text-green-600 mt-1">Upload progress: {uploadProgress}%</p>
+      )}
+      <p className="text-xs text-gray-400 mt-1">{value.length}/{maxFiles} photos selected. First photo is the cover.</p>
     </div>
   );
 }
