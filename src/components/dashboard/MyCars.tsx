@@ -3,11 +3,21 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Car } from '@/types';
 import Badge from '@/components/shared/Badge';
 
+type OwnerCar = {
+  id: string;
+  brand: string;
+  model: string;
+  year: number;
+  location: string;
+  price_per_day: number;
+  is_available: boolean;
+  images: string[];
+};
+
 interface MyCarsProps {
-  cars: Car[];
+  cars: OwnerCar[];
   toggleCarAvailabilityAction: (formData: FormData) => Promise<void>;
   deleteCarAction: (formData: FormData) => Promise<void>;
 }

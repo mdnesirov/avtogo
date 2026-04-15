@@ -1,12 +1,31 @@
 'use client';
 
-import { Booking } from '@/types';
 import type { ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
 import { BookingStatusBadge } from '@/components/shared/Badge';
 
+type OwnerBooking = {
+  id: string;
+  start_date: string;
+  end_date: string;
+  total_price: number;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  notes: string | null;
+  driver_name: string;
+  driver_phone: string;
+  car?: {
+    brand: string;
+    model: string;
+    images?: string[];
+  } | null;
+  user?: {
+    full_name: string | null;
+    phone: string | null;
+  } | null;
+};
+
 interface MyBookingsProps {
-  bookings: Booking[];
+  bookings: OwnerBooking[];
   mode: 'renter' | 'owner';
   updateBookingStatusAction?: (formData: FormData) => Promise<void>;
 }
@@ -57,6 +76,8 @@ export default function MyBookings({ bookings, mode, updateBookingStatusAction }
     <div className="space-y-3">
       {bookings.map((booking) => {
         const car = booking.car;
+        const renterName = booking.user?.full_name || booking.driver_name;
+        const renterPhone = booking.user?.phone || booking.driver_phone;
         const nights = car
           ? Math.ceil((new Date(booking.end_date).getTime() - new Date(booking.start_date).getTime()) / 86400000)
           : 0;
@@ -81,8 +102,8 @@ export default function MyBookings({ bookings, mode, updateBookingStatusAction }
                   </p>
                   {mode === 'owner' && (
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Renter: <span className="font-medium text-gray-800">{booking.user?.full_name || booking.driver_name}</span>
-                      {' · '}{booking.user?.phone || booking.driver_phone}
+                      Renter: <span className="font-medium text-gray-800">{renterName}</span>
+                      {' · '}{renterPhone}
                     </p>
                   )}
                 </div>

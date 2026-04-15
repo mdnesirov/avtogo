@@ -5,7 +5,6 @@ import Link from 'next/link';
 import MyCars from '@/components/dashboard/MyCars';
 import MyBookings from '@/components/dashboard/MyBookings';
 import { Car, Plus } from 'lucide-react';
-import type { Car as CarType, Booking } from '@/types';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -125,7 +124,7 @@ export default async function DashboardPage() {
           <Car size={18} className="text-green-600" /> My Listings
         </h2>
         <MyCars
-          cars={(cars ?? []) as CarType[]}
+          cars={cars ?? []}
           toggleCarAvailabilityAction={toggleCarAvailabilityAction}
           deleteCarAction={deleteCarAction}
         />
@@ -135,7 +134,7 @@ export default async function DashboardPage() {
       <section>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Incoming Bookings</h2>
         <MyBookings
-          bookings={(bookings ?? []) as Booking[]}
+          bookings={bookings ?? []}
           mode="owner"
           updateBookingStatusAction={updateBookingStatusAction}
         />
