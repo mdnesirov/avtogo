@@ -8,13 +8,16 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const {
-    car_name, brand, model, year, car_type, transmission,
+    brand, model, year, car_type, transmission,
     fuel_type, price_per_day, location, city, description,
     images, airport_delivery, whatsapp_phone,
     requires_deposit, deposit_amount,
   } = body;
 
-  if (!car_name || !brand || !model || !year || !transmission || !fuel_type || !price_per_day || !location) {
+  // Build and trim car_name from brand + model
+  const car_name = `${(brand || '').trim()} ${(model || '').trim()}`.trim();
+
+  if (!car_name || !brand?.trim() || !model?.trim() || !year || !transmission || !fuel_type || !price_per_day || !location) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
@@ -23,8 +26,8 @@ export async function POST(req: NextRequest) {
     .insert({
       owner_id: user.id,
       car_name,
-      brand,
-      model,
+      brand: brand.trim(),
+      model: model.trim(),
       year: Number(year),
       car_type: car_type || null,
       transmission,
