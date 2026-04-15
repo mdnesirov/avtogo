@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, Car, User, LogOut } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Menu, X, User, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{ email?: string } | null>(null);
+  const pathname = usePathname();
   const supabase = createClient();
 
   useEffect(() => {
@@ -23,6 +25,23 @@ export default function Navbar() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     window.location.href = '/';
+  };
+
+  const navLink = (href: string, label: string, onClick?: () => void) => {
+    const active = pathname === href;
+    return (
+      <Link
+        href={href}
+        onClick={onClick}
+        className={`text-sm font-medium transition-colors ${
+          active
+            ? 'text-green-600'
+            : 'text-gray-600 hover:text-gray-900'
+        }`}
+      >
+        {label}
+      </Link>
+    );
   };
 
   return (
@@ -43,16 +62,22 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/cars" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Browse Cars</Link>
-            <Link href="/list-car" className="text-gray-600 hover:text-gray-900 text-sm font-medium">List Your Car</Link>
+            {navLink('/', 'Home')}
+            {navLink('/cars', 'Browse Cars')}
+            {navLink('/list-car', 'List Your Car')}
             {user ? (
               <>
-                <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 text-sm font-medium flex items-center gap-1">
+                <Link
+                  href="/dashboard"
+                  className={`text-sm font-medium flex items-center gap-1 transition-colors ${
+                    pathname === '/dashboard' ? 'text-green-600' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
                   <User size={16} /> Dashboard
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="text-gray-500 hover:text-gray-900 text-sm flex items-center gap-1"
+                  className="text-gray-500 hover:text-gray-900 text-sm flex items-center gap-1 transition-colors"
                 >
                   <LogOut size={16} /> Sign out
                 </button>
@@ -62,7 +87,7 @@ export default function Navbar() {
                 <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Sign in</Link>
                 <Link
                   href="/auth/signup"
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
                 >
                   Get started
                 </Link>
@@ -83,6 +108,7 @@ export default function Navbar() {
         {/* Mobile menu */}
         {isOpen && (
           <div className="md:hidden py-4 border-t border-gray-100 space-y-3">
+            <Link href="/" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Home</Link>
             <Link href="/cars" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Browse Cars</Link>
             <Link href="/list-car" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>List Your Car</Link>
             {user ? (
