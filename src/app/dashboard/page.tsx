@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import CarCard from '@/components/cars/CarCard';
+import DashboardClient from './DashboardClient';
 import { BookingStatusBadge } from '@/components/shared/Badge';
 import { formatDate, formatPrice } from '@/lib/utils';
 import { Car, Plus } from 'lucide-react';
@@ -37,21 +37,7 @@ export default async function DashboardPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Car size={18} className="text-green-600" /> My Listings
         </h2>
-        {myCars && myCars.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {myCars.map((car) => (
-              <CarCard key={car.id} car={car} showOwnerActions />
-            ))}
-          </div>
-        ) : (
-          <div className="bg-gray-50 rounded-2xl p-12 text-center text-gray-400">
-            <Car size={32} className="mx-auto mb-3 text-gray-300" />
-            <p className="font-medium">No listings yet</p>
-            <Link href="/list-car" className="text-green-600 text-sm mt-1 inline-block hover:text-green-700">
-              Add your first car →
-            </Link>
-          </div>
-        )}
+        <DashboardClient cars={myCars ?? []} />
       </section>
 
       {/* My Bookings */}

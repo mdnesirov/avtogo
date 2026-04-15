@@ -15,8 +15,21 @@ interface CarCardProps {
   onDelete?: (carId: string) => void;
 }
 
+function isValidUrl(str: string | undefined | null): boolean {
+  if (!str) return false;
+  try {
+    const url = new URL(str);
+    return url.protocol === 'https:' || url.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
 export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: CarCardProps) {
-  const imageUrl = car.images?.[0] || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=80';
+  const rawImage = car.images?.[0];
+  const imageUrl = isValidUrl(rawImage)
+    ? rawImage!
+    : 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=80';
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow group">
