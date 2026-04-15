@@ -28,11 +28,17 @@ export async function POST(request: NextRequest) {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+  const allowedStatuses = new Set(['confirmed', 'cancelled', 'failed']);
+
   const updateBookingStatusBySessionId = async (
     sessionId: string,
-    status: string,
+    status: 'confirmed' | 'cancelled' | 'failed',
     eventType: string
   ) => {
+    if (!allowedStatuses.has(status)) {
+      throw new Error(`Unsupported booking status=${status} for event=${eventType}`);
+    }
+
     const { data, error } = await supabase
       .from('bookings')
       .update({ status })
@@ -93,7 +99,8 @@ export async function POST(request: NextRequest) {
         console.log(`Unhandled event type: ${event.type}`);
     }
   } catch (error) {
-    console.error(`Webhook processing failed for event=${event.type}:`, error);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error(`Webhook processing failed for event=${event.type}: ${message}`);
     return NextResponse.json({ error: 'Webhook processing failed', eventType: event.type }, { status: 500 });
   }
 
