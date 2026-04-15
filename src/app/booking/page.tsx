@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Car } from '@/types';
 import BookingCalendar from '@/components/booking/BookingCalendar';
 import BookingForm from '@/components/booking/BookingForm';
 import BookingSummary from '@/components/booking/BookingSummary';
 
-export default function BookingPage() {
+function BookingContent() {
   const searchParams = useSearchParams();
   const carId = searchParams.get('carId');
 
@@ -105,5 +105,17 @@ export default function BookingPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-green-600 border-t-transparent" />
+      </main>
+    }>
+      <BookingContent />
+    </Suspense>
   );
 }
