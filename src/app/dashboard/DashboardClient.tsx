@@ -6,9 +6,9 @@ import CarCard from '@/components/cars/CarCard';
 import { Car } from '@/types';
 import { BookingStatusBadge } from '@/components/shared/Badge';
 import { formatDate, formatPrice } from '@/lib/utils';
-import { Check, X, Clock, Bell, Car as CarIcon, CalendarCheck, ChevronRight } from 'lucide-react';
+import { Check, X, Clock, Bell, Car as CarIcon, CalendarCheck, ChevronRight, AlertCircle } from 'lucide-react';
 
-type BookingStatusFilter = 'all' | 'pending' | 'confirmed' | 'rejected';
+type BookingStatusFilter = 'all' | 'pending' | 'confirmed' | 'rejected' | 'cancelled';
 type Tab = 'listings' | 'requests' | 'my-bookings';
 
 interface Props {
@@ -21,7 +21,8 @@ interface Props {
 function statusBorderClass(status: string) {
   if (status === 'pending' || status === 'paid') return 'border-yellow-200 bg-yellow-50/40';
   if (status === 'confirmed') return 'border-green-200 bg-green-50/30';
-  if (status === 'rejected' || status === 'cancelled') return 'border-red-100 bg-red-50/20';
+  if (status === 'rejected') return 'border-red-100 bg-red-50/20';
+  if (status === 'cancelled') return 'border-gray-200 bg-gray-50/40';
   return 'border-gray-100';
 }
 
@@ -31,6 +32,7 @@ export default function DashboardClient({ cars, pendingCarIds, incomingBookings,
   const [activeTab, setActiveTab] = useState<Tab>('listings');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<BookingStatusFilter>('all');
+  const [cancelConfirm, setCancelConfirm] = useState<string | null>(null);
 
   const pendingSet = new Set(pendingCarIds);
   const pendingCount = incomingBookings.filter((b) => b.status === 'pending' || b.status === 'paid').length;
@@ -77,14 +79,66 @@ export default function DashboardClient({ cars, pendingCarIds, incomingBookings,
     }
   }
 
+  async function handleCancel(bookingId: string) {
+    setActionLoading(bookingId);
+    setCancelConfirm(null);
+    try {
+      const res = await fetch(`/api/bookings/${bookingId}/cancel`, { method: 'PATCH' });
+      if (!res.ok) throw new Error('Failed to cancel booking');
+      router.refresh();
+    } catch {
+      alert('Could not cancel the booking. Please try again.');
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
   const tabs: { id: Tab; label: string; icon: React.ReactNode; badge?: number }[] = [
     { id: 'listings', label: 'My Listings', icon: <CarIcon size={14} /> },
     { id: 'requests', label: 'Booking Requests', icon: <Bell size={14} />, badge: pendingCount },
     { id: 'my-bookings', label: 'My Bookings', icon: <CalendarCheck size={14} />, badge: myBookings.filter(b => b.status === 'pending' || b.status === 'paid').length },
   ];
 
+  const filterOptions: { id: BookingStatusFilter; label: string }[] = [
+    { id: 'all', label: 'All' },
+    { id: 'pending', label: 'Awaiting Confirmation' },
+    { id: 'confirmed', label: 'Confirmed' },
+    { id: 'cancelled', label: 'Cancelled' },
+    { id: 'rejected', label: 'Rejected' },
+  ];
+
   return (
     <div>
+      {/* Cancel confirmation modal */}
+      {cancelConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center">
+                <AlertCircle size={20} className="text-red-500" />
+              </div>
+              <h3 className="font-semibold text-gray-900">Cancel Booking?</h3>
+            </div>
+            <p className="text-sm text-gray-500 mb-5">This action cannot be undone. The booking will be marked as cancelled and the owner will be notified.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setCancelConfirm(null)}
+                className="flex-1 border border-gray-200 text-gray-600 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
+              >
+                Keep Booking
+              </button>
+              <button
+                onClick={() => handleCancel(cancelConfirm)}
+                disabled={actionLoading === cancelConfirm}
+                className="flex-1 bg-red-500 text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                {actionLoading === cancelConfirm ? 'Cancelling...' : 'Yes, Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tab bar */}
       <div className="flex items-center gap-1 mb-8 border-b border-gray-100 overflow-x-auto">
         {tabs.map((tab) => (
@@ -159,6 +213,9 @@ export default function DashboardClient({ cars, pendingCarIds, incomingBookings,
                     <p className="text-gray-500 text-xs mt-0.5">📅 {formatDate(booking.start_date)} — {formatDate(booking.end_date)}</p>
                     <p className="text-gray-500 text-xs">👤 {booking.driver_name}{booking.driver_phone && ` · ${booking.driver_phone}`}</p>
                     {booking.notes && <p className="text-gray-400 text-xs italic mt-0.5">"{booking.notes}"</p>}
+                    {booking.cancelled_by === 'renter' && (
+                      <p className="text-gray-400 text-xs mt-0.5">⚠️ Cancelled by renter</p>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
@@ -184,6 +241,15 @@ export default function DashboardClient({ cars, pendingCarIds, incomingBookings,
                       </button>
                     </div>
                   )}
+                  {booking.status === 'confirmed' && (
+                    <button
+                      onClick={() => setCancelConfirm(booking.id)}
+                      disabled={actionLoading === booking.id}
+                      className="flex items-center gap-1.5 bg-gray-100 text-gray-600 border border-gray-200 px-3 py-2 rounded-xl text-xs font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50"
+                    >
+                      <X size={14} /> Cancel
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -196,25 +262,23 @@ export default function DashboardClient({ cars, pendingCarIds, incomingBookings,
         <div>
           {/* Status filter pills */}
           <div className="flex gap-2 mb-5 flex-wrap">
-            {(['all', 'pending', 'confirmed', 'rejected'] as BookingStatusFilter[]).map((f) => (
+            {filterOptions.map((f) => (
               <button
-                key={f}
-                onClick={() => setStatusFilter(f)}
+                key={f.id}
+                onClick={() => setStatusFilter(f.id)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize transition-colors ${
-                  statusFilter === f
+                  statusFilter === f.id
                     ? 'bg-green-600 text-white'
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                 }`}
               >
-                {f === 'all' ? 'All' : f === 'pending' ? 'Awaiting Confirmation' : f.charAt(0).toUpperCase() + f.slice(1)}
-                {f !== 'all' && (
-                  <span className="ml-1.5 opacity-70">
-                    ({myBookings.filter((b) => {
-                      if (f === 'pending') return b.status === 'pending' || b.status === 'paid';
-                      return b.status === f;
-                    }).length})
-                  </span>
-                )}
+                {f.label}
+                <span className="ml-1.5 opacity-70">
+                  ({f.id === 'all' ? myBookings.length : myBookings.filter((b) => {
+                    if (f.id === 'pending') return b.status === 'pending' || b.status === 'paid';
+                    return b.status === f.id;
+                  }).length})
+                </span>
               </button>
             ))}
           </div>
@@ -237,6 +301,9 @@ export default function DashboardClient({ cars, pendingCarIds, incomingBookings,
                       <p className="font-semibold text-gray-900 text-sm">{booking.car?.brand} {booking.car?.model} {booking.car?.year}</p>
                       <p className="text-gray-500 text-xs mt-0.5">📅 {formatDate(booking.start_date)} — {formatDate(booking.end_date)}</p>
                       <p className="text-gray-400 text-xs">{formatPrice(booking.car?.price_per_day ?? 0)} / day</p>
+                      {booking.car?.requires_deposit && booking.car?.deposit_amount && (
+                        <p className="text-amber-600 text-xs font-medium mt-0.5">🔒 Deposit: {formatPrice(booking.car.deposit_amount)}</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-4 flex-shrink-0">
@@ -245,18 +312,41 @@ export default function DashboardClient({ cars, pendingCarIds, incomingBookings,
                       <BookingStatusBadge status={booking.status} />
                     </div>
                     {(booking.status === 'pending' || booking.status === 'paid') && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-xs text-yellow-700 font-medium flex items-center gap-1.5">
-                        <Clock size={13} /> Awaiting owner
+                      <div className="flex flex-col gap-2">
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 text-xs text-yellow-700 font-medium flex items-center gap-1.5">
+                          <Clock size={13} /> Awaiting owner
+                        </div>
+                        <button
+                          onClick={() => setCancelConfirm(booking.id)}
+                          disabled={actionLoading === booking.id}
+                          className="bg-gray-100 text-gray-500 border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 flex items-center gap-1"
+                        >
+                          <X size={12} /> Cancel
+                        </button>
                       </div>
                     )}
                     {booking.status === 'confirmed' && (
-                      <div className="bg-green-50 border border-green-200 rounded-xl px-3 py-2 text-xs text-green-700 font-medium flex items-center gap-1.5">
-                        <Check size={13} /> Confirmed!
+                      <div className="flex flex-col gap-2">
+                        <div className="bg-green-50 border border-green-200 rounded-xl px-3 py-2 text-xs text-green-700 font-medium flex items-center gap-1.5">
+                          <Check size={13} /> Confirmed!
+                        </div>
+                        <button
+                          onClick={() => setCancelConfirm(booking.id)}
+                          disabled={actionLoading === booking.id}
+                          className="bg-gray-100 text-gray-500 border border-gray-200 rounded-xl px-3 py-1.5 text-xs font-medium hover:bg-gray-200 transition-colors disabled:opacity-50 flex items-center gap-1"
+                        >
+                          <X size={12} /> Cancel
+                        </button>
                       </div>
                     )}
-                    {(booking.status === 'rejected' || booking.status === 'cancelled') && (
+                    {booking.status === 'rejected' && (
                       <div className="bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-xs text-red-600 font-medium flex items-center gap-1.5">
                         <X size={13} /> Declined
+                      </div>
+                    )}
+                    {booking.status === 'cancelled' && (
+                      <div className="bg-gray-100 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-500 font-medium flex items-center gap-1.5">
+                        <X size={13} /> Cancelled{booking.cancelled_by === 'owner' ? ' by owner' : ''}
                       </div>
                     )}
                   </div>

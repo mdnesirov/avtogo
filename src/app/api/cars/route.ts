@@ -1,104 +1,47 @@
+import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 
-type CookieToSet = { name: string; value: string; options?: Record<string, unknown> };
+export async function POST(req: NextRequest) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-function makeSupabase(cookieStore: Awaited<ReturnType<typeof cookies>>) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll(); },
-        setAll(cookiesToSet: CookieToSet[]) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options as Parameters<typeof cookieStore.set>[2])
-          );
-        },
-      },
-    }
-  );
-}
+  const body = await req.json();
+  const {
+    car_name, brand, model, year, car_type, transmission,
+    fuel_type, price_per_day, location, city, description,
+    images, airport_delivery, whatsapp_phone,
+    requires_deposit, deposit_amount,
+  } = body;
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const location = searchParams.get('location');
-    const minPrice = searchParams.get('minPrice');
-    const maxPrice = searchParams.get('maxPrice');
-    const transmission = searchParams.get('transmission');
-    const fuelType = searchParams.get('fuelType');
-    const airportDelivery = searchParams.get('airportDelivery');
-    const limit = parseInt(searchParams.get('limit') || '20');
-
-    const cookieStore = await cookies();
-    const supabase = makeSupabase(cookieStore);
-
-    let query = supabase
-      .from('cars')
-      .select('*, owner:profiles(id, full_name, phone, whatsapp)')
-      .eq('is_available', true)
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (location) query = query.ilike('location', `%${location}%`);
-    if (minPrice) query = query.gte('price_per_day', parseFloat(minPrice));
-    if (maxPrice) query = query.lte('price_per_day', parseFloat(maxPrice));
-    if (transmission) query = query.eq('transmission', transmission);
-    if (fuelType) query = query.eq('fuel_type', fuelType);
-    if (airportDelivery === 'true') query = query.eq('airport_delivery', true);
-
-    const { data, error } = await query;
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-    return NextResponse.json({ cars: data });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  if (!car_name || !brand || !model || !year || !transmission || !fuel_type || !price_per_day || !location) {
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
-}
 
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const cookieStore = await cookies();
-    const supabase = makeSupabase(cookieStore);
+  const { data, error } = await supabase
+    .from('cars')
+    .insert({
+      owner_id: user.id,
+      car_name,
+      brand,
+      model,
+      year: Number(year),
+      car_type: car_type || null,
+      transmission,
+      fuel_type,
+      price_per_day: Number(price_per_day),
+      location,
+      city: city || null,
+      description: description || null,
+      images: images || [],
+      airport_delivery: airport_delivery || false,
+      whatsapp_phone: whatsapp_phone || null,
+      requires_deposit: requires_deposit || false,
+      deposit_amount: requires_deposit && deposit_amount ? Number(deposit_amount) : null,
+    })
+    .select()
+    .single();
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-
-    const required = ['brand', 'model', 'year', 'transmission', 'fuel_type', 'price_per_day', 'location'];
-    for (const field of required) {
-      if (!body[field]) {
-        return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 });
-      }
-    }
-
-    const { data: car, error } = await supabase
-      .from('cars')
-      .insert({
-        owner_id: user.id,
-        car_name: `${body.brand} ${body.model} ${body.year}`,
-        brand: body.brand,
-        model: body.model,
-        year: parseInt(body.year),
-        transmission: body.transmission,
-        fuel_type: body.fuel_type,
-        price_per_day: parseFloat(body.price_per_day),
-        location: body.location,
-        latitude: body.latitude || null,
-        longitude: body.longitude || null,
-        description: body.description || null,
-        images: body.images || [],
-        airport_delivery: body.airport_delivery || false,
-      })
-      .select()
-      .single();
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-    return NextResponse.json({ car }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ car: data });
 }
