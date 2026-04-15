@@ -140,3 +140,4 @@ NEXT_PUBLIC_APP_URL=
 ---
 
 Built with ❤️ for Azerbaijan 🇦🇿
+<!-- deploy trigger -->
