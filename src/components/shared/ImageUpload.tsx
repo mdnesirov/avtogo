@@ -23,7 +23,7 @@ export async function uploadImages(
   for (let index = 0; index < files.length; index += 1) {
     const file = files[index];
     const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');
-    const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}-${safeFileName}`;
+    const path = `${userId}/${Date.now()}-${crypto.randomUUID()}-${safeFileName}`;
     const { error } = await supabase.storage.from('car-images').upload(path, file);
 
     if (error) {

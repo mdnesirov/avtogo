@@ -78,6 +78,14 @@ export default function ListCarForm() {
       });
 
       if (insertError) {
+        const uploadedPaths = imageUrls
+          .map((url) => url.split('/car-images/')[1]?.split('?')[0])
+          .filter((path): path is string => Boolean(path));
+
+        if (uploadedPaths.length > 0) {
+          await supabase.storage.from('car-images').remove(uploadedPaths);
+        }
+
         setError(insertError.message || 'Failed to create listing.');
         return;
       }
