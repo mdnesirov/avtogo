@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   const bookings = carIds.length > 0
     ? (await supabase
       .from('bookings')
-      .select('*, car:cars(brand, model), user:profiles(full_name, phone)')
+      .select('*, car:cars(brand, model, images), user:profiles(full_name, phone)')
       .in('car_id', carIds)
       .order('created_at', { ascending: false })).data
     : [];

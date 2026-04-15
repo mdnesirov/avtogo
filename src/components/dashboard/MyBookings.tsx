@@ -84,7 +84,7 @@ export default function MyBookings({ bookings, mode, updateBookingStatusAction }
 
         return (
           <div key={booking.id} className="flex gap-4 p-4 border border-gray-200 rounded-2xl">
-            {car?.images[0] && (
+            {car?.images?.[0] && (
               <img src={car.images[0]} alt={`${car.brand} ${car.model}`}
                 className="w-20 h-14 object-cover rounded-xl flex-shrink-0" loading="lazy" />
             )}
