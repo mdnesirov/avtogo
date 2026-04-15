@@ -1,19 +1,12 @@
 'use client';
 
 import { Booking } from '@/types';
-import Badge from '@/components/shared/Badge';
+import { BookingStatusBadge } from '@/components/shared/Badge';
 
 interface MyBookingsProps {
   bookings: Booking[];
   mode: 'renter' | 'owner';
 }
-
-const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'error' | 'default'> = {
-  confirmed: 'success',
-  pending: 'warning',
-  cancelled: 'error',
-  completed: 'default',
-};
 
 export default function MyBookings({ bookings, mode }: MyBookingsProps) {
   if (bookings.length === 0) {
@@ -71,9 +64,7 @@ export default function MyBookings({ bookings, mode }: MyBookingsProps) {
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-1.5">
-                  <Badge variant={STATUS_VARIANT[booking.status] || 'default'}>
-                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                  </Badge>
+                  <BookingStatusBadge status={booking.status} />
                   <span className="text-sm font-bold text-gray-900">₼{booking.total_price.toFixed(2)}</span>
                 </div>
               </div>
