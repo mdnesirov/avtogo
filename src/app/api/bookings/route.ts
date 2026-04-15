@@ -4,12 +4,30 @@ import { cookies } from 'next/headers';
 import { createCheckoutSession } from '@/lib/stripe';
 import { calculateDays, calculateTotalPrice } from '@/lib/utils';
 
+type CookieToSet = { name: string; value: string; options?: Record<string, unknown> };
+
+function makeSupabase(cookieStore: Awaited<ReturnType<typeof cookies>>) {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet: CookieToSet[]) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options as Parameters<typeof cookieStore.set>[2])
+          );
+        },
+      },
+    }
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { carId, startDate, endDate, driverName, driverPhone, driverLicense, notes } = body;
 
-    // Validate required fields
     if (!carId || !startDate || !endDate || !driverName || !driverPhone) {
       return NextResponse.json(
         { error: 'Missing required fields: carId, startDate, endDate, driverName, driverPhone' },
@@ -18,28 +36,13 @@ export async function POST(request: NextRequest) {
     }
 
     const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll(); },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          },
-        },
-      }
-    );
+    const supabase = makeSupabase(cookieStore);
 
-    // Auth check
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
-    // Fetch car details
     const { data: car, error: carError } = await supabase
       .from('cars')
       .select('*')
@@ -51,7 +54,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Car not found or unavailable' }, { status: 404 });
     }
 
-    // Calculate pricing
     const totalDays = calculateDays(startDate, endDate);
     const totalPrice = calculateTotalPrice(car.price_per_day, startDate, endDate);
 
@@ -59,7 +61,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'End date must be after start date' }, { status: 400 });
     }
 
-    // Create booking
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .insert({
@@ -78,7 +79,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (bookingError) {
-      // Handle overlap constraint
       if (bookingError.code === 'P0001' || bookingError.message.includes('overlap')) {
         return NextResponse.json(
           { error: 'These dates are already booked. Please choose different dates.' },
@@ -88,7 +88,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: bookingError.message }, { status: 500 });
     }
 
-    // Create Stripe checkout session
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const checkoutSession = await createCheckoutSession({
       carName: `${car.brand} ${car.model} ${car.year}`,
@@ -100,7 +99,6 @@ export async function POST(request: NextRequest) {
       cancelUrl: `${appUrl}/cars/${carId}`,
     });
 
-    // Update booking with Stripe session ID
     await supabase
       .from('bookings')
       .update({ stripe_session_id: checkoutSession.id })
@@ -120,20 +118,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll(); },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          },
-        },
-      }
-    );
+    const supabase = makeSupabase(cookieStore);
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
