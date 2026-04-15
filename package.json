@@ -18,7 +18,9 @@
     "@stripe/stripe-js": "^4.9.0",
     "lucide-react": "^0.453.0",
     "date-fns": "^4.1.0",
-    "react-day-picker": "^9.2.1"
+    "react-day-picker": "^9.2.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
     "@types/node": "^20",
