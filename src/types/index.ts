@@ -16,22 +16,27 @@ export interface Profile {
 export interface Car {
   id: string;
   owner_id: string;
+  car_name: string | null;
   brand: string;
   model: string;
   year: number;
+  car_type: string | null;
   transmission: Transmission;
   fuel_type: FuelType;
   price_per_day: number;
   location: string;
+  city: string | null;
   latitude: number | null;
   longitude: number | null;
   description: string | null;
   images: string[];
-  is_available: boolean;
+  is_active: boolean;
   airport_delivery: boolean;
-  rating: number;
-  total_reviews: number;
+  whatsapp_phone: string | null;
+  rating: number | null;
+  review_count: number | null;
   created_at: string;
+  updated_at: string | null;
   owner?: Profile;
 }
 
