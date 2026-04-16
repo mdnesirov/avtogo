@@ -21,7 +21,7 @@ export default async function CarsPage({
   const params = await searchParams;
   const supabase = await createClient();
 
-  let query = supabase.from('cars').select('*').eq('is_available', true);
+  let query = supabase.from('cars').select('*').eq('is_active', true);
 
   if (params.location) query = query.eq('location', params.location);
   if (params.transmission) query = query.eq('transmission', params.transmission);
