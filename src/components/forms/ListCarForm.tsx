@@ -5,26 +5,31 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
-import AirportToggle from '@/components/shared/AirportToggle';
 import ImageUpload from '@/components/shared/ImageUpload';
 
 export default function ListCarForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [airportDelivery, setAirportDelivery] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [form, setForm] = useState({
     brand: '',
     model: '',
     year: '',
+    car_type: 'sedan',
     transmission: 'automatic',
     fuel_type: 'petrol',
     price_per_day: '',
     deposit_amount: '',
+    delivery_fee: '',
+    airport_delivery_fee: '',
+    whatsapp_phone: '',
     location: 'Baku',
     description: '',
   });
+  const [requiresDeposit, setRequiresDeposit] = useState(false);
+  const [offersDelivery, setOffersDelivery] = useState(false);
+  const [offersAirport, setOffersAirport] = useState(false);
 
   const handleChange = (field: string) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -38,26 +43,29 @@ export default function ListCarForm() {
     try {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push('/auth/login');
-        return;
-      }
-
-      const depositAmt = Number(form.deposit_amount) || 0;
+      if (!user) { router.push('/auth/login'); return; }
 
       const res = await fetch('/api/cars', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...form,
-          car_name: `${form.brand} ${form.model}`,
+          brand: form.brand,
+          model: form.model,
           year: Number(form.year),
+          car_type: form.car_type,
+          transmission: form.transmission,
+          fuel_type: form.fuel_type,
           price_per_day: Number(form.price_per_day),
-          deposit_amount: depositAmt,
-          requires_deposit: depositAmt > 0,
-          airport_delivery: airportDelivery,
+          location: form.location,
+          description: form.description || null,
           images,
+          whatsapp_phone: form.whatsapp_phone || null,
+          requires_deposit: requiresDeposit,
+          deposit_amount: requiresDeposit ? Number(form.deposit_amount) : null,
+          offers_delivery: offersDelivery,
+          delivery_fee: offersDelivery ? Number(form.delivery_fee) : null,
+          offers_airport_delivery: offersAirport,
+          airport_delivery_fee: offersAirport ? Number(form.airport_delivery_fee) : null,
         }),
       });
 
@@ -75,43 +83,51 @@ export default function ListCarForm() {
     }
   }
 
+  const selectClass = 'w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-600';
+  const labelClass = 'text-sm font-medium text-gray-700';
+  const sectionClass = 'bg-gray-50 rounded-xl p-4 space-y-3';
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+
+      {/* Brand / Model */}
       <div className="grid grid-cols-2 gap-4">
         <Input label="Brand" placeholder="Toyota" value={form.brand} onChange={handleChange('brand')} required />
         <Input label="Model" placeholder="Camry" value={form.model} onChange={handleChange('model')} required />
       </div>
 
+      {/* Year / Price */}
       <div className="grid grid-cols-2 gap-4">
         <Input label="Year" type="number" placeholder="2022" value={form.year} onChange={handleChange('year')} min="1990" max="2026" required />
         <Input label="Price per day (AZN)" type="number" placeholder="80" value={form.price_per_day} onChange={handleChange('price_per_day')} min="1" required />
       </div>
 
+      {/* Car type */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Security Deposit (AZN)</label>
-        <Input
-          type="number"
-          placeholder="e.g. 200 — leave blank for no deposit"
-          value={form.deposit_amount}
-          onChange={handleChange('deposit_amount')}
-          min="0"
-        />
-        <p className="text-xs text-gray-400 mt-1">
-          This amount is held from the renter and paid to you if they cancel after confirming or don&apos;t collect the car. Leave blank for no deposit.
-        </p>
+        <label className={labelClass}>Car Type</label>
+        <select value={form.car_type} onChange={handleChange('car_type')} className={selectClass}>
+          <option value="sedan">Sedan</option>
+          <option value="suv">SUV</option>
+          <option value="hatchback">Hatchback</option>
+          <option value="minivan">Minivan</option>
+          <option value="pickup">Pickup</option>
+          <option value="coupe">Coupe</option>
+          <option value="convertible">Convertible</option>
+        </select>
       </div>
 
+      {/* Transmission / Fuel */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Transmission</label>
-          <select value={form.transmission} onChange={handleChange('transmission')} className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-600">
+          <label className={labelClass}>Transmission</label>
+          <select value={form.transmission} onChange={handleChange('transmission')} className={selectClass}>
             <option value="automatic">Automatic</option>
             <option value="manual">Manual</option>
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Fuel Type</label>
-          <select value={form.fuel_type} onChange={handleChange('fuel_type')} className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-600">
+          <label className={labelClass}>Fuel Type</label>
+          <select value={form.fuel_type} onChange={handleChange('fuel_type')} className={selectClass}>
             <option value="petrol">Petrol</option>
             <option value="diesel">Diesel</option>
             <option value="electric">Electric</option>
@@ -120,9 +136,10 @@ export default function ListCarForm() {
         </div>
       </div>
 
+      {/* City */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">City</label>
-        <select value={form.location} onChange={handleChange('location')} className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-600">
+        <label className={labelClass}>City</label>
+        <select value={form.location} onChange={handleChange('location')} className={selectClass}>
           <option value="Baku">Baku</option>
           <option value="Ganja">Ganja</option>
           <option value="Sumqayit">Sumqayit</option>
@@ -130,8 +147,17 @@ export default function ListCarForm() {
         </select>
       </div>
 
+      {/* WhatsApp */}
+      <Input
+        label="WhatsApp number (optional)"
+        placeholder="+994501234567"
+        value={form.whatsapp_phone}
+        onChange={handleChange('whatsapp_phone')}
+      />
+
+      {/* Description */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Description</label>
+        <label className={labelClass}>Description</label>
         <textarea
           placeholder="Describe your car, its condition, any extras..."
           value={form.description}
@@ -141,11 +167,80 @@ export default function ListCarForm() {
         />
       </div>
 
+      {/* Images */}
       <ImageUpload images={images} onChange={setImages} />
 
-      <div className="bg-gray-50 rounded-xl p-4">
-        <AirportToggle enabled={airportDelivery} onChange={setAirportDelivery} />
-        <p className="text-xs text-gray-400 mt-2">Offer delivery to Heydar Aliyev International Airport</p>
+      {/* Security deposit */}
+      <div className={sectionClass}>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={requiresDeposit}
+            onChange={e => setRequiresDeposit(e.target.checked)}
+            className="w-4 h-4 accent-green-600"
+          />
+          <span className={labelClass}>Require security deposit</span>
+        </label>
+        {requiresDeposit && (
+          <Input
+            label="Deposit amount (AZN)"
+            type="number"
+            placeholder="200"
+            value={form.deposit_amount}
+            onChange={handleChange('deposit_amount')}
+            min="1"
+            required
+          />
+        )}
+        <p className="text-xs text-gray-400">
+          Held from the renter and paid to you if they cancel after confirming or don&apos;t collect the car.
+        </p>
+      </div>
+
+      {/* City delivery */}
+      <div className={sectionClass}>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={offersDelivery}
+            onChange={e => setOffersDelivery(e.target.checked)}
+            className="w-4 h-4 accent-green-600"
+          />
+          <span className={labelClass}>Offer city delivery</span>
+        </label>
+        {offersDelivery && (
+          <Input
+            label="Delivery fee (AZN)"
+            type="number"
+            placeholder="20"
+            value={form.delivery_fee}
+            onChange={handleChange('delivery_fee')}
+            min="0"
+          />
+        )}
+      </div>
+
+      {/* Airport delivery */}
+      <div className={sectionClass}>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={offersAirport}
+            onChange={e => setOffersAirport(e.target.checked)}
+            className="w-4 h-4 accent-green-600"
+          />
+          <span className={labelClass}>Offer airport delivery (Heydar Aliyev International)</span>
+        </label>
+        {offersAirport && (
+          <Input
+            label="Airport delivery fee (AZN)"
+            type="number"
+            placeholder="40"
+            value={form.airport_delivery_fee}
+            onChange={handleChange('airport_delivery_fee')}
+            min="0"
+          />
+        )}
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
