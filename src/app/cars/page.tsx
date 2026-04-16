@@ -1,7 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import CarCard from '@/components/cars/CarCard';
-import CarFiltersComponent from '@/components/cars/CarFilters';
-import { Car } from '@/types';
+import BrowseCarsPage from '@/components/cars/BrowseCarsPage';
 
 interface SearchParams {
   location?: string;
@@ -11,6 +9,7 @@ interface SearchParams {
   maxPrice?: string;
   startDate?: string;
   endDate?: string;
+  [key: string]: string | undefined;
 }
 
 export default async function CarsPage({
@@ -36,6 +35,3 @@ export default async function CarsPage({
     <BrowseCarsPage cars={cars} error={!!error} params={params} />
   );
 }
-
-// Thin server wrapper — actual UI is the client component below
-import BrowseCarsPage from '@/components/cars/BrowseCarsPage';
