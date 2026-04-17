@@ -1,6 +1,7 @@
 import EditCarForm from '@/components/forms/EditCarForm';
 import { createClient } from '@/lib/supabase/server';
 import { redirect, notFound } from 'next/navigation';
+import EditCarPageClient from './page.client';
 
 export const metadata = {
   title: 'Edit Listing — AvtoGo',
@@ -22,12 +23,8 @@ export default async function EditCarPage({ params }: { params: { id: string } }
   if (!car) notFound();
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Edit Listing</h1>
-        <p className="text-gray-500 mt-2">Update your car details below.</p>
-      </div>
+    <EditCarPageClient>
       <EditCarForm car={car} />
-    </div>
+    </EditCarPageClient>
   );
 }

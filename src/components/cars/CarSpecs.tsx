@@ -1,4 +1,8 @@
+'use client';
+
 import { Car } from '@/types';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface CarSpecsProps {
   car: Car;
@@ -23,12 +27,15 @@ const specIcon = {
 };
 
 export default function CarSpecs({ car }: CarSpecsProps) {
+  const { lang } = useLanguage();
+  const tx = translations[lang];
+
   const specs = [
-    { label: 'Year', value: String(car.year), icon: specIcon.year },
-    { label: 'Transmission', value: car.transmission.charAt(0).toUpperCase() + car.transmission.slice(1), icon: specIcon.transmission },
-    { label: 'Fuel', value: car.fuel_type.charAt(0).toUpperCase() + car.fuel_type.slice(1), icon: specIcon.fuel },
-    { label: 'Location', value: car.location, icon: specIcon.location },
-    ...(car.airport_delivery ? [{ label: 'Airport Delivery', value: 'Available', icon: specIcon.airport }] : []),
+    { label: tx.carDetailYear, value: String(car.year), icon: specIcon.year },
+    { label: tx.carDetailTransmission, value: car.transmission === 'automatic' ? tx.carDetailAutomatic : tx.carDetailManual, icon: specIcon.transmission },
+    { label: tx.carDetailFuel, value: car.fuel_type.charAt(0).toUpperCase() + car.fuel_type.slice(1), icon: specIcon.fuel },
+    { label: tx.carDetailLocation, value: car.location, icon: specIcon.location },
+    ...(car.airport_delivery ? [{ label: tx.airportDelivery, value: tx.available, icon: specIcon.airport }] : []),
   ];
 
   return (

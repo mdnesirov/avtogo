@@ -1,5 +1,9 @@
+'use client';
+
 import { Car } from '@/types';
 import CarCard from './CarCard';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface CarGridProps {
   cars: Car[];
@@ -21,6 +25,9 @@ function CarCardSkeleton() {
 }
 
 export function CarGrid({ cars, loading = false, emptyMessage = 'No cars found.' }: CarGridProps) {
+  const { lang } = useLanguage();
+  const tx = translations[lang];
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -39,8 +46,8 @@ export function CarGrid({ cars, loading = false, emptyMessage = 'No cars found.'
           <circle cx="7.5" cy="17.5" r="2.5" />
           <circle cx="16.5" cy="17.5" r="2.5" />
         </svg>
-        <h3 className="text-gray-800 font-semibold mb-1">No cars available</h3>
-        <p className="text-gray-500 text-sm max-w-xs">{emptyMessage}</p>
+        <h3 className="text-gray-800 font-semibold mb-1">{tx.carGridNoCarsAvailable}</h3>
+        <p className="text-gray-500 text-sm max-w-xs">{emptyMessage === 'No cars found.' ? tx.browseCarsNotFound : emptyMessage}</p>
       </div>
     );
   }
