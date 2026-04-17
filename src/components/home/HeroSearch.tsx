@@ -2,11 +2,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, Calendar } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 const CITIES = ['Baku', 'Ganja', 'Sumqayit', 'Lənkəran', 'Sheki', 'Quba'];
 
 export default function HeroSearch() {
   const router = useRouter();
+  const { lang } = useLanguage();
+  const tx = translations[lang];
   const [city, setCity] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo]     = useState('');
@@ -35,15 +39,15 @@ export default function HeroSearch() {
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
         <div className="max-w-2xl">
           <div className="inline-flex items-center gap-2 bg-green-600/20 border border-green-500/30 text-green-300 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
-            🇦🇿 Azerbaijan&apos;s #1 Car Rental Platform
+            🇦🇿 {tx.homeHeroPlatform}
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
-            Find your perfect
-            <span className="text-green-400"> ride</span>
+            {tx.homeHeroFindPerfect}
+            <span className="text-green-400"> {tx.homeHeroRide}</span>
           </h1>
           <p className="text-lg text-gray-300 mb-8">
-            Rent from trusted locals and companies across Azerbaijan.
-            The best cars at the best prices.
+            {tx.homeHeroDescriptionA}
+            {' '}{tx.homeHeroDescriptionB}
           </p>
 
           {/* Search box */}
@@ -58,7 +62,7 @@ export default function HeroSearch() {
                 onChange={e => setCity(e.target.value)}
                 className="w-full text-sm text-gray-700 bg-transparent focus:outline-none"
               >
-                <option value="">Any city</option>
+                <option value="">{tx.homeHeroAnyCity}</option>
                 {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
@@ -87,7 +91,7 @@ export default function HeroSearch() {
 
             <button type="submit" className="btn-primary shrink-0">
               <Search size={16} />
-              Search
+              {tx.browseCarsTitle}
             </button>
           </form>
         </div>

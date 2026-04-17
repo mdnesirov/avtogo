@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface BookingCalendarProps {
   bookedRanges?: { start: string; end: string }[];
@@ -21,6 +23,8 @@ export default function BookingCalendar({
   onSelectStart,
   onSelectEnd,
 }: BookingCalendarProps) {
+  const { lang } = useLanguage();
+  const tx = translations[lang];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -28,8 +32,6 @@ export default function BookingCalendar({
 
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
-
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
   function isBooked(dateStr: string): boolean {
     return bookedRanges.some((r) => dateStr >= r.start && dateStr <= r.end);
@@ -72,22 +74,27 @@ export default function BookingCalendar({
     }),
   ];
 
+  const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleString(
+    lang === 'ru' ? 'ru-RU' : lang === 'az' ? 'az-Latn-AZ' : 'en-US',
+    { month: 'long' }
+  );
+
   return (
     <div className="border border-gray-200 rounded-2xl p-4 bg-white">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <button onClick={prevMonth} aria-label="Previous month" className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+        <button onClick={prevMonth} aria-label={tx.calendarPrevMonth} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
         </button>
-        <span className="font-semibold text-gray-900">{monthNames[viewMonth]} {viewYear}</span>
-        <button onClick={nextMonth} aria-label="Next month" className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+        <span className="font-semibold text-gray-900">{monthLabel} {viewYear}</span>
+        <button onClick={nextMonth} aria-label={tx.calendarNextMonth} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
         </button>
       </div>
 
       {/* Weekday labels */}
       <div className="grid grid-cols-7 mb-1">
-        {['Su','Mo','Tu','We','Th','Fr','Sa'].map((d) => (
+        {[tx.weekdaySun, tx.weekdayMon, tx.weekdayTue, tx.weekdayWed, tx.weekdayThu, tx.weekdayFri, tx.weekdaySat].map((d) => (
           <div key={d} className="text-center text-xs text-gray-400 font-medium py-1">{d}</div>
         ))}
       </div>
@@ -126,8 +133,8 @@ export default function BookingCalendar({
 
       {/* Legend */}
       <div className="flex gap-4 mt-3 text-xs text-gray-500">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-600 inline-block" /> Selected</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> Unavailable</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-600 inline-block" /> {tx.calendarSelected}</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> {tx.calendarUnavailable}</span>
       </div>
     </div>
   );

@@ -5,12 +5,16 @@ import { Car } from '@/types';
 import { formatPrice, calcTotalPrice, today, tomorrow } from '@/lib/utils';
 import Button from '@/components/shared/Button';
 import { createClient } from '@/lib/supabase/client';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface BookingWidgetProps {
   car: Car;
 }
 
 export default function BookingWidget({ car }: BookingWidgetProps) {
+  const { lang } = useLanguage();
+  const tx = translations[lang];
   const [step, setStep] = useState<'dates' | 'details' | 'done'>('dates');
   const [startDate, setStartDate] = useState(today());
   const [endDate, setEndDate] = useState(tomorrow());
@@ -53,7 +57,7 @@ export default function BookingWidget({ car }: BookingWidgetProps) {
       setBookingId(data.id);
       setStep('done');
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to create booking. Please try again.');
+      setError(e instanceof Error ? e.message : tx.bookingFailed);
     } finally {
       setLoading(false);
     }
@@ -67,13 +71,13 @@ export default function BookingWidget({ car }: BookingWidgetProps) {
             <path d="M20 6L9 17l-5-5" />
           </svg>
         </div>
-        <h3 className="font-bold text-gray-900 text-lg mb-1">Booking requested!</h3>
-        <p className="text-gray-500 text-sm mb-4">The owner will confirm your booking shortly.</p>
+        <h3 className="font-bold text-gray-900 text-lg mb-1">{tx.bookingRequested}</h3>
+        <p className="text-gray-500 text-sm mb-4">{tx.bookingOwnerWillConfirm}</p>
         <p className="text-xs text-gray-400 font-mono bg-gray-50 px-3 py-1.5 rounded-lg mb-4">
-          Ref: {bookingId.slice(0, 8).toUpperCase()}
+          {tx.bookingRef} {bookingId.slice(0, 8).toUpperCase()}
         </p>
         <Button href="/dashboard" variant="secondary" fullWidth>
-          View my bookings
+          {tx.bookingViewMyBookings}
         </Button>
       </div>
     );
@@ -83,14 +87,14 @@ export default function BookingWidget({ car }: BookingWidgetProps) {
     <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-5">
       <div className="flex items-baseline justify-between">
         <span className="text-2xl font-bold text-gray-900">{formatPrice(car.price_per_day)}</span>
-        <span className="text-sm text-gray-500">/ day</span>
+        <span className="text-sm text-gray-500">{tx.bookingPerDayWithSpace}</span>
       </div>
 
       {/* Step: Dates */}
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Pick-up</label>
+              <label className="text-xs font-medium text-gray-500 mb-1 block">{tx.bookingPickup}</label>
             <input
               type="date"
               value={startDate}
@@ -100,7 +104,7 @@ export default function BookingWidget({ car }: BookingWidgetProps) {
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Return</label>
+              <label className="text-xs font-medium text-gray-500 mb-1 block">{tx.bookingReturn}</label>
             <input
               type="date"
               value={endDate}
@@ -115,25 +119,25 @@ export default function BookingWidget({ car }: BookingWidgetProps) {
       {/* Step: Driver details */}
       {step === 'details' && (
         <div className="space-y-3 border-t border-gray-100 pt-4">
-          <h4 className="text-sm font-semibold text-gray-700">Driver information</h4>
+          <h4 className="text-sm font-semibold text-gray-700">{tx.bookingDriverInformation}</h4>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Full name</label>
+              <label className="text-xs font-medium text-gray-500 mb-1 block">{tx.bookingFullName}</label>
             <input
               type="text"
               value={driverName}
               onChange={(e) => setDriverName(e.target.value)}
-              placeholder="Your full name"
+                placeholder={tx.bookingFullNamePlaceholder}
               className="w-full px-3 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               required
             />
           </div>
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">Phone number</label>
+              <label className="text-xs font-medium text-gray-500 mb-1 block">{tx.bookingPhoneNumber}</label>
             <input
               type="tel"
               value={driverPhone}
               onChange={(e) => setDriverPhone(e.target.value)}
-              placeholder="+994 XX XXX XX XX"
+                placeholder={tx.bookingPhonePlaceholder}
               className="w-full px-3 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               required
             />
@@ -144,11 +148,11 @@ export default function BookingWidget({ car }: BookingWidgetProps) {
       {/* Price breakdown */}
       <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
         <div className="flex justify-between text-gray-600">
-          <span>{formatPrice(car.price_per_day)} &times; {Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000) || 1} days</span>
+            <span>{formatPrice(car.price_per_day)} &times; {Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / 86400000) || 1} {tx.myBookingsDays}</span>
           <span>{formatPrice(totalPrice)}</span>
         </div>
         <div className="flex justify-between font-semibold text-gray-900 border-t border-gray-200 pt-2">
-          <span>Total</span>
+            <span>{tx.bookingTotal}</span>
           <span>{formatPrice(totalPrice)}</span>
         </div>
       </div>
@@ -163,7 +167,7 @@ export default function BookingWidget({ car }: BookingWidgetProps) {
           onClick={() => setStep('details')}
           disabled={!startDate || !endDate || endDate <= startDate}
         >
-          Continue to booking
+          {tx.bookingContinueToBooking}
         </Button>
       ) : (
         <Button
@@ -172,11 +176,11 @@ export default function BookingWidget({ car }: BookingWidgetProps) {
           onClick={handleBook}
           disabled={!driverName || !driverPhone}
         >
-          Confirm booking
+          {tx.bookingConfirmLower}
         </Button>
       )}
 
-      <p className="text-xs text-gray-400 text-center">No charge until owner confirms</p>
+      <p className="text-xs text-gray-400 text-center">{tx.bookingNoChargeUntilConfirm}</p>
     </div>
   );
 }
