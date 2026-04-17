@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="az" className={inter.variable}>
       <body>
         <Navbar />
         <main className="min-h-screen">{children}</main>
