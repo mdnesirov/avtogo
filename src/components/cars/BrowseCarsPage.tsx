@@ -42,13 +42,13 @@ export default function BrowseCarsPage({ cars, error, params }: Props) {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('lang') as Lang | null;
+      const stored = localStorage.getItem('avtogo-lang') as Lang | null;
       if (stored && ['en', 'ru', 'az'].includes(stored)) setLang(stored);
     } catch {}
 
     const handler = () => {
       try {
-        const stored = localStorage.getItem('lang') as Lang | null;
+        const stored = localStorage.getItem('avtogo-lang') as Lang | null;
         if (stored && ['en', 'ru', 'az'].includes(stored)) setLang(stored);
       } catch {}
     };

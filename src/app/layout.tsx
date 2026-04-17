@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import { defaultLanguage } from '@/lib/i18n/translations';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -28,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="az" className={inter.variable}>
+    <html lang={defaultLanguage} className={inter.variable}>
       <body>
         <Navbar />
         <main className="min-h-screen">{children}</main>

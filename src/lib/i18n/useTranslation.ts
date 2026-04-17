@@ -51,10 +51,8 @@ export function useTranslation() {
 
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLang);
-      window.localStorage.setItem('lang', nextLang);
-      document.documentElement.lang = nextLang;
+      // Notify already-mounted client components that still subscribe to language changes in-tab.
       window.dispatchEvent(new Event('langchange'));
-      window.dispatchEvent(new Event('avtogo-lang-change'));
     }
   }, []);
 

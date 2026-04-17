@@ -36,16 +36,19 @@ export default function LanguageSwitcher() {
         type="button"
         className="px-2.5 py-1.5 rounded-md border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
         aria-label={t('language')}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
         onClick={() => setIsOpen((prev) => !prev)}
       >
         {lang.toUpperCase()}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-100 rounded-lg shadow-lg py-1 z-50">
+        <div role="menu" className="absolute right-0 mt-2 w-32 bg-white border border-gray-100 rounded-lg shadow-lg py-1 z-50">
           {supportedLanguages.map((option) => (
             <button
               key={option}
+              role="menuitem"
               type="button"
               className={`w-full text-left px-3 py-2 text-sm transition-colors ${
                 option === lang ? 'bg-green-50 text-green-700 font-medium' : 'text-gray-700 hover:bg-gray-50'
