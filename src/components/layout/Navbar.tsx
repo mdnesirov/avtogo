@@ -38,10 +38,8 @@ export default function Navbar() {
       <Link
         href={href}
         onClick={onClick}
-        className={`text-sm font-medium transition-colors ${
-          active
-            ? 'text-green-600'
-            : 'text-gray-600 hover:text-gray-900'
+        className={`text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
+          active ? 'text-green-600' : 'text-gray-600 hover:text-gray-900'
         }`}
       >
         {label}
@@ -54,8 +52,8 @@ export default function Navbar() {
       key={code}
       type="button"
       onClick={() => setLang(code)}
-      aria-label={`${tx.navbarSwitchTo} ${code === 'az' ? tx.languageAzerbaijani : code === 'ru' ? tx.languageRussian : tx.languageEnglish}`}
-      className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
+      aria-label={`Switch to ${code.toUpperCase()}`}
+      className={`w-9 py-1 rounded text-xs font-semibold text-center transition-colors flex-shrink-0 ${
         lang === code
           ? 'bg-green-600 text-white'
           : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
@@ -69,9 +67,10 @@ export default function Navbar() {
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900">
+        <div className="flex items-center justify-between h-16 gap-4">
+
+          {/* Logo — never shrinks */}
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900 flex-shrink-0">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="AvtoGo logo">
               <rect width="32" height="32" rx="8" fill="#16a34a" />
               <path d="M6 20l3-7h14l3 7" stroke="white" strokeWidth="2" strokeLinecap="round" />
@@ -82,19 +81,22 @@ export default function Navbar() {
             <span>AvtoGo</span>
           </Link>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-6">
+          {/* Desktop nav — all items shrink-0 and nowrap */}
+          <div className="hidden md:flex items-center gap-4 flex-shrink-0">
             {navLink('/', tx.navbarHome)}
             {navLink('/cars', tx.navbarBrowseCars)}
             {navLink('/list-car', tx.navbarListYourCar)}
-            <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1">
+
+            {/* Language switcher — fixed width per button */}
+            <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1 flex-shrink-0">
               {(['az', 'ru', 'en'] as Lang[]).map(languageButton)}
             </div>
+
             {user ? (
               <>
                 <Link
                   href="/dashboard"
-                  className={`text-sm font-medium flex items-center gap-1 transition-colors ${
+                  className={`text-sm font-medium flex items-center gap-1 whitespace-nowrap flex-shrink-0 transition-colors ${
                     pathname === '/dashboard' ? 'text-green-600' : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -102,17 +104,22 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="text-gray-500 hover:text-gray-900 text-sm flex items-center gap-1 transition-colors"
+                  className="text-gray-500 hover:text-gray-900 text-sm flex items-center gap-1 whitespace-nowrap flex-shrink-0 transition-colors"
                 >
                   <LogOut size={16} /> {tx.navbarSignOut}
                 </button>
               </>
             ) : (
               <>
-                <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 text-sm font-medium">{tx.signInTitle}</Link>
+                <Link
+                  href="/auth/login"
+                  className="text-gray-600 hover:text-gray-900 text-sm font-medium whitespace-nowrap flex-shrink-0"
+                >
+                  {tx.signInTitle}
+                </Link>
                 <Link
                   href="/auth/signup"
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap flex-shrink-0 hover:bg-green-700 transition-colors"
                 >
                   {tx.navbarGetStarted}
                 </Link>
@@ -122,9 +129,9 @@ export default function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 text-gray-600"
+            className="md:hidden p-2 text-gray-600 flex-shrink-0"
             onClick={() => setIsOpen(!isOpen)}
-            aria-label={tx.navbarToggleMenu}
+            aria-label="Toggle menu"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
