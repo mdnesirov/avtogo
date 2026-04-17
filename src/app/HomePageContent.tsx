@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Search, MapPin, Shield, Star } from 'lucide-react';
 import CarCard from '@/components/cars/CarCard';
@@ -7,23 +8,34 @@ import { Car } from '@/types';
 import { useLanguage } from '@/context/LanguageContext';
 import { translations } from '@/lib/i18n/translations';
 
+const LANGUAGE_FADE_IN_DURATION_MS = 100;
+
 export default function HomePageContent({ featuredCars }: { featuredCars: Car[] }) {
   const { lang } = useLanguage();
   const tx = translations[lang];
+  const [isLangVisible, setIsLangVisible] = useState(true);
+
+  useEffect(() => {
+    setIsLangVisible(false);
+    const timeoutId = window.setTimeout(() => setIsLangVisible(true), LANGUAGE_FADE_IN_DURATION_MS);
+    return () => window.clearTimeout(timeoutId);
+  }, [lang]);
+
+  const langVisibilityClass = isLangVisible ? 'opacity-100' : 'opacity-0';
 
   return (
     <div>
       <section className="bg-gray-900 text-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-20 md:py-28 text-center">
-          <div className="inline-flex items-center gap-2 bg-green-600/20 border border-green-500/30 text-green-400 px-3 py-1 rounded-full text-sm mb-6">
+          <div className={`inline-flex items-center gap-2 bg-green-600/20 border border-green-500/30 text-green-400 px-3 py-1 rounded-full text-sm mb-6 lang-transition ${langVisibilityClass}`}>
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
             {tx.homeLiveInBaku}
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
+          <h1 className={`text-4xl md:text-6xl font-bold leading-tight mb-6 lang-transition ${langVisibilityClass}`}>
             {tx.homeTitle.split(tx.homeCountry)[0]}<br />
             <span className="text-green-400">{tx.homeCountry}</span>
           </h1>
-          <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+          <p className={`text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 lang-transition ${langVisibilityClass}`}>
             {tx.homeSubtitle}
           </p>
 
@@ -48,12 +60,12 @@ export default function HomePageContent({ featuredCars }: { featuredCars: Car[] 
               <span className="text-xs text-gray-400 font-medium">{tx.homeTo}</span>
               <input type="date" name="endDate" className="flex-1 py-2.5 text-sm text-gray-900 bg-transparent border-none outline-none" />
             </div>
-            <button
-              type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 text-sm transition-colors"
-            >
-              <Search size={16} /> {tx.browseCarsTitle}
-            </button>
+              <button
+                type="submit"
+                className={`bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-medium flex items-center justify-center gap-2 text-sm min-w-[12rem] whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`}
+              >
+                <Search size={16} /> {tx.browseCarsTitle}
+              </button>
           </form>
         </div>
       </section>
@@ -65,9 +77,9 @@ export default function HomePageContent({ featuredCars }: { featuredCars: Car[] 
             { icon: Star, text: tx.homeFeatureRated },
             { icon: MapPin, text: tx.homeFeatureAirport },
           ].map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center gap-2 justify-center">
+            <div key={text} className="flex items-center gap-2 justify-center transition-all duration-150">
               <Icon size={16} className="text-green-600" />
-              <span>{text}</span>
+              <span className={`lang-transition ${langVisibilityClass}`}>{text}</span>
             </div>
           ))}
         </div>
@@ -76,10 +88,10 @@ export default function HomePageContent({ featuredCars }: { featuredCars: Car[] 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">{tx.homeFeaturedCars}</h2>
-            <p className="text-gray-500 text-sm mt-1">{tx.homeFeaturedSubtitle}</p>
+            <h2 className={`text-2xl font-bold text-gray-900 lang-transition ${langVisibilityClass}`}>{tx.homeFeaturedCars}</h2>
+            <p className={`text-gray-500 text-sm mt-1 lang-transition ${langVisibilityClass}`}>{tx.homeFeaturedSubtitle}</p>
           </div>
-          <Link href="/cars" className="text-green-600 hover:text-green-700 text-sm font-medium">
+          <Link href="/cars" className={`text-green-600 hover:text-green-700 text-sm font-medium whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`}>
             {tx.homeViewAll}
           </Link>
         </div>
@@ -92,8 +104,8 @@ export default function HomePageContent({ featuredCars }: { featuredCars: Car[] 
           </div>
         ) : (
           <div className="text-center py-16 text-gray-400">
-            <p className="text-lg">{tx.homeNoCars}</p>
-            <Link href="/list-car" className="text-green-600 hover:text-green-700 text-sm mt-2 inline-block">
+            <p className={`text-lg lang-transition ${langVisibilityClass}`}>{tx.homeNoCars}</p>
+            <Link href="/list-car" className={`text-green-600 hover:text-green-700 text-sm mt-2 inline-block whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`}>
               {tx.homeBeFirst}
             </Link>
           </div>
@@ -102,13 +114,13 @@ export default function HomePageContent({ featuredCars }: { featuredCars: Car[] 
 
       <section className="bg-green-600 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 text-center">
-          <h2 className="text-3xl font-bold mb-4">{tx.homeIdleCarTitle}</h2>
-          <p className="text-green-100 text-lg max-w-xl mx-auto mb-8">
+          <h2 className={`text-3xl font-bold mb-4 lang-transition ${langVisibilityClass}`}>{tx.homeIdleCarTitle}</h2>
+          <p className={`text-green-100 text-lg max-w-xl mx-auto mb-8 lang-transition ${langVisibilityClass}`}>
             {tx.homeIdleCarSubtitle}
           </p>
           <Link
             href="/list-car"
-            className="inline-flex items-center gap-2 bg-white text-green-700 hover:bg-green-50 px-8 py-4 rounded-xl font-semibold transition-colors"
+            className={`inline-flex items-center justify-center gap-2 bg-white text-green-700 hover:bg-green-50 px-8 py-4 rounded-xl font-semibold min-w-[10rem] whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`}
           >
             {tx.homeListFree}
           </Link>
