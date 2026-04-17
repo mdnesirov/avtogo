@@ -293,7 +293,7 @@ export default function ListCarForm() {
     for (let i = 0; i < selectedImages.length; i += 1) {
       const { file } = selectedImages[i];
       const extension = file.name.split('.').pop() || 'jpg';
-      const filePath = `${userId}/${crypto.randomUUID()}-${i}.${extension}`;
+      const filePath = `${userId}/${crypto.randomUUID()}.${extension}`;
 
       const { error: uploadError } = await supabase.storage
         .from('car-images')
