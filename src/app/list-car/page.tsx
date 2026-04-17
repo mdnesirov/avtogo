@@ -4,11 +4,6 @@ import ListCarForm from '@/components/forms/ListCarForm';
 import { useLanguage } from '@/context/LanguageContext';
 import { translations } from '@/lib/i18n/translations';
 
-export const metadata = {
-  title: 'List Your Car — AvtoGo',
-  description: 'Earn money by listing your car on AvtoGo. Setup in minutes.',
-};
-
 export default function ListCarPage() {
   const { lang } = useLanguage();
   const tx = translations[lang];
