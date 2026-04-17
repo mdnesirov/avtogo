@@ -8,6 +8,8 @@ import { Car } from '@/types';
 import { useLanguage } from '@/context/LanguageContext';
 import { translations } from '@/lib/i18n/translations';
 
+const LANGUAGE_FADE_IN_DURATION_MS = 100;
+
 export default function HomePageContent({ featuredCars }: { featuredCars: Car[] }) {
   const { lang } = useLanguage();
   const tx = translations[lang];
@@ -15,7 +17,7 @@ export default function HomePageContent({ featuredCars }: { featuredCars: Car[] 
 
   useEffect(() => {
     setIsLangVisible(false);
-    const timeoutId = window.setTimeout(() => setIsLangVisible(true), 20);
+    const timeoutId = window.setTimeout(() => setIsLangVisible(true), LANGUAGE_FADE_IN_DURATION_MS);
     return () => window.clearTimeout(timeoutId);
   }, [lang]);
 

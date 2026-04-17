@@ -6,6 +6,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import { translations } from '@/lib/i18n/translations';
 
 const CITIES = ['Baku', 'Ganja', 'Sumqayit', 'Lənkəran', 'Sheki', 'Quba'];
+const LANGUAGE_FADE_IN_DURATION_MS = 100;
 
 export default function HeroSearch() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function HeroSearch() {
 
   useEffect(() => {
     setIsLangVisible(false);
-    const timeoutId = window.setTimeout(() => setIsLangVisible(true), 20);
+    const timeoutId = window.setTimeout(() => setIsLangVisible(true), LANGUAGE_FADE_IN_DURATION_MS);
     return () => window.clearTimeout(timeoutId);
   }, [lang]);
 
@@ -98,7 +99,7 @@ export default function HeroSearch() {
               />
             </div>
 
-            <button type="submit" className={`btn-primary shrink-0 min-w-[12rem] justify-center whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`}>
+            <button type="submit" className={`btn-primary shrink-0 min-w-[12rem] justify-center whitespace-nowrap lang-transition ${langVisibilityClass}`}>
               <Search size={16} />
               {tx.browseCarsTitle}
             </button>

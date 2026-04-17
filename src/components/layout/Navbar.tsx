@@ -9,6 +9,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Lang } from '@/lib/i18n/types';
 import { translations } from '@/lib/i18n/translations';
 
+const LANGUAGE_FADE_IN_DURATION_MS = 100;
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{ email?: string } | null>(null);
@@ -30,7 +32,7 @@ export default function Navbar() {
 
   useEffect(() => {
     setIsLangVisible(false);
-    const timeoutId = window.setTimeout(() => setIsLangVisible(true), 20);
+    const timeoutId = window.setTimeout(() => setIsLangVisible(true), LANGUAGE_FADE_IN_DURATION_MS);
     return () => window.clearTimeout(timeoutId);
   }, [lang]);
 

@@ -6,6 +6,7 @@
   --green: #16a34a;
   --green-hover: #15803d;
   --green-light: #f0fdf4;
+  --lang-transition-duration: 0.1s;
 }
 
 * {
@@ -54,7 +55,7 @@ button,
 }
 
 .lang-transition {
-  transition: opacity 0.1s ease;
+  transition: opacity var(--lang-transition-duration) ease;
 }
 
 .line-clamp-1 {
