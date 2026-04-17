@@ -48,7 +48,7 @@ export default function DashboardOwnerClient({ displayName, email, cars, incomin
   const { lang } = useLanguage();
   const tx = t[lang];
 
-  const pendingRequests = incomingBookings.filter((b: any) => b.status === 'pending' || b.status === 'paid').length;
+  const pendingRequests = incomingBookings.filter((b) => b.status === 'pending' || b.status === 'paid').length;
   const confirmedTrips = incomingBookings.filter((b) => b.status === 'confirmed').length;
 
   return (

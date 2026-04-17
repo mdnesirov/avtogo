@@ -22,7 +22,8 @@ const t: Record<Lang, Record<string, string>> = {
     ownerHint: 'Bookings will appear here once renters reserve your cars.',
     browseCars: 'Browse cars',
     listingRemoved: 'Car listing removed',
-    days: 'day',
+    dayOne: 'day',
+    dayMany: 'days',
     renter: 'Renter',
     note: 'Note',
     confirm: 'Confirm',
@@ -37,7 +38,8 @@ const t: Record<Lang, Record<string, string>> = {
     ownerHint: 'Здесь появятся бронирования ваших автомобилей.',
     browseCars: 'Смотреть авто',
     listingRemoved: 'Объявление удалено',
-    days: 'дн.',
+    dayOne: 'день',
+    dayMany: 'дн.',
     renter: 'Арендатор',
     note: 'Заметка',
     confirm: 'Подтвердить',
@@ -52,7 +54,8 @@ const t: Record<Lang, Record<string, string>> = {
     ownerHint: 'İcarəçilər avtomobilinizi bron etdikdə burada görünəcək.',
     browseCars: 'Avtomobillərə bax',
     listingRemoved: 'Elan silinib',
-    days: 'gün',
+    dayOne: 'gün',
+    dayMany: 'gün',
     renter: 'İcarəçi',
     note: 'Qeyd',
     confirm: 'Təsdiqlə',
@@ -133,7 +136,7 @@ export default function MyBookings({ bookings, mode, onRefresh }: MyBookingsProp
                     {new Date(booking.start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                     {' – '}
                     {new Date(booking.end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    {' · '}{nights} {tx.days}
+                    {' · '}{nights} {nights === 1 ? tx.dayOne : tx.dayMany}
                   </p>
                   {mode === 'owner' && (
                     <p className="text-xs text-gray-500 mt-0.5">

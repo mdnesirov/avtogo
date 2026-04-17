@@ -1,7 +1,7 @@
 export type UserRole = 'owner' | 'renter' | 'both';
 export type Transmission = 'automatic' | 'manual';
 export type FuelType = 'petrol' | 'diesel' | 'electric' | 'hybrid';
-export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
+export type BookingStatus = 'pending' | 'paid' | 'confirmed' | 'cancelled' | 'completed';
 
 export interface Profile {
   id: string;
