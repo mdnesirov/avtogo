@@ -16,8 +16,8 @@ export async function POST(req: NextRequest) {
     offers_airport_delivery, airport_delivery_fee,
   } = body;
 
-  // Build and trim car_name from brand + model
-  const car_name = `${(brand || '').trim()} ${(model || '').trim()}`.trim();
+  // Build and trim car_name from brand + model + year
+  const car_name = `${(brand || '').trim()} ${(model || '').trim()} ${year || ''}`.trim();
 
   if (!car_name || !brand?.trim() || !model?.trim() || !year || !transmission || !fuel_type || !price_per_day || !location) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
