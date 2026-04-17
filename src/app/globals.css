@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:opsz,wght@14..32,100..900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,6 +13,7 @@
   --color-primary: #1A1A2E;
   --color-accent: #C8A96E;
   --color-accent-hover: #B8924A;
+  --color-accent-divider: rgba(200, 169, 110, 0.45);
   --color-green: #1A6B3C;
   --color-green-hover: #155732;
   --color-green-light: #EAF4EE;
@@ -137,6 +136,16 @@ button,
   background-position: center;
 }
 
+.media-overlay {
+  background: linear-gradient(to top, rgba(13, 13, 13, 0.58), rgba(13, 13, 13, 0.12), transparent);
+}
+
+.owner-cta-art {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(200, 169, 110, 0.32), transparent 48%),
+    linear-gradient(160deg, #1f2748 0%, #121220 62%, #0f1020 100%);
+}
+
 .fade-in-up {
   animation: fadeInUp 700ms var(--transition) both;
 }
@@ -166,6 +175,20 @@ button,
 
   .btn-primary:hover {
     color: var(--color-accent);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center rounded-full px-7 py-3.5 text-xs font-semibold uppercase tracking-[0.16em];
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-accent:hover {
+    background-color: var(--color-accent-hover);
+    color: #fff;
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
   }

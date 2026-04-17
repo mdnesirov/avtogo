@@ -116,7 +116,7 @@ export default async function HomePage() {
             <p className="text-white/75 max-w-md mb-8">
               Join Azerbaijan&apos;s premium rental marketplace and monetize your vehicle with full control and trusted protection.
             </p>
-            <Link href="/list-car" className="btn-primary bg-[var(--color-accent)] !text-[var(--color-primary)] hover:!text-white hover:bg-[var(--color-accent-hover)]">
+            <Link href="/list-car" className="btn-accent">
               List Your Car Free
             </Link>
             <ul className="mt-9 space-y-3 text-sm text-white/85">
@@ -125,7 +125,7 @@ export default async function HomePage() {
               <li>You control everything</li>
             </ul>
           </div>
-          <div className="min-h-[320px] bg-[radial-gradient(circle_at_20%_20%,rgba(200,169,110,0.32),transparent_48%),linear-gradient(160deg,#1f2748_0%,#121220_62%,#0f1020_100%)]" />
+          <div className="min-h-[320px] owner-cta-art" />
         </div>
       </section>
     </div>

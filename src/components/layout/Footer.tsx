@@ -56,7 +56,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-[rgba(200,169,110,0.45)] mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/70">
+        <div className="border-t mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/70" style={{ borderColor: 'var(--color-accent-divider)' }}>
           <p>&copy; {new Date().getFullYear()} AvtoGo. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="#" className="hover:text-[var(--color-accent)]">

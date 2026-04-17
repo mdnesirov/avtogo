@@ -85,7 +85,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2 font-semibold text-xl text-[var(--color-primary)] tracking-[0.02em]">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="AvtoGo logo">
-              <rect width="32" height="32" rx="8" fill="#1A1A2E" />
+              <rect width="32" height="32" rx="8" fill="var(--color-primary)" />
               <path d="M6 20l3-7h14l3 7" stroke="white" strokeWidth="2" strokeLinecap="round" />
               <circle cx="10" cy="22" r="2" fill="white" />
               <circle cx="22" cy="22" r="2" fill="white" />

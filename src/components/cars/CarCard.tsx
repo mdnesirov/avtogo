@@ -41,7 +41,7 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
           className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 media-overlay" />
         {car.airport_delivery && (
           <div className="absolute top-3 left-3">
             <Badge label="✈ Airport delivery" variant="green" />
