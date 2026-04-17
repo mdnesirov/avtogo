@@ -1,11 +1,16 @@
 import ListCarForm from '@/components/forms/ListCarForm';
+import { redirect } from 'next/navigation';
 
 export const metadata = {
   title: 'List Your Car — AvtoGo',
   description: 'Earn money by listing your car on AvtoGo. Setup in minutes.',
 };
 
-export default function ListCarPage() {
+export default function ListCarPage({ searchParams }: { searchParams?: { edit?: string } }) {
+  if (searchParams?.edit) {
+    redirect(`/list-car/edit/${searchParams.edit}`);
+  }
+
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
       <div className="mb-8">

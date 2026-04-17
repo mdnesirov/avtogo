@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+const ALLOWED_MUTABLE_STATUSES = ['confirmed', 'cancelled'] as const;
+type MutableBookingStatus = (typeof ALLOWED_MUTABLE_STATUSES)[number];
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -12,14 +15,13 @@ export async function PATCH(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { status } = await req.json();
-  if (!['confirmed', 'rejected'].includes(status)) {
+  if (!ALLOWED_MUTABLE_STATUSES.includes(status as MutableBookingStatus)) {
     return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
   }
 
-  // Verify the booking belongs to one of the user's cars
   const { data: booking } = await supabase
     .from('bookings')
-    .select('id, car:cars(owner_id)')
+    .select('id, status, car:cars(owner_id)')
     .eq('id', id)
     .single();
 
@@ -30,9 +32,17 @@ export async function PATCH(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  if (!['pending', 'paid'].includes(booking.status)) {
+    return NextResponse.json({ error: 'Only pending or paid bookings can be updated' }, { status: 400 });
+  }
+
   const { error } = await supabase
     .from('bookings')
-    .update({ status })
+    .update(
+      status === 'cancelled'
+        ? { status: status as MutableBookingStatus, cancelled_at: new Date().toISOString(), cancelled_by: 'owner' }
+        : { status: status as MutableBookingStatus }
+    )
     .eq('id', id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

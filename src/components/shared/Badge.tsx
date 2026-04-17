@@ -25,6 +25,7 @@ export default function Badge({ label, variant = 'gray' }: BadgeProps) {
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {
   const map: Record<BookingStatus, { label: string; variant: BadgeProps['variant'] }> = {
     pending:   { label: 'Pending',   variant: 'yellow' },
+    paid:      { label: 'Paid',      variant: 'yellow' },
     confirmed: { label: 'Confirmed', variant: 'green'  },
     cancelled: { label: 'Cancelled', variant: 'red'    },
     completed: { label: 'Completed', variant: 'blue'   },
