@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { Lang, useLanguage } from '@/context/LanguageContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{ email?: string } | null>(null);
   const pathname = usePathname();
   const supabase = createClient();
+  const { lang, setLang } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -44,6 +46,22 @@ export default function Navbar() {
     );
   };
 
+  const languageButton = (code: Lang) => (
+    <button
+      key={code}
+      type="button"
+      onClick={() => setLang(code)}
+      className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
+        lang === code
+          ? 'bg-green-600 text-white'
+          : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
+      }`}
+      aria-pressed={lang === code}
+    >
+      {code.toUpperCase()}
+    </button>
+  );
+
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -65,6 +83,9 @@ export default function Navbar() {
             {navLink('/', 'Home')}
             {navLink('/cars', 'Browse Cars')}
             {navLink('/list-car', 'List Your Car')}
+            <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1">
+              {(['az', 'ru', 'en'] as Lang[]).map(languageButton)}
+            </div>
             {user ? (
               <>
                 <Link
@@ -111,6 +132,9 @@ export default function Navbar() {
             <Link href="/" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Home</Link>
             <Link href="/cars" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Browse Cars</Link>
             <Link href="/list-car" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>List Your Car</Link>
+            <div className="flex items-center gap-1 py-2">
+              {(['az', 'ru', 'en'] as Lang[]).map(languageButton)}
+            </div>
             {user ? (
               <>
                 <Link href="/dashboard" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Dashboard</Link>
