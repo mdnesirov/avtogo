@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, Calendar } from 'lucide-react';
 import { useLanguage } from '@/context/LanguageContext';
@@ -11,9 +11,18 @@ export default function HeroSearch() {
   const router = useRouter();
   const { lang } = useLanguage();
   const tx = translations[lang];
+  const [isLangVisible, setIsLangVisible] = useState(true);
   const [city, setCity] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo]     = useState('');
+
+  useEffect(() => {
+    setIsLangVisible(false);
+    const timeoutId = window.setTimeout(() => setIsLangVisible(true), 20);
+    return () => window.clearTimeout(timeoutId);
+  }, [lang]);
+
+  const langVisibilityClass = isLangVisible ? 'opacity-100' : 'opacity-0';
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -38,14 +47,14 @@ export default function HeroSearch() {
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
         <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-2 bg-green-600/20 border border-green-500/30 text-green-300 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
+          <div className={`inline-flex items-center gap-2 bg-green-600/20 border border-green-500/30 text-green-300 text-xs font-medium px-3 py-1.5 rounded-full mb-6 lang-transition ${langVisibilityClass}`}>
             🇦🇿 {tx.homeHeroPlatform}
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
+          <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4 lang-transition ${langVisibilityClass}`}>
             {tx.homeHeroFindPerfect}
             <span className="text-green-400"> {tx.homeHeroRide}</span>
           </h1>
-          <p className="text-lg text-gray-300 mb-8">
+          <p className={`text-lg text-gray-300 mb-8 lang-transition ${langVisibilityClass}`}>
             {tx.homeHeroDescriptionA}
             {' '}{tx.homeHeroDescriptionB}
           </p>
@@ -89,7 +98,7 @@ export default function HeroSearch() {
               />
             </div>
 
-            <button type="submit" className="btn-primary shrink-0">
+            <button type="submit" className={`btn-primary shrink-0 min-w-[12rem] justify-center whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`}>
               <Search size={16} />
               {tx.browseCarsTitle}
             </button>

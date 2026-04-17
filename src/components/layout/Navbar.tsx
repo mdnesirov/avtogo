@@ -12,6 +12,7 @@ import { translations } from '@/lib/i18n/translations';
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{ email?: string } | null>(null);
+  const [isLangVisible, setIsLangVisible] = useState(true);
   const pathname = usePathname();
   const supabase = createClient();
   const { lang, setLang } = useLanguage();
@@ -27,6 +28,14 @@ export default function Navbar() {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    setIsLangVisible(false);
+    const timeoutId = window.setTimeout(() => setIsLangVisible(true), 20);
+    return () => window.clearTimeout(timeoutId);
+  }, [lang]);
+
+  const langVisibilityClass = isLangVisible ? 'opacity-100' : 'opacity-0';
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     window.location.href = '/';
@@ -38,7 +47,7 @@ export default function Navbar() {
       <Link
         href={href}
         onClick={onClick}
-        className={`text-sm font-medium transition-colors ${
+        className={`text-sm font-medium whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass} ${
           active
             ? 'text-green-600'
             : 'text-gray-600 hover:text-gray-900'
@@ -55,7 +64,7 @@ export default function Navbar() {
       type="button"
       onClick={() => setLang(code)}
       aria-label={`${tx.navbarSwitchTo} ${code === 'az' ? tx.languageAzerbaijani : code === 'ru' ? tx.languageRussian : tx.languageEnglish}`}
-      className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
+      className={`min-w-10 px-2 py-1 rounded text-xs font-semibold text-center whitespace-nowrap transition-all duration-150 ${
         lang === code
           ? 'bg-green-600 text-white'
           : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
@@ -94,7 +103,7 @@ export default function Navbar() {
               <>
                 <Link
                   href="/dashboard"
-                  className={`text-sm font-medium flex items-center gap-1 transition-colors ${
+                  className={`text-sm font-medium flex items-center gap-1 whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass} ${
                     pathname === '/dashboard' ? 'text-green-600' : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -102,17 +111,17 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={handleSignOut}
-                  className="text-gray-500 hover:text-gray-900 text-sm flex items-center gap-1 transition-colors"
+                  className={`text-gray-500 hover:text-gray-900 text-sm flex items-center gap-1 whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`}
                 >
                   <LogOut size={16} /> {tx.navbarSignOut}
                 </button>
               </>
             ) : (
               <>
-                <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 text-sm font-medium">{tx.signInTitle}</Link>
+                <Link href="/auth/login" className={`text-gray-600 hover:text-gray-900 text-sm font-medium whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`}>{tx.signInTitle}</Link>
                 <Link
                   href="/auth/signup"
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                  className={`bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 min-w-[8rem] text-center whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`}
                 >
                   {tx.navbarGetStarted}
                 </Link>
@@ -133,21 +142,21 @@ export default function Navbar() {
         {/* Mobile menu */}
         {isOpen && (
           <div className="md:hidden py-4 border-t border-gray-100 space-y-3">
-            <Link href="/" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>{tx.navbarHome}</Link>
-            <Link href="/cars" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>{tx.navbarBrowseCars}</Link>
-            <Link href="/list-car" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>{tx.navbarListYourCar}</Link>
+            <Link href="/" className={`block text-gray-700 py-2 text-sm font-medium whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`} onClick={() => setIsOpen(false)}>{tx.navbarHome}</Link>
+            <Link href="/cars" className={`block text-gray-700 py-2 text-sm font-medium whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`} onClick={() => setIsOpen(false)}>{tx.navbarBrowseCars}</Link>
+            <Link href="/list-car" className={`block text-gray-700 py-2 text-sm font-medium whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`} onClick={() => setIsOpen(false)}>{tx.navbarListYourCar}</Link>
             <div className="flex items-center gap-1 py-2">
               {(['az', 'ru', 'en'] as Lang[]).map(languageButton)}
             </div>
             {user ? (
               <>
-                <Link href="/dashboard" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>{tx.navbarDashboard}</Link>
-                <button onClick={handleSignOut} className="block text-gray-500 py-2 text-sm">{tx.navbarSignOut}</button>
+                <Link href="/dashboard" className={`block text-gray-700 py-2 text-sm font-medium whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`} onClick={() => setIsOpen(false)}>{tx.navbarDashboard}</Link>
+                <button onClick={handleSignOut} className={`block text-gray-500 py-2 text-sm whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`}>{tx.navbarSignOut}</button>
               </>
             ) : (
               <>
-                <Link href="/auth/login" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>{tx.signInTitle}</Link>
-                <Link href="/auth/signup" className="block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium text-center" onClick={() => setIsOpen(false)}>{tx.navbarGetStarted}</Link>
+                <Link href="/auth/login" className={`block text-gray-700 py-2 text-sm font-medium whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`} onClick={() => setIsOpen(false)}>{tx.signInTitle}</Link>
+                <Link href="/auth/signup" className={`block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium text-center min-w-[8rem] whitespace-nowrap transition-all duration-150 lang-transition ${langVisibilityClass}`} onClick={() => setIsOpen(false)}>{tx.navbarGetStarted}</Link>
               </>
             )}
           </div>
