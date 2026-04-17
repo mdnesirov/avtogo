@@ -120,7 +120,10 @@ export default async function HomePage() {
               List Your Car Free
             </Link>
             <ul className="mt-9 space-y-3 text-sm text-white/85">
-              <li>₼1,500+/month</li>
+              <li>
+                <span aria-hidden="true">₼1,500+/month</span>
+                <span className="sr-only">Earn over 1,500 Azerbaijani manat per month</span>
+              </li>
               <li>Full insurance</li>
               <li>You control everything</li>
             </ul>
