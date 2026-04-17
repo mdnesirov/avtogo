@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import { Lang, useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { Lang } from '@/lib/i18n/types';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,11 +47,12 @@ export default function Navbar() {
     );
   };
 
-  const languageButton = (code: Lang) => (
+  const languageButton = useCallback((code: Lang) => (
     <button
       key={code}
       type="button"
       onClick={() => setLang(code)}
+      aria-label={`Switch to ${code === 'az' ? 'Azerbaijani' : code === 'ru' ? 'Russian' : 'English'}`}
       className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
         lang === code
           ? 'bg-green-600 text-white'
@@ -60,7 +62,7 @@ export default function Navbar() {
     >
       {code.toUpperCase()}
     </button>
-  );
+  ), [lang, setLang]);
 
   return (
     <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">

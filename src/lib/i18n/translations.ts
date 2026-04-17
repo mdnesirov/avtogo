@@ -1,6 +1,25 @@
-export type Lang = 'az' | 'ru' | 'en';
+import { Lang } from '@/lib/i18n/types';
 
-export const translations: Record<Lang, Record<string, string>> = {
+const translationKeys = [
+  'homeTitle',
+  'browseCarsTitle',
+  'carDetailTitle',
+  'bookingFormTitle',
+  'bookingConfirmationTitle',
+  'paymentTitle',
+  'dashboardTitle',
+  'dashboardRenterTab',
+  'dashboardOwnerTab',
+  'listCarTitle',
+  'signInTitle',
+  'signUpTitle',
+  'notFoundTitle',
+  'errorTitle',
+] as const;
+
+type TranslationKey = (typeof translationKeys)[number];
+
+export const translations: Record<Lang, Record<TranslationKey, string>> = {
   en: {
     homeTitle: 'Rent any car in Azerbaijan',
     browseCarsTitle: 'Browse Cars',

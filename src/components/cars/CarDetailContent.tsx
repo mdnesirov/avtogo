@@ -8,7 +8,8 @@ import WhatsAppButton from '@/components/shared/WhatsAppButton';
 import AirportToggle from '@/components/shared/AirportToggle';
 import MapEmbed from '@/components/shared/MapEmbed';
 import BookingFormClient from '@/components/booking/BookingForm';
-import { Lang, useLanguage } from '@/context/LanguageContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { Lang } from '@/lib/i18n/types';
 
 const t: Record<Lang, Record<string, string>> = {
   en: {
