@@ -75,8 +75,10 @@ export default function BookingConfirmationPage() {
           .maybeSingle();
 
         if (data) {
-          if (active) setBooking(data);
-          if (active) setLoading(false);
+          if (active) {
+            setBooking(data);
+            setLoading(false);
+          }
           return;
         }
       }

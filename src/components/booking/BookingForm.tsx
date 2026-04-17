@@ -145,7 +145,7 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || tx.bookingFailed);
+        setError(data?.error || tx.bookingFailed);
       } else if (data.url) {
         window.location.href = data.url;
       } else {

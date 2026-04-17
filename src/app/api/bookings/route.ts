@@ -110,9 +110,6 @@ export async function POST(request: NextRequest) {
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    let sessionId: string;
-    let checkoutUrl: string;
-    let depositPaymentIntentId: string | null = null;
 
     try {
       const checkoutSession = await createCheckoutSession({
@@ -121,7 +118,7 @@ export async function POST(request: NextRequest) {
         totalDays,
         totalPrice,
         bookingId: booking.id,
-        successUrl: `${appUrl}/booking/confirmation`,
+        successUrl: `${appUrl}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${appUrl}/cars/${carId}`,
       });
 
@@ -129,8 +126,9 @@ export async function POST(request: NextRequest) {
         throw new Error('Stripe checkout session did not return a URL');
       }
 
-      checkoutUrl = checkoutSession.url;
-      sessionId = checkoutSession.id;
+      const checkoutUrl = checkoutSession.url;
+      const sessionId = checkoutSession.id;
+      let depositPaymentIntentId: string | null = null;
 
       // Create deposit hold if the car has one set
       if (car.deposit_amount && car.deposit_amount > 0) {
@@ -141,20 +139,19 @@ export async function POST(request: NextRequest) {
         });
         depositPaymentIntentId = depositIntent.id;
       }
+      await supabase
+        .from('bookings')
+        .update({
+          stripe_session_id: sessionId,
+          ...(depositPaymentIntentId && { deposit_payment_intent_id: depositPaymentIntentId }),
+        })
+        .eq('id', booking.id);
+
+      return NextResponse.json({ url: checkoutUrl, bookingId: booking.id, sessionId });
     } catch (stripeError) {
       console.error('[bookings] stripe error:', stripeError);
       return NextResponse.json({ error: 'Unable to start checkout session' }, { status: 500 });
     }
-
-    await supabase
-      .from('bookings')
-      .update({
-        stripe_session_id: sessionId,
-        ...(depositPaymentIntentId && { deposit_payment_intent_id: depositPaymentIntentId }),
-      })
-      .eq('id', booking.id);
-
-    return NextResponse.json({ url: checkoutUrl, bookingId: booking.id, sessionId });
   } catch (error) {
     console.error('[bookings] unhandled error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
