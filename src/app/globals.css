@@ -1,11 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:opsz,wght@14..32,100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --green: #16a34a;
-  --green-hover: #15803d;
-  --green-light: #f0fdf4;
+  --color-bg: #F8F7F4;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F3F2EF;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-text: #0D0D0D;
+  --color-text-muted: #6B6B6B;
+  --color-text-faint: #B0B0B0;
+  --color-primary: #1A1A2E;
+  --color-accent: #C8A96E;
+  --color-accent-hover: #B8924A;
+  --color-green: #1A6B3C;
+  --color-green-hover: #155732;
+  --color-green-light: #EAF4EE;
+
+  --text-xs: clamp(0.75rem, 0.72rem + 0.12vw, 0.82rem);
+  --text-sm: clamp(0.88rem, 0.84rem + 0.14vw, 0.95rem);
+  --text-base: clamp(1rem, 0.96rem + 0.2vw, 1.08rem);
+  --text-lg: clamp(1.1rem, 1.04rem + 0.32vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.16rem + 0.48vw, 1.48rem);
+  --text-2xl: clamp(1.5rem, 1.34rem + 0.78vw, 1.88rem);
+  --text-3xl: clamp(1.88rem, 1.6rem + 1.2vw, 2.4rem);
+  --text-4xl: clamp(2.25rem, 1.88rem + 1.8vw, 3.2rem);
+  --text-hero: clamp(2.8rem, 2rem + 4vw, 5.8rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 1.75rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-14: 3.5rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-28: 7rem;
+  --space-32: 8rem;
+
+  --shadow-sm: 0 6px 16px rgba(26, 18, 8, 0.05);
+  --shadow-md: 0 12px 36px rgba(26, 18, 8, 0.08);
+  --shadow-lg: 0 24px 64px rgba(26, 18, 8, 0.12);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  --transition: 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -21,36 +72,42 @@ html {
 }
 
 body {
-  font-family: var(--font-inter), system-ui, sans-serif;
-  background-color: #ffffff;
-  color: #111827;
+  font-family: var(--font-inter), 'Inter', system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   line-height: 1.6;
+  font-size: var(--text-base);
+}
+
+.font-display {
+  font-family: var(--font-display), 'Instrument Serif', Georgia, serif;
+  letter-spacing: -0.01em;
 }
 
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--color-surface-2);
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgba(26, 26, 46, 0.2);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: rgba(26, 26, 46, 0.35);
 }
 
 :focus-visible {
-  outline: 2px solid #16a34a;
+  outline: 2px solid rgba(26, 26, 46, 0.6);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 a,
 button,
-[role="button"] {
-  transition: all 150ms ease;
+[role='button'] {
+  transition: all var(--transition);
 }
 
 .line-clamp-1 {
@@ -72,23 +129,105 @@ button,
   -webkit-line-clamp: 3;
 }
 
+.hero-grid {
+  background-image:
+    linear-gradient(135deg, rgba(200, 169, 110, 0.11) 1px, transparent 1px),
+    linear-gradient(45deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  background-position: center;
+}
+
+.fade-in-up {
+  animation: fadeInUp 700ms var(--transition) both;
+}
+
+.fade-in-up-delay {
+  animation: fadeInUp 900ms var(--transition) both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @layer components {
   .btn-primary {
-    @apply bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm;
+    @apply inline-flex items-center justify-center rounded-full px-7 py-3.5 text-xs font-semibold uppercase tracking-[0.16em];
+    background-color: var(--color-primary);
+    color: #fff;
+    box-shadow: var(--shadow-sm);
   }
+
+  .btn-primary:hover {
+    color: var(--color-accent);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
   .btn-secondary {
-    @apply border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold px-5 py-2.5 rounded-lg transition-colors text-sm;
+    @apply inline-flex items-center justify-center rounded-full px-7 py-3.5 text-xs font-semibold uppercase tracking-[0.16em];
+    border: 1px solid rgba(26, 26, 46, 0.22);
+    color: var(--color-primary);
+    background-color: transparent;
   }
+
+  .btn-secondary:hover {
+    border-color: var(--color-primary);
+    background-color: rgba(26, 26, 46, 0.04);
+  }
+
   .btn-ghost {
-    @apply text-gray-500 hover:text-gray-900 font-medium text-sm transition-colors;
+    @apply text-sm font-medium;
+    color: var(--color-text-muted);
   }
+
+  .btn-ghost:hover {
+    color: var(--color-text);
+  }
+
   .card {
-    @apply bg-white border border-gray-100 rounded-xl shadow-sm;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
   }
+
   .input {
-    @apply w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent;
+    @apply w-full px-4 py-3 text-sm;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
   }
+
+  .input:focus {
+    outline: none;
+    border-color: rgba(26, 26, 46, 0.26);
+    box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.14);
+  }
+
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium;
+  }
+
+  .badge-neutral {
+    background: var(--color-surface-2);
+    color: var(--color-text-muted);
+  }
+
+  .badge-accent {
+    background: rgba(200, 169, 110, 0.16);
+    color: #8f6c33;
+  }
+
+  .badge-success {
+    background: var(--color-green-light);
+    color: var(--color-green);
   }
 }
