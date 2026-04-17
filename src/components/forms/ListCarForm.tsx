@@ -293,7 +293,7 @@ export default function ListCarForm() {
     for (let i = 0; i < selectedImages.length; i += 1) {
       const { file } = selectedImages[i];
       const extension = file.name.split('.').pop() || 'jpg';
-      const filePath = `${userId}/${Date.now()}-${i}-${crypto.randomUUID()}.${extension}`;
+      const filePath = `${userId}/${crypto.randomUUID()}-${i}.${extension}`;
 
       const { error: uploadError } = await supabase.storage
         .from('car-images')
@@ -514,7 +514,6 @@ export default function ListCarForm() {
           type="file"
           accept="image/*,.heic,.heif"
           multiple
-          capture="environment"
           className="hidden"
           onChange={(event) => addFiles(event.target.files)}
         />
