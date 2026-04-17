@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import CarCard from '@/components/cars/CarCard';
 import CarFiltersComponent from '@/components/cars/CarFilters';
 import { Car } from '@/types';
-
-type Lang = 'en' | 'ru' | 'az';
+import { useLanguage } from '@/context/LanguageContext';
+import { Lang } from '@/lib/i18n/types';
 
 const t: Record<Lang, Record<string, string>> = {
   en: {
@@ -38,23 +37,7 @@ interface Props {
 }
 
 export default function BrowseCarsPage({ cars, error, params }: Props) {
-  const [lang, setLang] = useState<Lang>('en');
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('lang') as Lang | null;
-      if (stored && ['en', 'ru', 'az'].includes(stored)) setLang(stored);
-    } catch {}
-
-    const handler = () => {
-      try {
-        const stored = localStorage.getItem('lang') as Lang | null;
-        if (stored && ['en', 'ru', 'az'].includes(stored)) setLang(stored);
-      } catch {}
-    };
-    window.addEventListener('langchange', handler);
-    return () => window.removeEventListener('langchange', handler);
-  }, []);
+  const { lang } = useLanguage();
 
   const tx = t[lang];
 

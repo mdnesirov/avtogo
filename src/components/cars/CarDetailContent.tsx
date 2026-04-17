@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { MapPin, Calendar, Fuel, Settings, User, ShieldAlert } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
@@ -9,8 +8,8 @@ import WhatsAppButton from '@/components/shared/WhatsAppButton';
 import AirportToggle from '@/components/shared/AirportToggle';
 import MapEmbed from '@/components/shared/MapEmbed';
 import BookingFormClient from '@/components/booking/BookingForm';
-
-type Lang = 'en' | 'ru' | 'az';
+import { useLanguage } from '@/context/LanguageContext';
+import { Lang } from '@/lib/i18n/types';
 
 const t: Record<Lang, Record<string, string>> = {
   en: {
@@ -71,23 +70,7 @@ const t: Record<Lang, Record<string, string>> = {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function CarDetailContent({ car }: { car: any }) {
-  const [lang, setLang] = useState<Lang>('en');
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('lang') as Lang | null;
-      if (stored && ['en', 'ru', 'az'].includes(stored)) setLang(stored);
-    } catch {}
-
-    const handler = () => {
-      try {
-        const stored = localStorage.getItem('lang') as Lang | null;
-        if (stored && ['en', 'ru', 'az'].includes(stored)) setLang(stored);
-      } catch {}
-    };
-    window.addEventListener('langchange', handler);
-    return () => window.removeEventListener('langchange', handler);
-  }, []);
+  const { lang } = useLanguage();
 
   const tx = t[lang];
 
