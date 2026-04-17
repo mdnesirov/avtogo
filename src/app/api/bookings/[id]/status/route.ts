@@ -12,14 +12,13 @@ export async function PATCH(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { status } = await req.json();
-  if (!['confirmed', 'rejected'].includes(status)) {
+  if (!['confirmed', 'cancelled'].includes(status)) {
     return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
   }
 
-  // Verify the booking belongs to one of the user's cars
   const { data: booking } = await supabase
     .from('bookings')
-    .select('id, car:cars(owner_id)')
+    .select('id, status, car:cars(owner_id)')
     .eq('id', id)
     .single();
 
@@ -30,10 +29,19 @@ export async function PATCH(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
+  if (!['pending', 'paid'].includes(booking.status)) {
+    return NextResponse.json({ error: 'Only pending bookings can be updated' }, { status: 400 });
+  }
+
   const { error } = await supabase
     .from('bookings')
-    .update({ status })
-    .eq('id', id);
+    .update(
+      status === 'cancelled'
+        ? { status, cancelled_at: new Date().toISOString(), cancelled_by: 'owner' }
+        : { status }
+    )
+    .eq('id', id)
+    .in('status', ['pending', 'paid']);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
