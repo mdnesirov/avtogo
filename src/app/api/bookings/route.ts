@@ -110,8 +110,8 @@ export async function POST(request: NextRequest) {
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    let checkoutUrl: string | null = null;
-    let sessionId: string | null = null;
+    let sessionId: string;
+    let checkoutUrl: string;
     let depositPaymentIntentId: string | null = null;
 
     try {
@@ -121,9 +121,13 @@ export async function POST(request: NextRequest) {
         totalDays,
         totalPrice,
         bookingId: booking.id,
-        successUrl: `${appUrl}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+        successUrl: `${appUrl}/booking/confirmation`,
         cancelUrl: `${appUrl}/cars/${carId}`,
       });
+
+      if (!checkoutSession.url) {
+        throw new Error('Stripe checkout session did not return a URL');
+      }
 
       checkoutUrl = checkoutSession.url;
       sessionId = checkoutSession.id;
@@ -137,19 +141,20 @@ export async function POST(request: NextRequest) {
         });
         depositPaymentIntentId = depositIntent.id;
       }
-
-      await supabase
-        .from('bookings')
-        .update({
-          stripe_session_id: sessionId,
-          ...(depositPaymentIntentId && { deposit_payment_intent_id: depositPaymentIntentId }),
-        })
-        .eq('id', booking.id);
     } catch (stripeError) {
       console.error('[bookings] stripe error:', stripeError);
+      return NextResponse.json({ error: 'Unable to start checkout session' }, { status: 500 });
     }
 
-    return NextResponse.json({ booking, checkoutUrl, sessionId });
+    await supabase
+      .from('bookings')
+      .update({
+        stripe_session_id: sessionId,
+        ...(depositPaymentIntentId && { deposit_payment_intent_id: depositPaymentIntentId }),
+      })
+      .eq('id', booking.id);
+
+    return NextResponse.json({ url: checkoutUrl, bookingId: booking.id, sessionId });
   } catch (error) {
     console.error('[bookings] unhandled error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

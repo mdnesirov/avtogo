@@ -36,8 +36,8 @@ export function useBooking() {
       }
 
       // If Stripe session URL returned, redirect to payment
-      if (result.checkoutUrl) {
-        window.location.href = result.checkoutUrl;
+      if (result.url) {
+        window.location.href = result.url;
         return;
       }
 
