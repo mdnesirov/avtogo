@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import DashboardClient from './DashboardClient';
-import { Plus } from 'lucide-react';
+import DashboardPageClient from './DashboardPageClient';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -40,45 +38,22 @@ export default async function DashboardPage() {
     .filter((b: any) => b.status === 'pending' || b.status === 'paid')
     .map((b: any) => b.car_id as string);
 
-  const displayName = (profile as any)?.full_name || user.email?.split('@')[0] || 'there';
+  const displayName = (profile as any)?.full_name || user.email?.split('@')[0] || '';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back, {displayName} 👋</h1>
-          <p className="text-gray-400 text-sm mt-1">{user.email}</p>
-        </div>
-        <Link
-          href="/list-car"
-          className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-green-700 transition-colors shadow-sm"
-        >
-          <Plus size={16} /> List a car
-        </Link>
-      </div>
-
-      {/* Stats row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
-        {[
-          { label: 'My Listings', value: (myCars ?? []).length },
-          { label: 'My Bookings', value: (myBookings ?? []).length },
-          { label: 'Pending Requests', value: (incomingBookings ?? []).filter((b: any) => b.status === 'pending' || b.status === 'paid').length },
-          { label: 'Confirmed Trips', value: (incomingBookings ?? []).filter((b: any) => b.status === 'confirmed').length },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-white border border-gray-100 rounded-2xl px-5 py-4 shadow-sm">
-            <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{stat.label}</p>
-          </div>
-        ))}
-      </div>
-
-      <DashboardClient
-        cars={myCars ?? []}
-        pendingCarIds={pendingCarIds}
-        incomingBookings={incomingBookings ?? []}
-        myBookings={myBookings ?? []}
-      />
-    </div>
+    <DashboardPageClient
+      displayName={displayName}
+      email={user.email ?? ''}
+      stats={{
+        listings: (myCars ?? []).length,
+        bookings: (myBookings ?? []).length,
+        pendingRequests: (incomingBookings ?? []).filter((b: any) => b.status === 'pending' || b.status === 'paid').length,
+        confirmedTrips: (incomingBookings ?? []).filter((b: any) => b.status === 'confirmed').length,
+      }}
+      cars={myCars ?? []}
+      pendingCarIds={pendingCarIds}
+      incomingBookings={incomingBookings ?? []}
+      myBookings={myBookings ?? []}
+    />
   );
 }

@@ -6,9 +6,13 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
+  const tx = translations[lang];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ fullName: '', email: '', password: '' });
@@ -48,21 +52,21 @@ export default function SignupPage() {
             </svg>
             AvtoGo
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Create an account</h1>
-          <p className="text-gray-500 text-sm mt-1">Start renting or listing today</p>
+          <h1 className="text-2xl font-bold text-gray-900">{tx.signupTitle}</h1>
+          <p className="text-gray-500 text-sm mt-1">{tx.signupSubtitle}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 bg-white border border-gray-100 rounded-2xl p-6">
-          <Input label="Full name" placeholder="Murad Nasirov" value={form.fullName} onChange={handleChange('fullName')} required />
-          <Input label="Email" type="email" placeholder="you@example.com" value={form.email} onChange={handleChange('email')} required />
-          <Input label="Password" type="password" placeholder="At least 8 characters" value={form.password} onChange={handleChange('password')} minLength={8} required />
+          <Input label={tx.signupFullName} placeholder={tx.signupFullNamePlaceholder} value={form.fullName} onChange={handleChange('fullName')} required />
+          <Input label={tx.authEmail} type="email" placeholder={tx.authEmailPlaceholder} value={form.email} onChange={handleChange('email')} required />
+          <Input label={tx.authPassword} type="password" placeholder={tx.signupPasswordPlaceholder} value={form.password} onChange={handleChange('password')} minLength={8} required />
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button type="submit" className="w-full" size="lg" loading={loading}>Create account</Button>
+          <Button type="submit" className="w-full" size="lg" loading={loading}>{tx.signupCreateAccount}</Button>
         </form>
 
         <p className="text-center text-sm text-gray-500 mt-4">
-          Already have an account?{' '}
-          <Link href="/auth/login" className="text-green-600 hover:text-green-700 font-medium">Sign in</Link>
+          {tx.signupHasAccount}{' '}
+          <Link href="/auth/login" className="text-green-600 hover:text-green-700 font-medium">{tx.authSignIn}</Link>
         </p>
       </div>
     </div>

@@ -1,4 +1,8 @@
+'use client';
+
 import { Star } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface RatingStarsProps {
   rating: number | null | undefined;
@@ -7,6 +11,8 @@ interface RatingStarsProps {
 }
 
 export default function RatingStars({ rating, totalReviews, size = 14 }: RatingStarsProps) {
+  const { lang } = useLanguage();
+  const tx = translations[lang];
   const safeRating = rating ?? 0;
   const rounded = Math.round(safeRating * 2) / 2;
 
@@ -26,7 +32,7 @@ export default function RatingStars({ rating, totalReviews, size = 14 }: RatingS
           {safeRating.toFixed(1)}{totalReviews !== undefined && ` (${totalReviews})`}
         </span>
       ) : (
-        <span className="text-xs text-gray-400">No reviews yet</span>
+        <span className="text-xs text-gray-400">{tx.reviewsNone}</span>
       )}
     </div>
   );

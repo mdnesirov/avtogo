@@ -1,4 +1,8 @@
+'use client';
+
 import { Plane } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface AirportToggleProps {
   enabled: boolean;
@@ -7,15 +11,18 @@ interface AirportToggleProps {
 }
 
 export default function AirportToggle({ enabled, onChange, readOnly = false }: AirportToggleProps) {
+  const { lang } = useLanguage();
+  const tx = translations[lang];
+
   return (
     <div className="flex items-center gap-3">
       <div className="flex items-center gap-2">
         <Plane size={16} className={enabled ? 'text-green-600' : 'text-gray-400'} />
-        <span className="text-sm text-gray-700">Airport Delivery</span>
+        <span className="text-sm text-gray-700">{tx.airportDelivery}</span>
       </div>
       {readOnly ? (
         <span className={`text-sm font-medium ${enabled ? 'text-green-600' : 'text-gray-400'}`}>
-          {enabled ? 'Available' : 'Not available'}
+          {enabled ? tx.available : tx.notAvailable}
         </span>
       ) : (
         <button

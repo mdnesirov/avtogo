@@ -8,6 +8,8 @@ import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
 import { ShieldAlert, Info } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface BookingFormProps {
   car: Car;
@@ -17,6 +19,8 @@ interface BookingFormProps {
 
 export default function BookingForm({ car, startDate: propStartDate = '', endDate: propEndDate = '' }: BookingFormProps) {
   const router = useRouter();
+  const { lang } = useLanguage();
+  const tx = translations[lang];
   const [step, setStep] = useState<1 | 2>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -65,14 +69,14 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Booking failed. Please try again.');
+        setError(data.error || tx.bookingFailed);
       } else if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       } else {
         router.push(`/booking/confirmation?id=${data.booking.id}`);
       }
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(tx.somethingWentWrongTryAgain);
     } finally {
       setLoading(false);
     }
@@ -83,8 +87,8 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
       {step === 1 && (
         <>
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Pick-up date" type="date" value={form.startDate} onChange={handleChange('startDate')} min={new Date().toISOString().split('T')[0]} />
-            <Input label="Return date" type="date" value={form.endDate} onChange={handleChange('endDate')} min={form.startDate || new Date().toISOString().split('T')[0]} />
+            <Input label={tx.bookingPickupDate} type="date" value={form.startDate} onChange={handleChange('startDate')} min={new Date().toISOString().split('T')[0]} />
+            <Input label={tx.bookingReturnDate} type="date" value={form.endDate} onChange={handleChange('endDate')} min={form.startDate || new Date().toISOString().split('T')[0]} />
           </div>
 
           {days > 0 && (
@@ -103,10 +107,10 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
                     <ShieldAlert size={15} className="text-amber-500 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-xs font-semibold text-amber-800">
-                        Security deposit required: {formatPrice(car.deposit_amount!)}
+                        {tx.bookingDepositRequiredAmount} {formatPrice(car.deposit_amount!)}
                       </p>
                       <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-                        This amount will be held and paid to the owner if you cancel after confirmation or do not show up to collect the car. It is returned to you if you complete the rental as agreed.
+                        {tx.bookingDepositDescription}
                       </p>
                     </div>
                   </div>
@@ -116,21 +120,21 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
           )}
 
           <Button className="w-full" size="lg" disabled={days <= 0} onClick={() => setStep(2)}>
-            Continue to driver info
+            {tx.bookingContinueDriverInfo}
           </Button>
         </>
       )}
 
       {step === 2 && (
         <>
-          <button onClick={() => setStep(1)} className="text-sm text-gray-400 hover:text-gray-600 mb-1">&larr; Back</button>
-          <Input label="Full name" placeholder="Your full name" value={form.driverName} onChange={handleChange('driverName')} required />
-          <Input label="Phone number" type="tel" placeholder="+994 XX XXX XXXX" value={form.driverPhone} onChange={handleChange('driverPhone')} required />
-          <Input label="Driver license #" placeholder="Optional" value={form.driverLicense} onChange={handleChange('driverLicense')} />
+            <button onClick={() => setStep(1)} className="text-sm text-gray-400 hover:text-gray-600 mb-1">{tx.bookingBack}</button>
+          <Input label={tx.bookingFullName} placeholder={tx.bookingFullNamePlaceholder} value={form.driverName} onChange={handleChange('driverName')} required />
+          <Input label={tx.bookingPhoneNumber} type="tel" placeholder={tx.bookingPhonePlaceholder} value={form.driverPhone} onChange={handleChange('driverPhone')} required />
+          <Input label={tx.bookingDriverLicense} placeholder={tx.bookingOptional} value={form.driverLicense} onChange={handleChange('driverLicense')} />
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Notes</label>
+            <label className="text-sm font-medium text-gray-700">{tx.bookingNotes}</label>
             <textarea
-              placeholder="Any special requests..."
+              placeholder={tx.bookingNotesPlaceholder}
               value={form.notes}
               onChange={handleChange('notes')}
               rows={2}
@@ -148,7 +152,7 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
             </div>
             {hasDeposit && (
               <div className="flex justify-between text-amber-700 border-t border-gray-200 pt-1.5">
-                <span className="flex items-center gap-1"><ShieldAlert size={12} /> Security deposit</span>
+                <span className="flex items-center gap-1"><ShieldAlert size={12} /> {tx.bookingSecurityDeposit}</span>
                 <span className="font-semibold">{formatPrice(car.deposit_amount!)}</span>
               </div>
             )}
@@ -164,7 +168,7 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
                 className="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0"
               />
               <p className="text-xs text-amber-800 leading-relaxed">
-                I understand that a <strong>{formatPrice(car.deposit_amount!)}</strong> security deposit will be held and forfeited if I cancel after the booking is confirmed or fail to collect the car.
+                {tx.bookingAcknowledgeStart} <strong>{formatPrice(car.deposit_amount!)}</strong> {tx.bookingAcknowledgeEnd}
               </p>
             </label>
           )}
@@ -176,12 +180,12 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
             disabled={hasDeposit ? !depositAcknowledged : false}
             onClick={handleSubmit}
           >
-            Confirm Booking
+            {tx.bookingConfirm}
           </Button>
 
           {hasDeposit && (
             <p className="text-xs text-gray-400 text-center flex items-center justify-center gap-1">
-              <Info size={11} /> Deposit is handled directly with the owner at pickup
+              <Info size={11} /> {tx.bookingDepositHandled}
             </p>
           )}
         </>

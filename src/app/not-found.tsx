@@ -1,6 +1,13 @@
+'use client';
+
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 export default function NotFound() {
+  const { lang } = useLanguage();
+  const tx = translations[lang];
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="text-center">
@@ -21,22 +28,22 @@ export default function NotFound() {
           </svg>
         </div>
         <h1 className="text-6xl font-bold text-gray-900 mb-2">404</h1>
-        <h2 className="text-xl font-semibold text-gray-700 mb-2">Page not found</h2>
+        <h2 className="text-xl font-semibold text-gray-700 mb-2">{tx.notFoundTitle}</h2>
         <p className="text-gray-500 text-sm mb-8 max-w-sm mx-auto">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
+          {tx.notFoundDescription}
         </p>
         <div className="flex items-center justify-center gap-4">
           <Link
             href="/"
             className="bg-green-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
           >
-            Go home
+            {tx.notFoundGoHome}
           </Link>
           <Link
             href="/cars"
             className="border border-gray-200 text-gray-700 px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors"
           >
-            Browse cars
+            {tx.notFoundBrowseCars}
           </Link>
         </div>
       </div>

@@ -1,5 +1,9 @@
+'use client';
+
 import { cn } from '@/lib/utils';
 import { BookingStatus } from '@/types';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface BadgeProps {
   label: string;
@@ -23,11 +27,14 @@ export default function Badge({ label, variant = 'gray' }: BadgeProps) {
 }
 
 export function BookingStatusBadge({ status }: { status: BookingStatus }) {
+  const { lang } = useLanguage();
+  const tx = translations[lang];
+
   const map: Record<BookingStatus, { label: string; variant: BadgeProps['variant'] }> = {
-    pending:   { label: 'Pending',   variant: 'yellow' },
-    confirmed: { label: 'Confirmed', variant: 'green'  },
-    cancelled: { label: 'Cancelled', variant: 'red'    },
-    completed: { label: 'Completed', variant: 'blue'   },
+    pending:   { label: tx.badgePending, variant: 'yellow' },
+    confirmed: { label: tx.dashboardConfirmed, variant: 'green' },
+    cancelled: { label: tx.dashboardCancelled, variant: 'red' },
+    completed: { label: tx.badgeCompleted, variant: 'blue' },
   };
   const { label, variant } = map[status];
   return <Badge label={label} variant={variant} />;

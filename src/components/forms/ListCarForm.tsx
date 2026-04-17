@@ -6,9 +6,13 @@ import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
 import ImageUpload from '@/components/shared/ImageUpload';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 export default function ListCarForm() {
   const router = useRouter();
+  const { lang } = useLanguage();
+  const tx = translations[lang];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [images, setImages] = useState<string[]>([]);
@@ -72,12 +76,12 @@ export default function ListCarForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Failed to create listing.');
+        setError(data.error || tx.somethingWentWrongTryAgain);
       } else {
         router.push('/dashboard');
       }
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(tx.somethingWentWrongTryAgain);
     } finally {
       setLoading(false);
     }
@@ -92,19 +96,19 @@ export default function ListCarForm() {
 
       {/* Brand / Model */}
       <div className="grid grid-cols-2 gap-4">
-        <Input label="Brand" placeholder="Toyota" value={form.brand} onChange={handleChange('brand')} required />
-        <Input label="Model" placeholder="Camry" value={form.model} onChange={handleChange('model')} required />
+        <Input label={tx.listCarBrand} placeholder={tx.listCarBrandPlaceholder} value={form.brand} onChange={handleChange('brand')} required />
+        <Input label={tx.listCarModel} placeholder={tx.listCarModelPlaceholder} value={form.model} onChange={handleChange('model')} required />
       </div>
 
       {/* Year / Price */}
       <div className="grid grid-cols-2 gap-4">
-        <Input label="Year" type="number" placeholder="2022" value={form.year} onChange={handleChange('year')} min="1990" max="2026" required />
-        <Input label="Price per day (AZN)" type="number" placeholder="80" value={form.price_per_day} onChange={handleChange('price_per_day')} min="1" required />
+        <Input label={tx.listCarYear} type="number" placeholder={tx.listCarYearPlaceholder} value={form.year} onChange={handleChange('year')} min="1990" max="2026" required />
+        <Input label={tx.listCarPricePerDay} type="number" placeholder={tx.listCarPricePlaceholder} value={form.price_per_day} onChange={handleChange('price_per_day')} min="1" required />
       </div>
 
       {/* Car type */}
       <div className="flex flex-col gap-1">
-        <label className={labelClass}>Car Type</label>
+          <label className={labelClass}>{tx.listCarType}</label>
         <select value={form.car_type} onChange={handleChange('car_type')} className={selectClass}>
           <option value="sedan">Sedan</option>
           <option value="suv">SUV</option>
@@ -119,47 +123,47 @@ export default function ListCarForm() {
       {/* Transmission / Fuel */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
-          <label className={labelClass}>Transmission</label>
+          <label className={labelClass}>{tx.listCarTransmission}</label>
           <select value={form.transmission} onChange={handleChange('transmission')} className={selectClass}>
-            <option value="automatic">Automatic</option>
-            <option value="manual">Manual</option>
+            <option value="automatic">{tx.carDetailAutomatic}</option>
+            <option value="manual">{tx.carDetailManual}</option>
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <label className={labelClass}>Fuel Type</label>
+          <label className={labelClass}>{tx.listCarFuelType}</label>
           <select value={form.fuel_type} onChange={handleChange('fuel_type')} className={selectClass}>
-            <option value="petrol">Petrol</option>
-            <option value="diesel">Diesel</option>
-            <option value="electric">Electric</option>
-            <option value="hybrid">Hybrid</option>
+            <option value="petrol">{tx.filtersPetrol}</option>
+            <option value="diesel">{tx.filtersDiesel}</option>
+            <option value="electric">{tx.filtersElectric}</option>
+            <option value="hybrid">{tx.filtersHybrid}</option>
           </select>
         </div>
       </div>
 
       {/* City */}
       <div className="flex flex-col gap-1">
-        <label className={labelClass}>City</label>
+        <label className={labelClass}>{tx.filtersCity}</label>
         <select value={form.location} onChange={handleChange('location')} className={selectClass}>
-          <option value="Baku">Baku</option>
-          <option value="Ganja">Ganja</option>
-          <option value="Sumqayit">Sumqayit</option>
-          <option value="Sheki">Sheki</option>
+          <option value="Baku">{tx.cityBaku}</option>
+          <option value="Ganja">{tx.cityGanja}</option>
+          <option value="Sumqayit">{tx.citySumqayit}</option>
+          <option value="Sheki">{tx.citySheki}</option>
         </select>
       </div>
 
       {/* WhatsApp */}
       <Input
-        label="WhatsApp number (optional)"
-        placeholder="+994501234567"
+        label={tx.listCarWhatsAppOptional}
+        placeholder={tx.listCarWhatsAppPlaceholder}
         value={form.whatsapp_phone}
         onChange={handleChange('whatsapp_phone')}
       />
 
       {/* Description */}
       <div className="flex flex-col gap-1">
-        <label className={labelClass}>Description</label>
+        <label className={labelClass}>{tx.listCarDescription}</label>
         <textarea
-          placeholder="Describe your car, its condition, any extras..."
+          placeholder={tx.listCarDescriptionPlaceholder}
           value={form.description}
           onChange={handleChange('description')}
           rows={4}
@@ -179,13 +183,13 @@ export default function ListCarForm() {
             onChange={e => setRequiresDeposit(e.target.checked)}
             className="w-4 h-4 accent-green-600"
           />
-          <span className={labelClass}>Require security deposit</span>
+          <span className={labelClass}>{tx.listCarRequireDeposit}</span>
         </label>
         {requiresDeposit && (
           <Input
-            label="Deposit amount (AZN)"
+            label={tx.listCarDepositAmount}
             type="number"
-            placeholder="200"
+            placeholder={tx.listCarDepositPlaceholder}
             value={form.deposit_amount}
             onChange={handleChange('deposit_amount')}
             min="1"
@@ -193,7 +197,7 @@ export default function ListCarForm() {
           />
         )}
         <p className="text-xs text-gray-400">
-          Held from the renter and paid to you if they cancel after confirming or don&apos;t collect the car.
+          {tx.listCarDepositHint}
         </p>
       </div>
 
@@ -206,13 +210,13 @@ export default function ListCarForm() {
             onChange={e => setOffersDelivery(e.target.checked)}
             className="w-4 h-4 accent-green-600"
           />
-          <span className={labelClass}>Offer city delivery</span>
+          <span className={labelClass}>{tx.listCarOfferDelivery}</span>
         </label>
         {offersDelivery && (
           <Input
-            label="Delivery fee (AZN)"
+            label={tx.listCarDeliveryFee}
             type="number"
-            placeholder="20"
+            placeholder={tx.listCarDeliveryFeePlaceholder}
             value={form.delivery_fee}
             onChange={handleChange('delivery_fee')}
             min="0"
@@ -229,13 +233,13 @@ export default function ListCarForm() {
             onChange={e => setOffersAirport(e.target.checked)}
             className="w-4 h-4 accent-green-600"
           />
-          <span className={labelClass}>Offer airport delivery (Heydar Aliyev International)</span>
+          <span className={labelClass}>{tx.listCarOfferAirportDelivery}</span>
         </label>
         {offersAirport && (
           <Input
-            label="Airport delivery fee (AZN)"
+            label={tx.listCarAirportFee}
             type="number"
-            placeholder="40"
+            placeholder={tx.listCarAirportFeePlaceholder}
             value={form.airport_delivery_fee}
             onChange={handleChange('airport_delivery_fee')}
             min="0"
@@ -246,7 +250,7 @@ export default function ListCarForm() {
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <Button type="submit" className="w-full" size="lg" loading={loading}>
-        Publish Listing
+        {tx.listCarPublish}
       </Button>
     </form>
   );

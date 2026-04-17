@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Car } from '@/types';
 import Badge from '@/components/shared/Badge';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface MyCarsProps {
   cars: Car[];
@@ -10,11 +12,13 @@ interface MyCarsProps {
 }
 
 export default function MyCars({ cars, onRefresh }: MyCarsProps) {
+  const { lang } = useLanguage();
+  const tx = translations[lang];
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   async function handleDelete(id: string) {
-    if (!confirm('Are you sure you want to delete this listing?')) return;
+    if (!confirm(tx.dashboardDeleteConfirm)) return;
     setDeletingId(id);
     try {
       const res = await fetch(`/api/cars?id=${id}`, { method: 'DELETE' });
@@ -44,11 +48,11 @@ export default function MyCars({ cars, onRefresh }: MyCarsProps) {
         <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
           <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" className="text-gray-400"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
         </div>
-        <h3 className="font-semibold text-gray-900 mb-1">No listings yet</h3>
-        <p className="text-sm text-gray-500 mb-4">Add your first car to start earning.</p>
+        <h3 className="font-semibold text-gray-900 mb-1">{tx.myCarsNoListings}</h3>
+        <p className="text-sm text-gray-500 mb-4">{tx.myCarsAddFirst}</p>
         <a href="/list-car"
           className="bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl px-5 py-2.5 text-sm transition-colors">
-          List a car
+          {tx.myCarsListCar}
         </a>
       </div>
     );
@@ -79,27 +83,27 @@ export default function MyCars({ cars, onRefresh }: MyCarsProps) {
               </div>
               <Badge
                 variant={car.is_active ? 'green' : 'gray'}
-                label={car.is_active ? 'Available' : 'Hidden'}
+                label={car.is_active ? tx.myCarsAvailable : tx.myCarsHidden}
               />
             </div>
             <div className="flex items-center gap-2 mt-3">
               <a href={`/cars/${car.id}`} target="_blank" rel="noopener noreferrer"
                 className="text-xs font-medium text-gray-600 hover:text-gray-900 border border-gray-200 hover:border-gray-400 rounded-lg px-3 py-1.5 transition-colors">
-                View
+                {tx.myCarsView}
               </a>
               <button
                 onClick={() => handleToggleAvailability(car)}
                 disabled={togglingId === car.id}
                 className="text-xs font-medium text-gray-600 hover:text-gray-900 border border-gray-200 hover:border-gray-400 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
               >
-                {togglingId === car.id ? '...' : car.is_active ? 'Hide' : 'Unhide'}
+                {togglingId === car.id ? '...' : car.is_active ? tx.myCarsHide : tx.myCarsUnhide}
               </button>
               <button
                 onClick={() => handleDelete(car.id)}
                 disabled={deletingId === car.id}
                 className="text-xs font-medium text-red-600 hover:text-red-700 border border-red-200 hover:border-red-400 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50 ml-auto"
               >
-                {deletingId === car.id ? 'Deleting...' : 'Delete'}
+                {deletingId === car.id ? tx.myCarsDeleting : tx.myCarsDelete}
               </button>
             </div>
           </div>
@@ -109,7 +113,7 @@ export default function MyCars({ cars, onRefresh }: MyCarsProps) {
       <a href="/list-car"
         className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-200 hover:border-green-500 hover:text-green-600 text-gray-400 rounded-2xl py-4 text-sm font-medium transition-colors">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-        Add another car
+        {tx.myCarsAddAnother}
       </a>
     </div>
   );

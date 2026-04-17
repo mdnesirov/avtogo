@@ -1,5 +1,9 @@
+'use client';
+
 import { Car } from '@/types';
 import { differenceInCalendarDays } from '@/lib/utils';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 interface BookingSummaryProps {
   car: Car;
@@ -8,6 +12,8 @@ interface BookingSummaryProps {
 }
 
 export default function BookingSummary({ car, startDate, endDate }: BookingSummaryProps) {
+  const { lang } = useLanguage();
+  const tx = translations[lang];
   const nights =
     startDate && endDate
       ? differenceInCalendarDays(new Date(endDate), new Date(startDate))
@@ -18,7 +24,7 @@ export default function BookingSummary({ car, startDate, endDate }: BookingSumma
 
   return (
     <div className="border border-gray-200 rounded-2xl p-5 bg-white">
-      <h3 className="font-semibold text-gray-900 mb-4">Booking Summary</h3>
+      <h3 className="font-semibold text-gray-900 mb-4">{tx.bookingSummaryTitle}</h3>
 
       {/* Car info */}
       <div className="flex gap-3 mb-4 pb-4 border-b border-gray-100">
@@ -39,28 +45,28 @@ export default function BookingSummary({ car, startDate, endDate }: BookingSumma
       {/* Dates */}
       {startDate && endDate ? (
         <div className="flex justify-between text-sm mb-3">
-          <span className="text-gray-600">Rental period</span>
+           <span className="text-gray-600">{tx.bookingSummaryRentalPeriod}</span>
           <span className="font-medium text-gray-900">
             {new Date(startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} –
             {' '}{new Date(endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
           </span>
         </div>
       ) : (
-        <p className="text-sm text-gray-400 mb-3">Select dates to see pricing</p>
+         <p className="text-sm text-gray-400 mb-3">{tx.bookingSummarySelectDates}</p>
       )}
 
       {nights > 0 && (
         <>
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-600">₼{car.price_per_day.toFixed(2)} × {nights} day{nights !== 1 ? 's' : ''}</span>
+             <span className="text-gray-600">₼{car.price_per_day.toFixed(2)} × {nights} {nights !== 1 ? tx.myBookingsDays : tx.myBookingsDay}</span>
             <span className="text-gray-900">₼{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm mb-4 pb-4 border-b border-gray-100">
-            <span className="text-gray-600">Service fee (5%)</span>
+             <span className="text-gray-600">{tx.bookingSummaryServiceFee}</span>
             <span className="text-gray-900">₼{serviceFee.toFixed(2)}</span>
           </div>
           <div className="flex justify-between font-semibold text-gray-900">
-            <span>Total</span>
+             <span>{tx.bookingTotal}</span>
             <span className="text-green-600">₼{total.toFixed(2)}</span>
           </div>
         </>

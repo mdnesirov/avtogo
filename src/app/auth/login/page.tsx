@@ -6,9 +6,13 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
+import { useLanguage } from '@/context/LanguageContext';
+import { translations } from '@/lib/i18n/translations';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { lang } = useLanguage();
+  const tx = translations[lang];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ email: '', password: '' });
@@ -44,20 +48,20 @@ export default function LoginPage() {
             </svg>
             AvtoGo
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-500 text-sm mt-1">Sign in to your account</p>
+          <h1 className="text-2xl font-bold text-gray-900">{tx.loginWelcomeBack}</h1>
+          <p className="text-gray-500 text-sm mt-1">{tx.loginSubtitle}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 bg-white border border-gray-100 rounded-2xl p-6">
-          <Input label="Email" type="email" placeholder="you@example.com" value={form.email} onChange={handleChange('email')} required />
-          <Input label="Password" type="password" placeholder="Your password" value={form.password} onChange={handleChange('password')} required />
+          <Input label={tx.authEmail} type="email" placeholder={tx.authEmailPlaceholder} value={form.email} onChange={handleChange('email')} required />
+          <Input label={tx.authPassword} type="password" placeholder={tx.authPasswordPlaceholder} value={form.password} onChange={handleChange('password')} required />
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button type="submit" className="w-full" size="lg" loading={loading}>Sign in</Button>
+          <Button type="submit" className="w-full" size="lg" loading={loading}>{tx.signInTitle}</Button>
         </form>
 
         <p className="text-center text-sm text-gray-500 mt-4">
-          No account?{' '}
-          <Link href="/auth/signup" className="text-green-600 hover:text-green-700 font-medium">Sign up</Link>
+          {tx.loginNoAccount}{' '}
+          <Link href="/auth/signup" className="text-green-600 hover:text-green-700 font-medium">{tx.authSignUp}</Link>
         </p>
       </div>
     </div>
