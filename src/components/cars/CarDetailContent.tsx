@@ -137,8 +137,8 @@ export default function CarDetailContent({ car }: { car: any }) {
               {car.owner?.whatsapp && (
                 <WhatsAppButton
                   phone={car.owner.whatsapp}
-                   message={`${tx.whatsappDefaultMessage} ${car.brand} ${car.model}.`}
-                 />
+                  message={tx.whatsappCarInterestMessage.replace('{brand}', car.brand ?? '').replace('{model}', car.model ?? '').trim()}
+                />
               )}
             </div>
 

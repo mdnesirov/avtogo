@@ -25,12 +25,13 @@ interface DashboardPageClientProps {
 export default function DashboardPageClient({ displayName, email, stats, cars, pendingCarIds, incomingBookings, myBookings }: DashboardPageClientProps) {
   const { lang } = useLanguage();
   const tx = translations[lang];
+  const greetingName = displayName || tx.dashboardFallbackName;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{tx.dashboardWelcomeBack}, {displayName} 👋</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{tx.dashboardWelcomeBack}, {greetingName} 👋</h1>
           <p className="text-gray-400 text-sm mt-1">{email}</p>
         </div>
         <Link

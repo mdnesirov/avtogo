@@ -102,7 +102,7 @@ export default function ImageUpload({ images, onChange, maxImages = 6 }: ImageUp
             <>
               <Upload size={24} className="text-gray-400" />
                <p className="text-sm font-medium text-gray-600">{tx.imageUploadTapToAdd}</p>
-               <p className="text-xs text-gray-400">JPG, PNG, HEIC (iPhone) · {maxImages}</p>
+               <p className="text-xs text-gray-400">{tx.imageUploadFormats.replace('{count}', String(maxImages))}</p>
             </>
           )}
         </div>
