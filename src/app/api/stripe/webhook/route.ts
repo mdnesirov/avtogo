@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   async function updateBookingStatusBySessionId(
     sessionId: string | null | undefined,
     status: 'confirmed' | 'cancelled' | 'failed'
-  ) {
+  ): Promise<NextResponse | null> {
     if (!sessionId) {
       return NextResponse.json({ error: 'Missing Stripe session id' }, { status: 500 });
     }
@@ -78,10 +78,6 @@ export async function POST(request: NextRequest) {
 
     case 'payment_intent.payment_failed': {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-
-      if (!paymentIntent.id) {
-        return NextResponse.json({ error: 'Missing payment intent id' }, { status: 500 });
-      }
 
       let checkoutSessionId: string | undefined;
       try {
