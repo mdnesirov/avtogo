@@ -1,12 +1,16 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useLanguage } from '@/context/LanguageContext';
 import { Lang } from '@/lib/i18n/types';
+
+const LANGS: Lang[] = ['az', 'ru', 'en'];
+const LANG_LABELS: Record<Lang, string> = { az: 'AZ', ru: 'RU', en: 'EN' };
+const LANG_ARIA: Record<Lang, string> = { az: 'Azerbaijani', ru: 'Russian', en: 'English' };
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,9 +41,7 @@ export default function Navbar() {
         href={href}
         onClick={onClick}
         className={`text-sm font-medium transition-colors ${
-          active
-            ? 'text-green-700'
-            : 'text-gray-600 hover:text-gray-900'
+          active ? 'text-green-700' : 'text-gray-600 hover:text-gray-900'
         }`}
       >
         {label}
@@ -47,27 +49,11 @@ export default function Navbar() {
     );
   };
 
-  const languageButton = useCallback((code: Lang) => (
-    <button
-      key={code}
-      type="button"
-      onClick={() => setLang(code)}
-      aria-label={`Switch to ${code === 'az' ? 'Azerbaijani' : code === 'ru' ? 'Russian' : 'English'}`}
-      className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
-        lang === code
-          ? 'bg-green-700 text-white'
-          : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
-      }`}
-      aria-pressed={lang === code}
-    >
-      {code.toUpperCase()}
-    </button>
-  ), [lang, setLang]);
-
   return (
-    <nav className="bg-[#faf9f6]/95 backdrop-blur-md border-b border-black/[0.06] sticky top-0 z-50">
+    <nav className="bg-[#faf9f6] border-b border-black/[0.06] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
+
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900" style={{fontFamily: 'var(--font-display)'}}>
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="AvtoGo logo">
@@ -85,9 +71,27 @@ export default function Navbar() {
             {navLink('/', 'Home')}
             {navLink('/cars', 'Browse Cars')}
             {navLink('/list-car', 'List Your Car')}
+
+            {/* Language switcher */}
             <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1">
-              {(['az', 'ru', 'en'] as Lang[]).map(languageButton)}
+              {LANGS.map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => setLang(code)}
+                  aria-label={`Switch to ${LANG_ARIA[code]}`}
+                  aria-pressed={lang === code}
+                  className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
+                    lang === code
+                      ? 'bg-green-700 text-white'
+                      : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
+                  }`}
+                >
+                  {LANG_LABELS[code]}
+                </button>
+              ))}
             </div>
+
             {user ? (
               <>
                 <Link
@@ -135,7 +139,22 @@ export default function Navbar() {
             <Link href="/cars" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Browse Cars</Link>
             <Link href="/list-car" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>List Your Car</Link>
             <div className="flex items-center gap-1 py-2">
-              {(['az', 'ru', 'en'] as Lang[]).map(languageButton)}
+              {LANGS.map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => setLang(code)}
+                  aria-label={`Switch to ${LANG_ARIA[code]}`}
+                  aria-pressed={lang === code}
+                  className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
+                    lang === code
+                      ? 'bg-green-700 text-white'
+                      : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
+                  }`}
+                >
+                  {LANG_LABELS[code]}
+                </button>
+              ))}
             </div>
             {user ? (
               <>
