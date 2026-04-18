@@ -38,7 +38,7 @@ export default function Navbar() {
         onClick={onClick}
         className={`text-sm font-medium transition-colors ${
           active
-            ? 'text-green-600'
+            ? 'text-green-700'
             : 'text-gray-600 hover:text-gray-900'
         }`}
       >
@@ -55,7 +55,7 @@ export default function Navbar() {
       aria-label={`Switch to ${code === 'az' ? 'Azerbaijani' : code === 'ru' ? 'Russian' : 'English'}`}
       className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
         lang === code
-          ? 'bg-green-600 text-white'
+          ? 'bg-green-700 text-white'
           : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
       }`}
       aria-pressed={lang === code}
@@ -65,13 +65,13 @@ export default function Navbar() {
   ), [lang, setLang]);
 
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <nav className="bg-[#faf9f6]/95 backdrop-blur-md border-b border-black/[0.06] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900" style={{fontFamily: 'var(--font-display)'}}>
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="AvtoGo logo">
-              <rect width="32" height="32" rx="8" fill="#16a34a" />
+              <rect width="32" height="32" rx="8" fill="#166534" />
               <path d="M6 20l3-7h14l3 7" stroke="white" strokeWidth="2" strokeLinecap="round" />
               <circle cx="10" cy="22" r="2" fill="white" />
               <circle cx="22" cy="22" r="2" fill="white" />
@@ -93,7 +93,7 @@ export default function Navbar() {
                 <Link
                   href="/dashboard"
                   className={`text-sm font-medium flex items-center gap-1 transition-colors ${
-                    pathname === '/dashboard' ? 'text-green-600' : 'text-gray-600 hover:text-gray-900'
+                    pathname === '/dashboard' ? 'text-green-700' : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   <User size={16} /> Dashboard
@@ -110,7 +110,7 @@ export default function Navbar() {
                 <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 text-sm font-medium">Sign in</Link>
                 <Link
                   href="/auth/signup"
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                  className="bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-green-800 transition-all shadow-sm"
                 >
                   Get started
                 </Link>
@@ -130,7 +130,7 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-gray-100 space-y-3">
+          <div className="md:hidden py-4 border-t border-black/[0.06] space-y-3">
             <Link href="/" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Home</Link>
             <Link href="/cars" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Browse Cars</Link>
             <Link href="/list-car" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>List Your Car</Link>
@@ -145,7 +145,7 @@ export default function Navbar() {
             ) : (
               <>
                 <Link href="/auth/login" className="block text-gray-700 py-2 text-sm font-medium" onClick={() => setIsOpen(false)}>Sign in</Link>
-                <Link href="/auth/signup" className="block bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium text-center" onClick={() => setIsOpen(false)}>Get started</Link>
+                <Link href="/auth/signup" className="block bg-green-700 text-white px-4 py-2 rounded-xl text-sm font-semibold text-center" onClick={() => setIsOpen(false)}>Get started</Link>
               </>
             )}
           </div>
