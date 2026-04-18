@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { Lang } from '@/lib/i18n/types';
 
 type LanguageContextValue = {
@@ -19,27 +19,28 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      // Read legacy "lang" key for backward compatibility with older clients.
       const stored = localStorage.getItem('avtogo-lang') ?? localStorage.getItem('lang');
       if (isValidLang(stored)) setLangState(stored);
     } catch {
-      // localStorage may be unavailable in restricted browser environments.
+      // localStorage may be unavailable in some environments
     }
   }, []);
 
-  const setLang = useCallback((nextLang: Lang) => {
+  const setLang = (nextLang: Lang) => {
     setLangState(nextLang);
     try {
       localStorage.setItem('avtogo-lang', nextLang);
       localStorage.setItem('lang', nextLang);
     } catch {
-      // localStorage may be unavailable in restricted browser environments.
+      // ignore
     }
-  }, []);
+  };
 
-  const value = useMemo(() => ({ lang, setLang }), [lang, setLang]);
-
-  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+  return (
+    <LanguageContext.Provider value={{ lang, setLang }}>
+      {children}
+    </LanguageContext.Provider>
+  );
 }
 
 export function useLanguage() {
