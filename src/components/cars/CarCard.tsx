@@ -32,7 +32,7 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
     : 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=80';
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow group">
+    <div className="bg-white border border-black/[0.06] rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group">
       {/* Image */}
       <Link href={`/cars/${car.id}`} className="block relative aspect-[4/3] overflow-hidden bg-gray-100">
         <Image
@@ -58,11 +58,11 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
       <div className="p-4">
         <div className="flex items-start justify-between mb-1">
           <Link href={`/cars/${car.id}`}>
-            <h3 className="font-semibold text-gray-900 hover:text-green-600 transition-colors">
+            <h3 className="font-semibold text-gray-900 hover:text-green-700 transition-colors">
               {car.brand} {car.model}
             </h3>
           </Link>
-          <span className="text-lg font-bold text-green-600">
+          <span className="text-lg font-bold text-green-700">
             {formatPrice(car.price_per_day)}
             <span className="text-xs font-normal text-gray-400">/day</span>
           </span>
@@ -78,7 +78,7 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
 
         <RatingStars rating={car.rating} totalReviews={car.review_count ?? undefined} />
 
-        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50 text-xs text-gray-500">
+        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-black/[0.04] text-xs text-gray-500">
           <span className="flex items-center gap-1">
             <Settings size={12} />
             {car.transmission === 'automatic' ? 'Auto' : 'Manual'}
@@ -90,7 +90,7 @@ export default function CarCard({ car, showOwnerActions, onEdit, onDelete }: Car
         </div>
 
         {showOwnerActions && (
-          <div className="flex gap-2 mt-3 pt-3 border-t border-gray-50">
+          <div className="flex gap-2 mt-3 pt-3 border-t border-black/[0.04]">
             <button
               onClick={() => onEdit?.(car)}
               className="flex-1 text-xs py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
