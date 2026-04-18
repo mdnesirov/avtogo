@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import CarCard from '@/components/cars/CarCard';
 import { Car } from '@/types';
-import { Search, MapPin, Shield, Star } from 'lucide-react';
+import { Search, MapPin, Shield, Star, Clock, ChevronRight, Car as CarIcon } from 'lucide-react';
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -14,27 +14,30 @@ export default async function HomePage() {
     .limit(4);
 
   return (
-    <div>
+    <div className="bg-[#faf9f6]">
+
       {/* Hero */}
-      <section className="bg-gray-900 text-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-20 md:py-28 text-center">
-          <div className="inline-flex items-center gap-2 bg-green-600/20 border border-green-500/30 text-green-400 px-3 py-1 rounded-full text-sm mb-6">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            Now live in Baku
+      <section className="relative overflow-hidden bg-gradient-to-br from-green-950 via-green-900 to-green-800">
+        <div className="absolute inset-0 opacity-[0.04]" style={{backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px'}} />
+
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-20 md:py-28">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-green-200 px-3 py-1.5 rounded-full text-xs font-medium mb-7 backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+            Now live in Baku, Azerbaijan
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            Rent any car in<br />
-            <span className="text-green-400">Azerbaijan</span>
+
+          <h1 className="text-4xl md:text-6xl font-bold leading-[1.1] mb-5 text-white" style={{fontFamily: 'var(--font-display)'}}>
+            Your next drive is<br />
+            <span className="text-green-300">just around the corner</span>
           </h1>
-          <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            Browse cars from local owners and rental companies. Book in minutes, drive today.
+          <p className="text-green-100/80 text-lg md:text-xl max-w-xl mb-10 leading-relaxed">
+            Browse cars from trusted local owners across Azerbaijan. Book in minutes, pick up today.
           </p>
 
-          {/* Search bar */}
-          <form action="/cars" method="GET" className="bg-white rounded-2xl p-2 flex flex-col sm:flex-row gap-2 max-w-2xl mx-auto shadow-xl">
+          <form action="/cars" method="GET" className="bg-white rounded-2xl p-2 flex flex-col sm:flex-row gap-2 max-w-2xl shadow-2xl">
             <div className="flex items-center gap-2 flex-1 px-3">
-              <MapPin size={18} className="text-gray-400 shrink-0" />
-              <select name="location" className="flex-1 py-2.5 text-sm text-gray-900 bg-transparent border-none outline-none">
+              <MapPin size={17} className="text-green-600 shrink-0" />
+              <select name="location" className="flex-1 py-2.5 text-sm text-gray-800 bg-transparent border-none outline-none font-medium">
                 <option value="">All cities</option>
                 <option value="Baku">Baku</option>
                 <option value="Ganja">Ganja</option>
@@ -42,37 +45,39 @@ export default async function HomePage() {
                 <option value="Sheki">Sheki</option>
               </select>
             </div>
-            <div className="hidden sm:block w-px bg-gray-200" />
+            <div className="hidden sm:block w-px bg-gray-100 my-2" />
             <div className="flex items-center gap-2 flex-1 px-3">
-              <span className="text-xs text-gray-400 font-medium">From</span>
-              <input type="date" name="startDate" className="flex-1 py-2.5 text-sm text-gray-900 bg-transparent border-none outline-none" />
+              <span className="text-xs text-gray-400 font-semibold tracking-wide uppercase">From</span>
+              <input type="date" name="startDate" className="flex-1 py-2.5 text-sm text-gray-800 bg-transparent border-none outline-none" />
             </div>
-            <div className="hidden sm:block w-px bg-gray-200" />
+            <div className="hidden sm:block w-px bg-gray-100 my-2" />
             <div className="flex items-center gap-2 flex-1 px-3">
-              <span className="text-xs text-gray-400 font-medium">To</span>
-              <input type="date" name="endDate" className="flex-1 py-2.5 text-sm text-gray-900 bg-transparent border-none outline-none" />
+              <span className="text-xs text-gray-400 font-semibold tracking-wide uppercase">To</span>
+              <input type="date" name="endDate" className="flex-1 py-2.5 text-sm text-gray-800 bg-transparent border-none outline-none" />
             </div>
-            <button
-              type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-medium flex items-center gap-2 text-sm transition-colors"
-            >
-              <Search size={16} /> Search
+            <button type="submit" className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 text-sm transition-all shadow-sm hover:shadow-md">
+              <Search size={15} /> Search
             </button>
           </form>
         </div>
       </section>
 
-      {/* Features strip */}
-      <section className="border-b border-gray-100 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600">
+      {/* Trust strip */}
+      <section className="bg-white border-b border-gray-100">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600">
           {[
-            { icon: Shield, text: 'Verified owners & cars' },
-            { icon: Star, text: 'Rated by real renters' },
-            { icon: MapPin, text: 'Airport delivery available' },
-          ].map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center gap-2 justify-center">
-              <Icon size={16} className="text-green-600" />
-              <span>{text}</span>
+            { icon: Shield, text: 'Verified owners & cars', sub: 'Every listing reviewed' },
+            { icon: Star, text: 'Rated by real renters', sub: 'Honest community reviews' },
+            { icon: MapPin, text: 'Airport delivery', sub: 'Available in Baku' },
+          ].map(({ icon: Icon, text, sub }) => (
+            <div key={text} className="flex items-center gap-3 justify-center">
+              <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+                <Icon size={16} className="text-green-700" />
+              </div>
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">{text}</p>
+                <p className="text-xs text-gray-400">{sub}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -80,13 +85,13 @@ export default async function HomePage() {
 
       {/* Featured cars */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Featured Cars</h2>
-            <p className="text-gray-500 text-sm mt-1">Handpicked vehicles available now</p>
+            <p className="text-xs font-semibold tracking-widest text-green-700 uppercase mb-1">Available now</p>
+            <h2 className="text-2xl font-bold text-gray-900" style={{fontFamily: 'var(--font-display)'}}>Featured Cars</h2>
           </div>
-          <Link href="/cars" className="text-green-600 hover:text-green-700 text-sm font-medium">
-            View all →
+          <Link href="/cars" className="text-sm font-semibold text-green-700 hover:text-green-800 flex items-center gap-1">
+            View all <ChevronRight size={14} />
           </Link>
         </div>
 
@@ -97,30 +102,65 @@ export default async function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 text-gray-400">
-            <p className="text-lg">No cars listed yet.</p>
-            <Link href="/list-car" className="text-green-600 hover:text-green-700 text-sm mt-2 inline-block">
-              Be the first to list your car →
+          <div className="text-center py-20 text-gray-400">
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+              <CarIcon size={28} className="text-gray-300" />
+            </div>
+            <p className="text-base font-medium text-gray-500 mb-1">No cars listed yet</p>
+            <p className="text-sm text-gray-400 mb-4">Be the first to list your car on AvtoGo.</p>
+            <Link href="/list-car" className="text-green-700 hover:text-green-800 text-sm font-semibold">
+              List your car →
             </Link>
           </div>
         )}
       </section>
 
-      {/* Owner CTA */}
-      <section className="bg-green-600 text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 text-center">
-          <h2 className="text-3xl font-bold mb-4">Have a car sitting idle?</h2>
-          <p className="text-green-100 text-lg max-w-xl mx-auto mb-8">
-            List it on AvtoGo and earn money whenever it&apos;s not in use. Setup takes under 5 minutes.
-          </p>
-          <Link
-            href="/list-car"
-            className="inline-flex items-center gap-2 bg-white text-green-700 hover:bg-green-50 px-8 py-4 rounded-xl font-semibold transition-colors"
-          >
-            List Your Car Free
-          </Link>
+      {/* How it works */}
+      <section className="bg-white border-y border-gray-100 py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center mb-10">
+          <p className="text-xs font-semibold tracking-widest text-green-700 uppercase mb-2">Simple & fast</p>
+          <h2 className="text-2xl font-bold text-gray-900" style={{fontFamily: 'var(--font-display)'}}>Rent a car in 3 steps</h2>
+        </div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-3 gap-8">
+          {[
+            { step: '01', icon: Search, title: 'Search & filter', desc: 'Find cars by city, date, type, and budget. Hundreds of options across Azerbaijan.' },
+            { step: '02', icon: Clock, title: 'Book instantly', desc: 'Confirm your booking online. No paperwork, no waiting — just a quick confirmation.' },
+            { step: '03', icon: CarIcon, title: 'Pick up & drive', desc: 'Meet the owner or get airport delivery. Keys in hand, hit the road.' },
+          ].map(({ step, icon: Icon, title, desc }) => (
+            <div key={step} className="text-center">
+              <div className="w-12 h-12 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mx-auto mb-4">
+                <Icon size={20} className="text-green-700" />
+              </div>
+              <p className="text-xs font-bold text-green-600 tracking-widest mb-1">{step}</p>
+              <h3 className="font-bold text-gray-900 mb-2">{title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+            </div>
+          ))}
         </div>
       </section>
+
+      {/* Owner CTA */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="bg-gradient-to-br from-green-800 to-green-900 rounded-3xl px-8 py-12 text-center text-white relative overflow-hidden">
+            <div className="absolute inset-0 opacity-[0.05]" style={{backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px'}} />
+            <div className="relative">
+              <p className="text-green-300 text-sm font-semibold tracking-widest uppercase mb-3">Car owners</p>
+              <h2 className="text-3xl font-bold mb-3" style={{fontFamily: 'var(--font-display)'}}>Earn from your car</h2>
+              <p className="text-green-100/80 text-base max-w-md mx-auto mb-8 leading-relaxed">
+                Your car earns money while you don&apos;t need it. Setup takes under 5 minutes — no fees to get started.
+              </p>
+              <Link
+                href="/list-car"
+                className="inline-flex items-center gap-2 bg-white text-green-800 hover:bg-green-50 px-8 py-3.5 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl text-sm"
+              >
+                List Your Car Free <ChevronRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }
