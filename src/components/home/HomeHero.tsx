@@ -14,8 +14,8 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
   return (
     <div className="bg-[#faf9f6]">
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-green-950 via-green-900 to-green-800">
+      {/* Hero — solid dark green, no gradient fade */}
+      <section className="relative overflow-hidden bg-green-950">
         <div
           className="absolute inset-0 opacity-[0.04]"
           style={{
@@ -45,11 +45,12 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
             method="GET"
             className="bg-white rounded-2xl p-2 flex flex-col sm:flex-row gap-2 max-w-2xl shadow-2xl"
           >
-            <div className="flex items-center gap-2 flex-1 px-3">
+            {/* City */}
+            <div className="flex items-center gap-2 min-w-0 flex-1 px-3">
               <MapPin size={17} className="text-green-600 shrink-0" />
               <select
                 name="location"
-                className="flex-1 py-2.5 text-sm text-gray-800 bg-transparent border-none outline-none font-medium"
+                className="flex-1 min-w-0 py-2.5 text-sm text-gray-800 bg-transparent border-none outline-none font-medium"
               >
                 <option value="">{t.homeSearchCity}</option>
                 <option value="Baku">Baku</option>
@@ -58,27 +59,36 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
                 <option value="Sheki">Sheki</option>
               </select>
             </div>
-            <div className="hidden sm:block w-px bg-gray-100 my-2" />
-            <div className="flex items-center gap-2 flex-1 px-3">
-              <span className="text-xs text-gray-400 font-semibold tracking-wide uppercase">{t.homeSearchFrom}</span>
+            <div className="hidden sm:block w-px bg-gray-100 my-2 shrink-0" />
+
+            {/* From date */}
+            <div className="flex items-center gap-2 min-w-0 flex-1 px-3">
+              <span className="text-xs text-gray-400 font-semibold tracking-wide uppercase shrink-0">
+                {t.homeSearchFrom}
+              </span>
               <input
                 type="date"
                 name="startDate"
-                className="flex-1 py-2.5 text-sm text-gray-800 bg-transparent border-none outline-none"
+                className="flex-1 min-w-0 py-2.5 text-sm text-gray-800 bg-transparent border-none outline-none"
               />
             </div>
-            <div className="hidden sm:block w-px bg-gray-100 my-2" />
-            <div className="flex items-center gap-2 flex-1 px-3">
-              <span className="text-xs text-gray-400 font-semibold tracking-wide uppercase">{t.homeSearchTo}</span>
+            <div className="hidden sm:block w-px bg-gray-100 my-2 shrink-0" />
+
+            {/* To date */}
+            <div className="flex items-center gap-2 min-w-0 flex-1 px-3">
+              <span className="text-xs text-gray-400 font-semibold tracking-wide uppercase shrink-0">
+                {t.homeSearchTo}
+              </span>
               <input
                 type="date"
                 name="endDate"
-                className="flex-1 py-2.5 text-sm text-gray-800 bg-transparent border-none outline-none"
+                className="flex-1 min-w-0 py-2.5 text-sm text-gray-800 bg-transparent border-none outline-none"
               />
             </div>
+
             <button
               type="submit"
-              className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 text-sm shadow-sm hover:shadow-md"
+              className="bg-green-700 hover:bg-green-800 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 text-sm shadow-sm hover:shadow-md shrink-0"
             >
               <Search size={15} /> {t.homeSearchBtn}
             </button>
@@ -98,9 +108,10 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
               <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
                 <Icon size={16} className="text-green-700" />
               </div>
-              <div>
-                <p className="font-semibold text-gray-800 text-sm">{text}</p>
-                <p className="text-xs text-gray-400">{sub}</p>
+              {/* min-w-0 prevents text overflow in flex containers */}
+              <div className="min-w-0">
+                <p className="font-semibold text-gray-800 text-sm truncate">{text}</p>
+                <p className="text-xs text-gray-400 truncate">{sub}</p>
               </div>
             </div>
           ))}
@@ -110,10 +121,12 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
       {/* Featured cars */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
         <div className="flex items-end justify-between mb-8">
-          <div>
-            <p className="text-xs font-semibold tracking-widest text-green-700 uppercase mb-1">{t.homeFeaturedLabel}</p>
+          <div className="min-w-0 mr-4">
+            <p className="text-xs font-semibold tracking-widest text-green-700 uppercase mb-1">
+              {t.homeFeaturedLabel}
+            </p>
             <h2
-              className="text-2xl font-bold text-gray-900"
+              className="text-2xl font-bold text-gray-900 truncate"
               style={{ fontFamily: 'var(--font-display)' }}
             >
               {t.homeFeaturedTitle}
@@ -121,7 +134,7 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
           </div>
           <Link
             href="/cars"
-            className="text-sm font-semibold text-green-700 hover:text-green-800 flex items-center gap-1"
+            className="text-sm font-semibold text-green-700 hover:text-green-800 flex items-center gap-1 shrink-0"
           >
             {t.homeFeaturedViewAll} <ChevronRight size={14} />
           </Link>
@@ -150,7 +163,9 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
       {/* How it works */}
       <section className="bg-white border-y border-gray-100 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center mb-10">
-          <p className="text-xs font-semibold tracking-widest text-green-700 uppercase mb-2">{t.homeHowLabel}</p>
+          <p className="text-xs font-semibold tracking-widest text-green-700 uppercase mb-2">
+            {t.homeHowLabel}
+          </p>
           <h2
             className="text-2xl font-bold text-gray-900"
             style={{ fontFamily: 'var(--font-display)' }}
@@ -164,7 +179,7 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
             { step: '02', icon: Clock,   title: t.homeHow2Title, desc: t.homeHow2Desc },
             { step: '03', icon: CarIcon, title: t.homeHow3Title, desc: t.homeHow3Desc },
           ].map(({ step, icon: Icon, title, desc }) => (
-            <div key={step} className="text-center">
+            <div key={step} className="text-center px-2">
               <div className="w-12 h-12 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mx-auto mb-4">
                 <Icon size={20} className="text-green-700" />
               </div>
@@ -176,10 +191,10 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
         </div>
       </section>
 
-      {/* Owner CTA */}
+      {/* Owner CTA — solid color, no gradient */}
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="bg-gradient-to-br from-green-800 to-green-900 rounded-3xl px-8 py-12 text-center text-white relative overflow-hidden">
+          <div className="bg-green-900 rounded-3xl px-8 py-12 text-center text-white relative overflow-hidden">
             <div
               className="absolute inset-0 opacity-[0.05]"
               style={{
@@ -188,7 +203,9 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
               }}
             />
             <div className="relative">
-              <p className="text-green-300 text-sm font-semibold tracking-widest uppercase mb-3">{t.homeCtaLabel}</p>
+              <p className="text-green-300 text-sm font-semibold tracking-widest uppercase mb-3">
+                {t.homeCtaLabel}
+              </p>
               <h2
                 className="text-3xl font-bold mb-3"
                 style={{ fontFamily: 'var(--font-display)' }}
@@ -200,7 +217,7 @@ export default function HomeHero({ featuredCars }: { featuredCars: Car[] | null 
               </p>
               <Link
                 href="/list-car"
-                className="inline-flex items-center gap-2 bg-white text-green-800 hover:bg-green-50 px-8 py-3.5 rounded-xl font-bold shadow-lg hover:shadow-xl text-sm"
+                className="inline-flex items-center gap-2 bg-white text-green-800 hover:bg-green-50 px-8 py-3.5 rounded-xl font-bold shadow-lg hover:shadow-xl text-sm transition-all"
               >
                 {t.homeCtaBtn} <ChevronRight size={16} />
               </Link>
