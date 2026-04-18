@@ -13,7 +13,7 @@
   --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; }
 
 html {
   scroll-behavior: smooth;
@@ -40,15 +40,14 @@ body {
   border-radius: 6px;
 }
 
-/* Scoped transitions — ONLY on interactive elements, ONLY color/bg/shadow/border */
-a {
-  transition: color 160ms cubic-bezier(0.16, 1, 0.3, 1);
-}
+/* Transitions only on interactive elements */
+a { transition: color 160ms cubic-bezier(0.16, 1, 0.3, 1); }
 button {
-  transition: color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-              background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition:
+    color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .line-clamp-1 { overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:1; }
