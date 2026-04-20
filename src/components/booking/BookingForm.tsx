@@ -8,6 +8,8 @@ import { createClient } from '@/lib/supabase/client';
 import Input from '@/components/shared/Input';
 import Button from '@/components/shared/Button';
 import { ShieldAlert, Info } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
+import { Lang } from '@/lib/i18n/types';
 
 interface BookingFormProps {
   car: Car;
@@ -15,8 +17,87 @@ interface BookingFormProps {
   endDate?: string;
 }
 
+const t: Record<Lang, Record<string, string>> = {
+  en: {
+    bookingFailed: 'Booking failed. Please try again.',
+    checkoutFailed: 'Unable to start checkout. Please try again.',
+    unknownError: 'Something went wrong. Please try again.',
+    pickupDate: 'Pick-up date',
+    returnDate: 'Return date',
+    days: 'days',
+    securityDepositRequired: 'Security deposit required:',
+    securityDepositDescription: 'This amount will be held and paid to the owner if you cancel after confirmation or do not show up to collect the car. It is returned to you if you complete the rental as agreed.',
+    continueToDriverInfo: 'Continue to driver info',
+    back: '← Back',
+    fullName: 'Full name',
+    fullNamePlaceholder: 'Your full name',
+    phoneNumber: 'Phone number',
+    phoneNumberPlaceholder: '+994 XX XXX XXXX',
+    driverLicense: 'Driver license #',
+    optional: 'Optional',
+    notes: 'Notes',
+    notesPlaceholder: 'Any special requests...',
+    securityDeposit: 'Security deposit',
+    acknowledgeDeposit: 'I understand that a security deposit of',
+    acknowledgeDepositEnd: 'will be held and forfeited if I cancel after the booking is confirmed or fail to collect the car.',
+    confirmBooking: 'Confirm Booking',
+    depositHandledAtPickup: 'Deposit is handled directly with the owner at pickup',
+  },
+  ru: {
+    bookingFailed: 'Не удалось оформить бронирование. Попробуйте снова.',
+    checkoutFailed: 'Не удалось запустить оплату. Попробуйте снова.',
+    unknownError: 'Что-то пошло не так. Попробуйте снова.',
+    pickupDate: 'Дата получения',
+    returnDate: 'Дата возврата',
+    days: 'дней',
+    securityDepositRequired: 'Требуется залог:',
+    securityDepositDescription: 'Эта сумма удерживается и выплачивается владельцу, если вы отмените после подтверждения или не приедете за автомобилем. При успешной аренде сумма полностью возвращается.',
+    continueToDriverInfo: 'Перейти к данным водителя',
+    back: '← Назад',
+    fullName: 'Полное имя',
+    fullNamePlaceholder: 'Ваше полное имя',
+    phoneNumber: 'Номер телефона',
+    phoneNumberPlaceholder: '+994 XX XXX XXXX',
+    driverLicense: 'Номер водительского удостоверения',
+    optional: 'Необязательно',
+    notes: 'Заметки',
+    notesPlaceholder: 'Особые пожелания...',
+    securityDeposit: 'Залог',
+    acknowledgeDeposit: 'Я понимаю, что залог в размере',
+    acknowledgeDepositEnd: 'будет удержан и не возвращён, если я отменю после подтверждения бронирования или не приеду за автомобилем.',
+    confirmBooking: 'Подтвердить бронирование',
+    depositHandledAtPickup: 'Залог оформляется напрямую с владельцем при получении',
+  },
+  az: {
+    bookingFailed: 'Bron yaratmaq alınmadı. Yenidən cəhd edin.',
+    checkoutFailed: 'Ödənişi başlatmaq alınmadı. Yenidən cəhd edin.',
+    unknownError: 'Xəta baş verdi. Yenidən cəhd edin.',
+    pickupDate: 'Götürmə tarixi',
+    returnDate: 'Qaytarma tarixi',
+    days: 'gün',
+    securityDepositRequired: 'Girov tələb olunur:',
+    securityDepositDescription: 'Bu məbləğ rezervasiya təsdiqlənəndən sonra ləğv etsəniz və ya avtomobili götürməsəniz saxlanılır və sahibə ödənilir. Razılaşdırıldığı kimi kirayəni tamamlasanız sizə geri qaytarılır.',
+    continueToDriverInfo: 'Sürücü məlumatlarına keç',
+    back: '← Geri',
+    fullName: 'Ad, soyad',
+    fullNamePlaceholder: 'Tam adınız',
+    phoneNumber: 'Telefon nömrəsi',
+    phoneNumberPlaceholder: '+994 XX XXX XXXX',
+    driverLicense: 'Sürücülük vəsiqəsi №',
+    optional: 'İstəyə bağlı',
+    notes: 'Qeydlər',
+    notesPlaceholder: 'Xüsusi istəklər...',
+    securityDeposit: 'Girov',
+    acknowledgeDeposit: 'Mən başa düşürəm ki,',
+    acknowledgeDepositEnd: 'məbləğində girov rezervasiya təsdiqləndikdən sonra ləğv etsəm və ya avtomobili götürməsəm saxlanılacaq.',
+    confirmBooking: 'Bronu təsdiqlə',
+    depositHandledAtPickup: 'Girov avtomobil götürülərkən sahib ilə birbaşa həll olunur',
+  },
+};
+
 export default function BookingForm({ car, startDate: propStartDate = '', endDate: propEndDate = '' }: BookingFormProps) {
   const router = useRouter();
+  const { lang } = useLanguage();
   const [step, setStep] = useState<1 | 2>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -37,6 +118,7 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
   const days = form.startDate && form.endDate ? calculateDays(form.startDate, form.endDate) : 0;
   const total = days > 0 ? calculateTotalPrice(car.price_per_day, form.startDate, form.endDate) : 0;
   const hasDeposit = car.requires_deposit && car.deposit_amount && car.deposit_amount > 0;
+  const tx = t[lang];
 
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
@@ -59,20 +141,18 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
           endDate: form.endDate,
           driverName: form.driverName,
           driverPhone: form.driverPhone,
-          driverLicense: form.driverLicense,
-          notes: form.notes,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Booking failed. Please try again.');
-      } else if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+        setError(data?.error || tx.bookingFailed);
+      } else if (data.url) {
+        window.location.href = data.url;
       } else {
-        router.push(`/booking/confirmation?id=${data.booking.id}`);
+        setError(tx.checkoutFailed);
       }
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(tx.unknownError);
     } finally {
       setLoading(false);
     }
@@ -83,15 +163,15 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
       {step === 1 && (
         <>
           <div className="grid grid-cols-2 gap-3">
-            <Input label="Pick-up date" type="date" value={form.startDate} onChange={handleChange('startDate')} min={new Date().toISOString().split('T')[0]} />
-            <Input label="Return date" type="date" value={form.endDate} onChange={handleChange('endDate')} min={form.startDate || new Date().toISOString().split('T')[0]} />
+            <Input label={tx.pickupDate} type="date" value={form.startDate} onChange={handleChange('startDate')} min={new Date().toISOString().split('T')[0]} />
+            <Input label={tx.returnDate} type="date" value={form.endDate} onChange={handleChange('endDate')} min={form.startDate || new Date().toISOString().split('T')[0]} />
           </div>
 
           {days > 0 && (
             <div className="space-y-2">
               <div className="bg-green-50 border border-green-100 rounded-xl p-3 text-sm">
                 <div className="flex justify-between text-gray-600">
-                  <span>{formatPrice(car.price_per_day)} &times; {days} days</span>
+                  <span>{formatPrice(car.price_per_day)} &times; {days} {tx.days}</span>
                   <span className="font-semibold text-gray-900">{formatPrice(total)}</span>
                 </div>
               </div>
@@ -103,10 +183,10 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
                     <ShieldAlert size={15} className="text-amber-500 mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-xs font-semibold text-amber-800">
-                        Security deposit required: {formatPrice(car.deposit_amount!)}
+                        {tx.securityDepositRequired} {formatPrice(car.deposit_amount!)}
                       </p>
                       <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-                        This amount will be held and paid to the owner if you cancel after confirmation or do not show up to collect the car. It is returned to you if you complete the rental as agreed.
+                        {tx.securityDepositDescription}
                       </p>
                     </div>
                   </div>
@@ -116,21 +196,21 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
           )}
 
           <Button className="w-full" size="lg" disabled={days <= 0} onClick={() => setStep(2)}>
-            Continue to driver info
+            {tx.continueToDriverInfo}
           </Button>
         </>
       )}
 
       {step === 2 && (
         <>
-          <button onClick={() => setStep(1)} className="text-sm text-gray-400 hover:text-gray-600 mb-1">&larr; Back</button>
-          <Input label="Full name" placeholder="Your full name" value={form.driverName} onChange={handleChange('driverName')} required />
-          <Input label="Phone number" type="tel" placeholder="+994 XX XXX XXXX" value={form.driverPhone} onChange={handleChange('driverPhone')} required />
-          <Input label="Driver license #" placeholder="Optional" value={form.driverLicense} onChange={handleChange('driverLicense')} />
+          <button onClick={() => setStep(1)} className="text-sm text-gray-400 hover:text-gray-600 mb-1">{tx.back}</button>
+          <Input label={tx.fullName} placeholder={tx.fullNamePlaceholder} value={form.driverName} onChange={handleChange('driverName')} required />
+          <Input label={tx.phoneNumber} type="tel" placeholder={tx.phoneNumberPlaceholder} value={form.driverPhone} onChange={handleChange('driverPhone')} required />
+          <Input label={tx.driverLicense} placeholder={tx.optional} value={form.driverLicense} onChange={handleChange('driverLicense')} />
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Notes</label>
+            <label className="text-sm font-medium text-gray-700">{tx.notes}</label>
             <textarea
-              placeholder="Any special requests..."
+              placeholder={tx.notesPlaceholder}
               value={form.notes}
               onChange={handleChange('notes')}
               rows={2}
@@ -143,12 +223,12 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
           {/* Price summary */}
           <div className="bg-gray-50 rounded-xl p-3 text-sm space-y-1.5">
             <div className="flex justify-between text-gray-500">
-              <span>{formatPrice(car.price_per_day)} &times; {days} days</span>
+              <span>{formatPrice(car.price_per_day)} &times; {days} {tx.days}</span>
               <span className="font-semibold text-gray-900">{formatPrice(total)}</span>
             </div>
             {hasDeposit && (
               <div className="flex justify-between text-amber-700 border-t border-gray-200 pt-1.5">
-                <span className="flex items-center gap-1"><ShieldAlert size={12} /> Security deposit</span>
+                <span className="flex items-center gap-1"><ShieldAlert size={12} /> {tx.securityDeposit}</span>
                 <span className="font-semibold">{formatPrice(car.deposit_amount!)}</span>
               </div>
             )}
@@ -164,7 +244,7 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
                 className="mt-0.5 w-4 h-4 accent-amber-500 flex-shrink-0"
               />
               <p className="text-xs text-amber-800 leading-relaxed">
-                I understand that a <strong>{formatPrice(car.deposit_amount!)}</strong> security deposit will be held and forfeited if I cancel after the booking is confirmed or fail to collect the car.
+                {tx.acknowledgeDeposit} <strong>{formatPrice(car.deposit_amount!)}</strong> {tx.acknowledgeDepositEnd}
               </p>
             </label>
           )}
@@ -176,12 +256,12 @@ export default function BookingForm({ car, startDate: propStartDate = '', endDat
             disabled={hasDeposit ? !depositAcknowledged : false}
             onClick={handleSubmit}
           >
-            Confirm Booking
+            {tx.confirmBooking}
           </Button>
 
           {hasDeposit && (
             <p className="text-xs text-gray-400 text-center flex items-center justify-center gap-1">
-              <Info size={11} /> Deposit is handled directly with the owner at pickup
+              <Info size={11} /> {tx.depositHandledAtPickup}
             </p>
           )}
         </>

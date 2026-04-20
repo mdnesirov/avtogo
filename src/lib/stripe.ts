@@ -28,10 +28,19 @@ export async function createCheckoutSession({
   successUrl: string;
   cancelUrl: string;
 }) {
+  const successUrlObj = new URL(successUrl);
+  if (!successUrlObj.searchParams.has('booking_id')) {
+    successUrlObj.searchParams.set('booking_id', bookingId);
+  }
+  if (!successUrlObj.searchParams.has('session_id')) {
+    successUrlObj.searchParams.set('session_id', '{CHECKOUT_SESSION_ID}');
+  }
+
   if (!stripe) {
+    successUrlObj.searchParams.set('mock', 'true');
     return {
       id: `mock_session_${bookingId}`,
-      url: `${successUrl}?booking_id=${bookingId}&mock=true`,
+      url: successUrlObj.toString(),
     };
   }
 
@@ -52,7 +61,7 @@ export async function createCheckoutSession({
       },
     ],
     mode: 'payment',
-    success_url: `${successUrl}?booking_id=${bookingId}&session_id={CHECKOUT_SESSION_ID}`,
+    success_url: successUrlObj.toString(),
     cancel_url: cancelUrl,
     metadata: {
       booking_id: bookingId,
