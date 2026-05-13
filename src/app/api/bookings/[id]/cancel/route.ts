@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { captureDepositHold } from '@/lib/stripe';
+import { captureDepositHold, releaseDepositHold } from '@/lib/stripe';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
@@ -32,25 +32,43 @@ export async function PATCH(
     return NextResponse.json({ error: 'Booking cannot be cancelled in its current state' }, { status: 400 });
   }
 
-  const { error } = await supabase
+  // Fix #5: Guard against race conditions — only update if status hasn't changed
+  const { count, error } = await supabase
     .from('bookings')
     .update({
       status: 'cancelled',
       cancelled_at: new Date().toISOString(),
       cancelled_by: isOwner ? 'owner' : 'renter',
     })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('status', booking.status) // only update if status is still what we read
+    .select('id', { count: 'exact', head: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // If the owner cancels a confirmed booking that has a deposit hold, capture it
-  // (owner keeps the deposit as compensation for the cancellation)
+  // count === 0 means another request already changed the status — treat as conflict
+  if (!count || count === 0) {
+    return NextResponse.json(
+      { error: 'Booking status changed concurrently. Please refresh and try again.' },
+      { status: 409 }
+    );
+  }
+
+  // Fix #1: Renter cancel — release deposit so card isn't frozen
+  if (isRenter && booking.deposit_payment_intent_id) {
+    try {
+      await releaseDepositHold(booking.deposit_payment_intent_id);
+    } catch (stripeErr) {
+      console.error('[cancel] deposit release (renter) failed:', stripeErr);
+    }
+  }
+
+  // Owner cancels a confirmed booking — capture deposit as compensation
   if (isOwner && booking.status === 'confirmed' && booking.deposit_payment_intent_id) {
     try {
       await captureDepositHold(booking.deposit_payment_intent_id);
     } catch (stripeErr) {
-      // Log but don't fail — the booking is already cancelled in the DB
-      console.error('[cancel] failed to capture deposit hold:', stripeErr);
+      console.error('[cancel] deposit capture (owner) failed:', stripeErr);
     }
   }
 

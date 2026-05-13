@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { createCheckoutSession, createDepositHold } from '@/lib/stripe';
+import { createCheckoutSession } from '@/lib/stripe';
 import { calculateDays, calculateTotalPrice } from '@/lib/utils';
 import { rateLimit } from '@/lib/rateLimit';
 
@@ -118,9 +118,12 @@ export async function POST(request: NextRequest) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     let checkoutUrl: string | null = null;
     let sessionId:   string | null = null;
-    let depositPaymentIntentId: string | null = null;
 
     try {
+      // Fix #2: Do NOT create deposit hold here — car hasn't paid yet.
+      // Deposit hold is created inside checkout.session.completed webhook
+      // after payment is confirmed, so there's no risk of freezing funds
+      // on an abandoned checkout.
       const checkoutSession = await createCheckoutSession({
         carName:    `${car.brand} ${car.model} ${car.year}`,
         pricePerDay: car.price_per_day,
@@ -129,26 +132,16 @@ export async function POST(request: NextRequest) {
         bookingId:  booking.id,
         successUrl: `${appUrl}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl:  `${appUrl}/cars/${carId}`,
+        // Pass deposit_amount in metadata so webhook can create the hold post-payment
+        depositAmount: car.deposit_amount ?? 0,
       });
 
       checkoutUrl = checkoutSession.url;
       sessionId   = checkoutSession.id;
 
-      if (car.deposit_amount && car.deposit_amount > 0) {
-        const depositIntent = await createDepositHold({
-          depositAmount: car.deposit_amount,
-          bookingId:     booking.id,
-          carName:       `${car.brand} ${car.model} ${car.year}`,
-        });
-        depositPaymentIntentId = depositIntent.id;
-      }
-
       await supabase
         .from('bookings')
-        .update({
-          stripe_session_id: sessionId,
-          ...(depositPaymentIntentId && { deposit_payment_intent_id: depositPaymentIntentId }),
-        })
+        .update({ stripe_session_id: sessionId })
         .eq('id', booking.id);
 
     } catch (stripeError) {

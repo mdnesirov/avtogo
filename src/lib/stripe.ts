@@ -19,6 +19,7 @@ export async function createCheckoutSession({
   bookingId,
   successUrl,
   cancelUrl,
+  depositAmount = 0,
 }: {
   carName: string;
   pricePerDay: number;
@@ -27,6 +28,7 @@ export async function createCheckoutSession({
   bookingId: string;
   successUrl: string;
   cancelUrl: string;
+  depositAmount?: number;
 }) {
   if (!stripe) {
     return {
@@ -56,13 +58,16 @@ export async function createCheckoutSession({
     cancel_url: cancelUrl,
     metadata: {
       booking_id: bookingId,
+      // Fix #2 & #4: Pass deposit amount in session metadata so the
+      // checkout.session.completed webhook can create the hold post-payment
+      deposit_amount: String(depositAmount),
     },
   });
 
   return session;
 }
 
-// Creates a deposit hold — money is authorised but NOT charged until captured
+// Fix #4: booking_id added to metadata for full traceability in Stripe dashboard + webhooks
 export async function createDepositHold({
   depositAmount,
   bookingId,
@@ -82,7 +87,7 @@ export async function createDepositHold({
     capture_method: 'manual',
     description: `Security deposit — AvtoGo: ${carName}`,
     metadata: {
-      booking_id: bookingId,
+      booking_id: bookingId,  // Fix #4: always include booking_id
       type: 'deposit_hold',
     },
   });
