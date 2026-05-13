@@ -4,6 +4,7 @@ import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { HtmlLangSync } from '@/components/layout/HtmlLangSync';
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -34,9 +35,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${bricolage.variable}`}>
+    // Default lang="az" — HtmlLangSync will update it client-side
+    <html lang="az" className={`${jakarta.variable} ${bricolage.variable}`}>
       <body>
         <LanguageProvider>
+          {/* Syncs <html lang> to LanguageContext on every lang change */}
+          <HtmlLangSync />
           <Navbar />
           <main className="min-h-screen">{children}</main>
           <Footer />

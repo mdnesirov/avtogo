@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createCheckoutSession, createDepositHold } from '@/lib/stripe';
 import { calculateDays, calculateTotalPrice } from '@/lib/utils';
+import { rateLimit } from '@/lib/rateLimit';
 
 // Basic string sanitiser — trims whitespace and enforces a max length
 function sanitizeString(value: unknown, maxLength: number): string {
@@ -9,7 +10,21 @@ function sanitizeString(value: unknown, maxLength: number): string {
   return value.trim().slice(0, maxLength);
 }
 
+function getIp(req: NextRequest): string {
+  return (
+    req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+    req.headers.get('x-real-ip') ??
+    'unknown'
+  );
+}
+
 export async function POST(request: NextRequest) {
+  // 10 booking attempts per IP per minute
+  const { allowed } = rateLimit(getIp(request), 'POST:/api/bookings', { limit: 10 });
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const { carId, startDate, endDate } = body;
@@ -154,6 +169,12 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  // 30 reads per IP per minute
+  const { allowed } = rateLimit(getIp(request), 'GET:/api/bookings', { limit: 30 });
+  if (!allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
+  }
+
   try {
     const supabase = await createClient();
 

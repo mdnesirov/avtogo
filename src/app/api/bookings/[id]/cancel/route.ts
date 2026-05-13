@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { captureDepositHold } from '@/lib/stripe';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function PATCH(
@@ -13,7 +14,7 @@ export async function PATCH(
 
   const { data: booking } = await supabase
     .from('bookings')
-    .select('id, user_id, status, car:cars(owner_id)')
+    .select('id, user_id, status, deposit_payment_intent_id, car:cars(owner_id)')
     .eq('id', id)
     .single();
 
@@ -41,6 +42,17 @@ export async function PATCH(
     .eq('id', id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // If the owner cancels a confirmed booking that has a deposit hold, capture it
+  // (owner keeps the deposit as compensation for the cancellation)
+  if (isOwner && booking.status === 'confirmed' && booking.deposit_payment_intent_id) {
+    try {
+      await captureDepositHold(booking.deposit_payment_intent_id);
+    } catch (stripeErr) {
+      // Log but don't fail — the booking is already cancelled in the DB
+      console.error('[cancel] failed to capture deposit hold:', stripeErr);
+    }
+  }
 
   return NextResponse.json({ success: true });
 }
