@@ -32,8 +32,8 @@ export async function PATCH(
     return NextResponse.json({ error: 'Booking cannot be cancelled in its current state' }, { status: 400 });
   }
 
-  // Fix #5: Guard against race conditions — only update if status hasn't changed
-  const { count, error } = await supabase
+  // Guard against race conditions — only update if status hasn't changed since we read it
+  const { data: updated, error } = await supabase
     .from('bookings')
     .update({
       status: 'cancelled',
@@ -41,20 +41,20 @@ export async function PATCH(
       cancelled_by: isOwner ? 'owner' : 'renter',
     })
     .eq('id', id)
-    .eq('status', booking.status) // only update if status is still what we read
-    .select('id', { count: 'exact', head: true });
+    .eq('status', booking.status)
+    .select('id');
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // count === 0 means another request already changed the status — treat as conflict
-  if (!count || count === 0) {
+  // No rows updated means another request already changed the status — treat as conflict
+  if (!updated || updated.length === 0) {
     return NextResponse.json(
       { error: 'Booking status changed concurrently. Please refresh and try again.' },
       { status: 409 }
     );
   }
 
-  // Fix #1: Renter cancel — release deposit so card isn't frozen
+  // Renter cancel — release deposit so card isn't frozen
   if (isRenter && booking.deposit_payment_intent_id) {
     try {
       await releaseDepositHold(booking.deposit_payment_intent_id);
