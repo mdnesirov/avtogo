@@ -1,32 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 import { createCheckoutSession, createDepositHold } from '@/lib/stripe';
 import { calculateDays, calculateTotalPrice } from '@/lib/utils';
 
-type CookieToSet = { name: string; value: string; options?: Record<string, unknown> };
-
-function makeSupabase(cookieStore: Awaited<ReturnType<typeof cookies>>) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll(); },
-        setAll(cookiesToSet: CookieToSet[]) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options as Parameters<typeof cookieStore.set>[2])
-          );
-        },
-      },
-    }
-  );
+// Basic string sanitiser — trims whitespace and enforces a max length
+function sanitizeString(value: unknown, maxLength: number): string {
+  if (typeof value !== 'string') return '';
+  return value.trim().slice(0, maxLength);
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { carId, startDate, endDate, driverName, driverPhone, driverLicense, notes } = body;
+    const { carId, startDate, endDate } = body;
+
+    // Sanitise all free-text inputs before they touch the DB
+    const driverName    = sanitizeString(body.driverName,    120);
+    const driverPhone   = sanitizeString(body.driverPhone,    30);
+    const driverLicense = sanitizeString(body.driverLicense, 60);
+    const notes         = sanitizeString(body.notes,         500);
 
     if (!carId || !startDate || !endDate || !driverName || !driverPhone) {
       return NextResponse.json(
@@ -40,8 +32,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'End date must be after start date' }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
-    const supabase = makeSupabase(cookieStore);
+    const supabase = await createClient();
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -90,16 +81,16 @@ export async function POST(request: NextRequest) {
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .insert({
-        user_id: user.id,
-        car_id: carId,
-        start_date: startDate,
-        end_date: endDate,
-        total_price: totalPrice,
-        status: 'pending',
-        driver_name: driverName,
-        driver_phone: driverPhone,
+        user_id:        user.id,
+        car_id:         carId,
+        start_date:     startDate,
+        end_date:       endDate,
+        total_price:    totalPrice,
+        status:         'pending',
+        driver_name:    driverName,
+        driver_phone:   driverPhone,
         driver_license: driverLicense || null,
-        notes: notes || null,
+        notes:          notes || null,
       })
       .select()
       .single();
@@ -111,29 +102,28 @@ export async function POST(request: NextRequest) {
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     let checkoutUrl: string | null = null;
-    let sessionId: string | null = null;
+    let sessionId:   string | null = null;
     let depositPaymentIntentId: string | null = null;
 
     try {
       const checkoutSession = await createCheckoutSession({
-        carName: `${car.brand} ${car.model} ${car.year}`,
+        carName:    `${car.brand} ${car.model} ${car.year}`,
         pricePerDay: car.price_per_day,
         totalDays,
         totalPrice,
-        bookingId: booking.id,
+        bookingId:  booking.id,
         successUrl: `${appUrl}/booking/confirmation?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${appUrl}/cars/${carId}`,
+        cancelUrl:  `${appUrl}/cars/${carId}`,
       });
 
       checkoutUrl = checkoutSession.url;
-      sessionId = checkoutSession.id;
+      sessionId   = checkoutSession.id;
 
-      // Create deposit hold if the car has one set
       if (car.deposit_amount && car.deposit_amount > 0) {
         const depositIntent = await createDepositHold({
           depositAmount: car.deposit_amount,
-          bookingId: booking.id,
-          carName: `${car.brand} ${car.model} ${car.year}`,
+          bookingId:     booking.id,
+          carName:       `${car.brand} ${car.model} ${car.year}`,
         });
         depositPaymentIntentId = depositIntent.id;
       }
@@ -145,8 +135,15 @@ export async function POST(request: NextRequest) {
           ...(depositPaymentIntentId && { deposit_payment_intent_id: depositPaymentIntentId }),
         })
         .eq('id', booking.id);
+
     } catch (stripeError) {
-      console.error('[bookings] stripe error:', stripeError);
+      // Stripe failed — rollback the booking so the user isn't left with a ghost pending row
+      console.error('[bookings] stripe error, rolling back booking:', stripeError);
+      await supabase.from('bookings').delete().eq('id', booking.id);
+      return NextResponse.json(
+        { error: 'Payment setup failed. Please try again.' },
+        { status: 502 }
+      );
     }
 
     return NextResponse.json({ booking, checkoutUrl, sessionId });
@@ -158,8 +155,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const supabase = makeSupabase(cookieStore);
+    const supabase = await createClient();
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
