@@ -1,8 +1,10 @@
 import { createServerClient } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 type CookieToSet = { name: string; value: string; options?: Record<string, unknown> };
 
+/** Cookie-aware client — use in Server Components, Route Handlers, Server Actions */
 export async function createClient() {
   const cookieStore = await cookies();
 
@@ -25,5 +27,20 @@ export async function createClient() {
         },
       },
     }
+  );
+}
+
+/**
+ * Service-role client — bypasses RLS.
+ * ONLY use in trusted server contexts (webhooks, background jobs).
+ * Never expose to the client or use in user-facing routes.
+ */
+export function createServiceClient() {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
+  }
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 }

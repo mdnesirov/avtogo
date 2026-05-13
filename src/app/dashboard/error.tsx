@@ -10,23 +10,20 @@ export default function DashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[dashboard] page error:', error);
+    console.error('[DashboardError]', error);
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="text-center max-w-md">
-        <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-        <p className="text-gray-500 mb-6 text-sm">
-          We couldn&apos;t load your dashboard. Please try again.
-        </p>
-        <button
-          onClick={reset}
-          className="bg-green-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
-        >
-          Try again
-        </button>
-      </div>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-20 text-center">
+      <div className="text-4xl mb-4">📋</div>
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard failed to load</h2>
+      <p className="text-gray-500 text-sm mb-6">We couldn\'t load your bookings or listings. Try refreshing.</p>
+      <button
+        onClick={reset}
+        className="bg-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-green-800 transition-colors"
+      >
+        Refresh
+      </button>
     </div>
   );
 }
