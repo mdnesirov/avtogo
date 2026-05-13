@@ -1,53 +1,92 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Trim + hard cap on string length to prevent oversized payloads
+function sanitizeString(value: unknown, maxLength: number): string {
+  if (typeof value !== 'string') return '';
+  return value.trim().slice(0, maxLength);
+}
+
+function sanitizeNumber(value: unknown, min: number, max: number): number | null {
+  const n = Number(value);
+  if (isNaN(n) || n < min || n > max) return null;
+  return n;
+}
+
+const VALID_TRANSMISSIONS = ['automatic', 'manual'] as const;
+const VALID_FUEL_TYPES    = ['petrol', 'diesel', 'electric', 'hybrid', 'lpg'] as const;
+const VALID_CAR_TYPES     = ['sedan', 'suv', 'hatchback', 'minivan', 'coupe', 'convertible', 'truck', 'van', 'pickup', 'wagon'] as const;
+
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const {
-    brand, model, year, car_type, transmission,
-    fuel_type, price_per_day, location, city, description,
-    images, whatsapp_phone,
-    requires_deposit, deposit_amount,
-    offers_delivery, delivery_fee,
-    offers_airport_delivery, airport_delivery_fee,
-  } = body;
 
-  // Build and trim car_name from brand + model + year
-  const car_name = `${(brand || '').trim()} ${(model || '').trim()} ${year || ''}`.trim();
+  // Sanitise every string field — trim whitespace and cap length
+  const brand       = sanitizeString(body.brand,       60);
+  const model       = sanitizeString(body.model,       60);
+  const location    = sanitizeString(body.location,    120);
+  const city        = sanitizeString(body.city,        80);
+  const description = sanitizeString(body.description, 2000);
+  const whatsappPhone = sanitizeString(body.whatsapp_phone, 30);
 
-  if (!car_name || !brand?.trim() || !model?.trim() || !year || !transmission || !fuel_type || !price_per_day || !location) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+  const year         = sanitizeNumber(body.year,          1950, new Date().getFullYear() + 1);
+  const pricePerDay  = sanitizeNumber(body.price_per_day, 1, 100000);
+  const depositAmt   = body.requires_deposit && body.deposit_amount
+    ? sanitizeNumber(body.deposit_amount, 0, 1000000)
+    : null;
+  const deliveryFee  = body.offers_delivery && body.delivery_fee
+    ? sanitizeNumber(body.delivery_fee, 0, 100000)
+    : null;
+  const airportFee   = body.offers_airport_delivery && body.airport_delivery_fee
+    ? sanitizeNumber(body.airport_delivery_fee, 0, 100000)
+    : null;
+
+  // Validate enums against known-good values
+  const transmission = VALID_TRANSMISSIONS.includes(body.transmission) ? body.transmission : null;
+  const fuel_type    = VALID_FUEL_TYPES.includes(body.fuel_type)       ? body.fuel_type    : null;
+  const car_type     = VALID_CAR_TYPES.includes(body.car_type)         ? body.car_type     : null;
+
+  // Images must be an array of strings (URLs) — cap at 20 images, 500 chars each
+  const images: string[] = Array.isArray(body.images)
+    ? body.images
+        .filter((img: unknown) => typeof img === 'string')
+        .map((img: string) => img.trim().slice(0, 500))
+        .slice(0, 20)
+    : [];
+
+  const car_name = `${brand} ${model} ${year ?? ''}`.trim();
+
+  if (!brand || !model || !year || !transmission || !fuel_type || !pricePerDay || !location) {
+    return NextResponse.json({ error: 'Missing or invalid required fields' }, { status: 400 });
   }
 
   const { data, error } = await supabase
     .from('cars')
     .insert({
-      owner_id: user.id,
+      owner_id:   user.id,
       car_name,
-      brand: brand.trim(),
-      model: model.trim(),
-      year: Number(year),
-      car_type: car_type || null,
+      brand,
+      model,
+      year,
+      car_type:   car_type   || null,
       transmission,
       fuel_type,
-      price_per_day: Number(price_per_day),
+      price_per_day: pricePerDay,
       location,
-      city: city || null,
+      city:       city       || null,
       description: description || null,
-      images: images || [],
-      // Keep legacy airport_delivery column in sync
-      airport_delivery: offers_airport_delivery || false,
-      whatsapp_phone: whatsapp_phone || null,
-      requires_deposit: requires_deposit || false,
-      deposit_amount: requires_deposit && deposit_amount ? Number(deposit_amount) : null,
-      offers_delivery: offers_delivery || false,
-      delivery_fee: offers_delivery && delivery_fee ? Number(delivery_fee) : null,
-      offers_airport_delivery: offers_airport_delivery || false,
-      airport_delivery_fee: offers_airport_delivery && airport_delivery_fee ? Number(airport_delivery_fee) : null,
+      images,
+      airport_delivery:          body.offers_airport_delivery || false,
+      whatsapp_phone:            whatsappPhone || null,
+      requires_deposit:          body.requires_deposit          || false,
+      deposit_amount:            depositAmt,
+      offers_delivery:           body.offers_delivery           || false,
+      delivery_fee:              deliveryFee,
+      offers_airport_delivery:   body.offers_airport_delivery   || false,
+      airport_delivery_fee:      airportFee,
     })
     .select()
     .single();
