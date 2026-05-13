@@ -34,9 +34,17 @@ export async function GET(
     const { id } = await params;
     const supabase = await createClient();
 
+    // Check if the requester is authenticated
+    const { data: { user } } = await supabase.auth.getUser();
+
     const { data: car, error } = await supabase
       .from('cars')
-      .select('*, owner:profiles(id, full_name, phone, whatsapp)')
+      // Only return phone/whatsapp to authenticated users — those fields are
+      // sensitive contact info that should not be exposed to anonymous visitors.
+      .select(user
+        ? '*, owner:profiles(id, full_name, phone, whatsapp)'
+        : '*, owner:profiles(id, full_name)'
+      )
       .eq('id', id)
       .single();
 
@@ -101,6 +109,21 @@ export async function DELETE(
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+
+    // Block deletion if there are any pending/paid/confirmed bookings on this car
+    const { data: activeBookings } = await supabase
+      .from('bookings')
+      .select('id')
+      .eq('car_id', id)
+      .in('status', ['pending', 'paid', 'confirmed'])
+      .limit(1);
+
+    if (activeBookings && activeBookings.length > 0) {
+      return NextResponse.json(
+        { error: 'Cannot delete a car with active bookings. Cancel or complete them first.' },
+        { status: 409 }
+      );
+    }
 
     const { error } = await supabase
       .from('cars')

@@ -12,7 +12,10 @@ export async function PATCH(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { status } = await req.json();
-  if (!['confirmed', 'rejected'].includes(status)) {
+
+  // Owners may only reject — 'confirmed' is set exclusively by the Stripe webhook
+  // after successful payment. Allowing owners to manually confirm would bypass payment.
+  if (!['rejected'].includes(status)) {
     return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
   }
 

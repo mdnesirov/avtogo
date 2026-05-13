@@ -1,6 +1,23 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
+// In-memory rate limiter (resets on cold start — swap for Upstash Redis pre-launch)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 5;      // max 5 listings per IP
+const WINDOW_MS  = 60_000; // per 60 seconds
+
+function rateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
 // Trim + hard cap on string length to prevent oversized payloads
 function sanitizeString(value: unknown, maxLength: number): string {
   if (typeof value !== 'string') return '';
@@ -18,6 +35,12 @@ const VALID_FUEL_TYPES    = ['petrol', 'diesel', 'electric', 'hybrid', 'lpg'] as
 const VALID_CAR_TYPES     = ['sedan', 'suv', 'hatchback', 'minivan', 'coupe', 'convertible', 'truck', 'van', 'pickup', 'wagon'] as const;
 
 export async function POST(req: NextRequest) {
+  // Rate limit by IP
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  if (!rateLimit(ip)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -1,7 +1,9 @@
 import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
+// Correctly merges Tailwind classes — e.g. cn('p-4', 'p-8') → 'p-8' (last wins)
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs)
+  return twMerge(clsx(inputs))
 }
 
 export function formatPrice(amount: number, currency = 'AZN') {
