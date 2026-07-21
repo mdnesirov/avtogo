@@ -1,12 +1,36 @@
-import { getMapEmbedUrl, getMapsLink } from '@/lib/maps';
-
 interface MapEmbedProps {
   location: string;
 }
 
 export default function MapEmbed({ location }: MapEmbedProps) {
-  const embedUrl = getMapEmbedUrl(location);
-  const mapsLink = getMapsLink(location);
+  const normalizedLocation = location?.trim();
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  const mapsLink = normalizedLocation
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(normalizedLocation)}`
+    : '';
+
+  if (!normalizedLocation) {
+    return (
+      <div className="rounded-xl overflow-hidden border border-gray-100 p-4 bg-gray-50">
+        <p className="text-sm text-gray-600">Pickup location unavailable</p>
+      </div>
+    );
+  }
+
+  if (!apiKey) {
+    const unavailableMessage =
+      process.env.NODE_ENV === 'production'
+        ? 'Map is currently unavailable.'
+        : 'Map is unavailable: missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY.';
+
+    return (
+      <div className="rounded-xl overflow-hidden border border-gray-100 p-4 bg-gray-50">
+        <p className="text-sm text-gray-600">{unavailableMessage}</p>
+      </div>
+    );
+  }
+
+  const embedUrl = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(normalizedLocation)}&zoom=14`;
 
   return (
     <div className="rounded-xl overflow-hidden border border-gray-100">
@@ -18,10 +42,10 @@ export default function MapEmbed({ location }: MapEmbedProps) {
         allowFullScreen
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
-        title={`Map of ${location}`}
+        title={`Map of ${normalizedLocation}`}
       />
       <div className="p-3 bg-gray-50 flex items-center justify-between">
-        <span className="text-sm text-gray-600">{location}, Azerbaijan</span>
+        <span className="text-sm text-gray-600">{normalizedLocation}, Azerbaijan</span>
         <a
           href={mapsLink}
           target="_blank"
